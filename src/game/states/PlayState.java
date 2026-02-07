@@ -7,28 +7,25 @@ import java.awt.Graphics2D;
 
 import game.core.GameState;
 import game.GameCanvas;
-import game.core.EntityManager;
 
 public class PlayState extends GameState {
 
-  private EntityManager entityManager;
-
   public PlayState() {
-    stateName = "play";
+    super();
 
-    entityManager = new EntityManager();
+    stateName = "play";
   }
 
   public void fixedUpdate() {
-    entityManager.fixedUpdate();
+    nodeManager.fixedUpdate();
   }
 
   public void update() {
-    entityManager.update();
+    nodeManager.update();
   }
 
   public void render(Graphics2D g, float alpha) {
-    entityManager.render(g, alpha);
+    nodeManager.render(g, alpha);
 
     g.setFont(new Font("Arial", Font.BOLD, 24));
     g.setColor(Color.BLACK);

@@ -1,4 +1,4 @@
-package game.core.node;
+package game.core.audio;
 
 import javax.sound.sampled.*;
 

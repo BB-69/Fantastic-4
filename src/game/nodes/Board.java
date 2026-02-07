@@ -1,6 +1,8 @@
 package game.nodes;
 
-public class Board {
+import game.core.node.Node;
+
+public class Board extends Node {
   public static final int ROWS = 6;
   public static final int COLS = 7;
 
@@ -8,6 +10,10 @@ public class Board {
   // 0 = empty, 1 = player1, 2 = player2
 
   private int[] lastDroppedPos = new int[2];
+
+  @Override
+  public void update() {
+  }
 
   boolean dropPiece(int col, int player) {
     if (col < 0 || col >= COLS)

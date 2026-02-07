@@ -4,8 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 
+import game.core.graphics.Sprite;
 import game.core.node.Entity;
-import game.core.node.Sprite;
 import game.input.KeyInput;
 import game.input.MouseInput;
 import game.util.Time;

@@ -3,7 +3,13 @@ package game.core;
 import java.awt.Graphics2D;
 
 public abstract class GameState {
+
   protected String stateName;
+  protected NodeManager nodeManager;
+
+  public GameState() {
+    nodeManager = new NodeManager();
+  }
 
   public String getStateName() {
     return stateName;

@@ -1,6 +1,8 @@
 package game.nodes;
 
-public class BoardManager {
+import game.core.node.Node;
+
+public class BoardManager extends Node {
 
   private Board board;
   private int currentPlayer;
@@ -9,6 +11,10 @@ public class BoardManager {
   public BoardManager() {
     board = new Board();
     currentPlayer = 1;
+  }
+
+  @Override
+  public void update() {
   }
 
   public void handleMove(int column) {
