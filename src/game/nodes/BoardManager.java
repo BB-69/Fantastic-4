@@ -1,6 +1,7 @@
 package game.nodes;
 
 import game.core.node.Node;
+import game.util.Log;
 
 public class BoardManager extends Node {
 
@@ -17,26 +18,35 @@ public class BoardManager extends Node {
   public void update() {
   }
 
-  public void handleMove(int column) {
+  public boolean handleMove(int column) {
     if (gameOver)
-      return;
+      return false;
 
-    boolean success = board.dropPiece(column, currentPlayer);
-    if (!success)
-      return;
+    if (!board.dropPiece(column, currentPlayer)) {
+      printState("Column full!");
+      return false;
+    }
 
     int[] pos = board.getlastDroppedPos();
 
+    printState(String.format("Dropped at R%dC%d", Board.ROWS - pos[0], pos[1] + 1));
+
     if (board.checkWin(pos[0], pos[1], currentPlayer)) {
       gameOver = true;
-      System.out.println("Player " + currentPlayer + " wins!");
-      return;
+      printState("Wins!");
+      return true;
     }
 
     switchTurn();
+    return true;
   }
 
   private void switchTurn() {
     currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    Log.logInfo("Next -> P" + currentPlayer);
+  }
+
+  private void printState(String s) {
+    Log.logInfo(String.format("P%d - %s", currentPlayer, s));
   }
 }

@@ -6,10 +6,10 @@ public class Board extends Node {
   public static final int ROWS = 6;
   public static final int COLS = 7;
 
-  private int[][] grid = new int[ROWS][COLS];
+  private final int[][] grid = new int[ROWS][COLS];
   // 0 = empty, 1 = player1, 2 = player2
 
-  private int[] lastDroppedPos = new int[2];
+  private final int[] lastDroppedPos = new int[2];
 
   @Override
   public void update() {
@@ -22,6 +22,8 @@ public class Board extends Node {
     for (int row = ROWS - 1; row >= 0; row--) {
       if (grid[row][col] == 0) {
         grid[row][col] = player;
+        lastDroppedPos[0] = row;
+        lastDroppedPos[1] = col;
         return true;
       }
     }
