@@ -1,5 +1,7 @@
 package game.nodes;
 
+import java.awt.Graphics2D;
+
 import game.core.node.Node;
 
 public class Board extends Node {
@@ -13,6 +15,14 @@ public class Board extends Node {
 
   @Override
   public void update() {
+  }
+
+  @Override
+  public void fixedUpdate() {
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
   }
 
   boolean dropPiece(int col, int player) {

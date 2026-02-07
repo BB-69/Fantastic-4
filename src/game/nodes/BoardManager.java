@@ -1,5 +1,7 @@
 package game.nodes;
 
+import java.awt.Graphics2D;
+
 import game.core.node.Node;
 import game.util.Log;
 
@@ -16,6 +18,14 @@ public class BoardManager extends Node {
 
   @Override
   public void update() {
+  }
+
+  @Override
+  public void fixedUpdate() {
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
   }
 
   public boolean handleMove(int column) {
