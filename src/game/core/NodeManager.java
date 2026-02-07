@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.core.node.Entity;
 import game.core.node.Node;
 
 public class NodeManager {
@@ -21,10 +20,8 @@ public class NodeManager {
 
   public void fixedUpdate() {
     for (Node n : nodes) {
-      if (n.isActive() && n instanceof Entity) {
-        Entity e = (Entity) n;
-        e.fixedUpdate();
-      }
+      if (n.isActive())
+        n.fixedUpdate();
     }
   }
 
@@ -40,10 +37,8 @@ public class NodeManager {
 
   public void render(Graphics2D g, float alpha) {
     for (Node n : nodes) {
-      if (n.isActive() && n instanceof Entity) {
-        Entity e = (Entity) n;
-        e.render(g, alpha);
-      }
+      if (n.isActive())
+        n.render(g, alpha);
     }
   }
 

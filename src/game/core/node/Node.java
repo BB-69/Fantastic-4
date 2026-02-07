@@ -6,8 +6,8 @@ public abstract class Node {
 
   private boolean isActive = true;
 
-  protected float x, y;
-  protected float prevX, prevY;
+  protected float x = 0f, y = 0f;
+  protected float prevX = 0f, prevY = 0f;
 
   protected void setIsActive(boolean isActive) {
     this.isActive = isActive;
@@ -25,4 +25,9 @@ public abstract class Node {
   }
 
   public abstract void render(Graphics2D g, float alpha);
+
+  public void setPosition(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
 }

@@ -15,9 +15,15 @@ public abstract class GameState {
     return stateName;
   }
 
-  public abstract void fixedUpdate();
+  public void fixedUpdate() {
+    nodeManager.fixedUpdate();
+  }
 
-  public abstract void update();
+  public void update() {
+    nodeManager.update();
+  }
 
-  public abstract void render(Graphics2D g, float alpha);
+  public void render(Graphics2D g, float alpha) {
+    nodeManager.render(g, alpha);
+  }
 }

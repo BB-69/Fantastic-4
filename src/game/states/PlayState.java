@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 
 import game.core.GameState;
 import game.nodes.BoardManager;
+import game.nodes.TestArea;
 import game.GameCanvas;
 
 public class PlayState extends GameState {
@@ -26,18 +27,15 @@ public class PlayState extends GameState {
     bmn.handleMove(3);
     bmn.handleMove(3);
     bmn.handleMove(4);
+
+    TestArea a = new TestArea();
+    // a.setRotation((float) Math.PI / 4);
+    nodeManager.addNode(a);
   }
 
-  public void fixedUpdate() {
-    nodeManager.fixedUpdate();
-  }
-
-  public void update() {
-    nodeManager.update();
-  }
-
+  @Override
   public void render(Graphics2D g, float alpha) {
-    nodeManager.render(g, alpha);
+    super.render(g, alpha);
 
     g.setFont(new Font("Arial", Font.BOLD, 24));
     g.setColor(Color.BLACK);
