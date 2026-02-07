@@ -7,12 +7,12 @@ import game.util.Log;
 
 public class BoardManager extends Node {
 
-  private Board board;
+  private BoardLogic boardl;
   private int currentPlayer;
   private boolean gameOver;
 
   public BoardManager() {
-    board = new Board();
+    boardl = new BoardLogic();
     currentPlayer = 1;
   }
 
@@ -32,16 +32,16 @@ public class BoardManager extends Node {
     if (gameOver)
       return false;
 
-    if (!board.dropPiece(column, currentPlayer)) {
+    if (!boardl.dropPiece(column, currentPlayer)) {
       printState("Column full!");
       return false;
     }
 
-    int[] pos = board.getlastDroppedPos();
+    int[] pos = boardl.getlastDroppedPos();
 
-    printState(String.format("Dropped at R%dC%d", Board.ROWS - pos[0], pos[1] + 1));
+    printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
 
-    if (board.checkWin(pos[0], pos[1], currentPlayer)) {
+    if (boardl.checkWin(pos[0], pos[1], currentPlayer)) {
       gameOver = true;
       printState("Wins!");
       return true;

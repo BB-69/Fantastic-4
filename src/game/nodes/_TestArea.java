@@ -7,9 +7,9 @@ import java.awt.geom.AffineTransform;
 import game.GameCanvas;
 import game.core.node.Area;
 
-public class TestArea extends Area {
+public class _TestArea extends Area {
 
-  public TestArea() {
+  public _TestArea() {
     setPosition(GameCanvas.WIDTH / 2, GameCanvas.HEIGHT / 2);
     setSize(GameCanvas.WIDTH / 2, GameCanvas.HEIGHT / 2);
   }
