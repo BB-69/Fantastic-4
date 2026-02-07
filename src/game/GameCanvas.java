@@ -12,6 +12,6 @@ public class GameCanvas extends Canvas {
   public GameCanvas() {
     setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setFocusable(true);
-    setBackground(Color.BLACK);
+    setBackground(Color.WHITE);
   }
 }

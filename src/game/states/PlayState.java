@@ -2,12 +2,11 @@ package game.states;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import game.core.GameState;
-import game.entities.Player;
+import game.GameCanvas;
 import game.core.EntityManager;
 
 public class PlayState extends GameState {
@@ -17,8 +16,7 @@ public class PlayState extends GameState {
   public PlayState() {
     stateName = "play";
 
-    entityManager = new EntityManager(new ArrayList<>(Arrays.asList(
-        new Player(0, 0))));
+    entityManager = new EntityManager();
   }
 
   public void fixedUpdate() {
@@ -33,8 +31,13 @@ public class PlayState extends GameState {
     entityManager.render(g, alpha);
 
     g.setFont(new Font("Arial", Font.BOLD, 24));
-    g.setColor(Color.WHITE);
+    g.setColor(Color.BLACK);
 
-    g.drawString("Hello World!", 10, 35);
+    FontMetrics fm = g.getFontMetrics();
+    String text = "Connect 4";
+
+    g.drawString(text,
+        (GameCanvas.WIDTH - fm.stringWidth(text)) / 2,
+        fm.getHeight() / 2 + fm.getAscent());
   }
 }
