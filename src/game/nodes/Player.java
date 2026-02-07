@@ -1,4 +1,4 @@
-package game.entities;
+package game.nodes;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
