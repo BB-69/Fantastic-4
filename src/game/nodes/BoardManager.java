@@ -3,17 +3,31 @@ package game.nodes;
 import java.awt.Graphics2D;
 
 import game.core.node.Node;
+import game.core.signal.Signal;
 import game.util.Log;
 
 public class BoardManager extends Node {
 
   private BoardLogic boardl;
+  private Board board;
   private int currentPlayer;
-  private boolean gameOver;
+  private boolean gameOver = false;
+
+  private Signal signalRCVal = new Signal();
+  private Signal signalCurP = new Signal();
+  private Signal signalGameOver = new Signal();
 
   public BoardManager() {
+    signalRCVal.connect(board::onRCVal);
+    signalCurP.connect(board::onCurP);
+    signalGameOver.connect(board::onGameOver);
+
     boardl = new BoardLogic();
+    board = new Board();
     currentPlayer = 1;
+
+    signalCurP.emit(currentPlayer);
+    signalGameOver.emit(false);
   }
 
   @Override
@@ -38,11 +52,13 @@ public class BoardManager extends Node {
     }
 
     int[] pos = boardl.getlastDroppedPos();
+    signalRCVal.emit(pos[0], pos[1], currentPlayer);
 
     printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
 
     if (boardl.checkWin(pos[0], pos[1], currentPlayer)) {
       gameOver = true;
+      signalGameOver.emit();
       printState("Wins!");
       return true;
     }
@@ -53,6 +69,7 @@ public class BoardManager extends Node {
 
   private void switchTurn() {
     currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    signalCurP.emit(currentPlayer);
     Log.logInfo("Next -> P" + currentPlayer);
   }
 

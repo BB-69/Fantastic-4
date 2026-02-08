@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 
 import game.core.GameState;
 import game.nodes.BoardManager;
-import game.nodes.board.BoardPiece;
 import game.GameCanvas;
 
 public class PlayState extends GameState {
@@ -19,18 +18,6 @@ public class PlayState extends GameState {
 
     BoardManager bmn = new BoardManager();
     nodeManager.addNode(bmn);
-
-    bmn.handleMove(1);
-    bmn.handleMove(1);
-    bmn.handleMove(2);
-    bmn.handleMove(2);
-    bmn.handleMove(3);
-    bmn.handleMove(3);
-    bmn.handleMove(4);
-
-    BoardPiece p = new BoardPiece(0, 0, 50);
-    p.setPosition(GameCanvas.WIDTH / 2, GameCanvas.HEIGHT / 2);
-    nodeManager.addNode(p);
   }
 
   @Override
