@@ -1,4 +1,4 @@
-package game.nodes;
+package game.nodes.board;
 
 import java.awt.Graphics2D;
 
@@ -40,6 +40,7 @@ public class BoardManager extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
+    board.render(g, alpha);
   }
 
   public boolean handleMove(int column) {

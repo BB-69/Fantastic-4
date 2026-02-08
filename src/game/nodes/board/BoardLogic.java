@@ -1,4 +1,4 @@
-package game.nodes;
+package game.nodes.board;
 
 import java.awt.Graphics2D;
 

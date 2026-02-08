@@ -6,7 +6,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 import game.core.GameState;
-import game.nodes.BoardManager;
+import game.nodes.board.BoardManager;
 import game.GameCanvas;
 
 public class PlayState extends GameState {
