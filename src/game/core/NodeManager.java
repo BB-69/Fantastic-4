@@ -1,6 +1,7 @@
 package game.core;
 
 import java.awt.Graphics2D;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +43,18 @@ public class NodeManager {
   }
 
   public void addNode(Node n) {
-    toAdd.get(n.getLayer()).add(n);
+    int layer = n.getLayer();
+    if (toAdd.containsKey(layer))
+      toAdd.get(layer).add(n);
+    else
+      toAdd.put(layer, Arrays.asList(n));
   }
 
   public void removeNode(Node n) {
-    toRemove.get(n.getLayer()).add(n);
+    int layer = n.getLayer();
+    if (toRemove.containsKey(layer))
+      toRemove.get(layer).add(n);
+    else
+      toRemove.put(layer, Arrays.asList(n));
   }
 }

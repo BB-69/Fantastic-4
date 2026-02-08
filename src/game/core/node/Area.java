@@ -12,6 +12,13 @@ public abstract class Area extends Node implements CanRotate {
   protected float rotation = 0f;
   protected float rotationVelocity = 0f;
 
+  public Area() {
+  }
+
+  public Area(Node parent) {
+    super(parent);
+  }
+
   @Override
   public void fixedUpdate() {
     super.fixedUpdate();
@@ -40,8 +47,8 @@ public abstract class Area extends Node implements CanRotate {
   public boolean isMouseInside() {
     // Translate mouse to area center
     Point mousePos = MouseInput.getPosition();
-    float dx = mousePos.x - x;
-    float dy = mousePos.y - y;
+    float dx = mousePos.x - getWorldX();
+    float dy = mousePos.y - getWorldY();
 
     // Un-rotate the point
     float cos = (float) Math.cos(-rotation);
@@ -54,5 +61,4 @@ public abstract class Area extends Node implements CanRotate {
     return Math.abs(localX) <= w * 0.5f &&
         Math.abs(localY) <= h * 0.5f;
   }
-
 }

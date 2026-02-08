@@ -33,5 +33,4 @@ public class _TestArea extends Area {
 
     g.setTransform(old);
   }
-
 }

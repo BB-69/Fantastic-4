@@ -8,23 +8,26 @@ import game.util.Log;
 
 public class BoardManager extends Node {
 
-  private BoardLogic boardl;
-  private Board board;
-  private int currentPlayer;
+  private BoardLogic boardl = new BoardLogic();
+  private Board board = new Board();
+  private ColumnBoard colBoard = new ColumnBoard();
+
+  private int currentPlayer = 1;
   private boolean gameOver = false;
 
   private Signal signalRCVal = new Signal();
   private Signal signalCurP = new Signal();
   private Signal signalGameOver = new Signal();
 
+  private Signal signalBoardPos = new Signal();
+
   public BoardManager() {
     signalRCVal.connect(board::onRCVal);
     signalCurP.connect(board::onCurP);
     signalGameOver.connect(board::onGameOver);
 
-    boardl = new BoardLogic();
-    board = new Board();
-    currentPlayer = 1;
+    signalBoardPos.connect(colBoard::onBoardPos);
+    board.attachPosSignal(signalBoardPos);
 
     signalCurP.emit(currentPlayer);
     signalGameOver.emit(false);
@@ -36,11 +39,14 @@ public class BoardManager extends Node {
 
   @Override
   public void fixedUpdate() {
+    board.fixedUpdate();
+    colBoard.fixedUpdate();
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
     board.render(g, alpha);
+    colBoard.render(g, alpha);
   }
 
   public boolean handleMove(int column) {
