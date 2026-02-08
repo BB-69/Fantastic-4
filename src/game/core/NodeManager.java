@@ -1,23 +1,22 @@
 package game.core;
 
 import java.awt.Graphics2D;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 
 import game.core.node.Node;
 
 public class NodeManager {
   private LayerManager layerManager = new LayerManager();
-  private HashMap<Integer, List<Node>> toAdd = new HashMap<>();
-  private HashMap<Integer, List<Node>> toRemove = new HashMap<>();
+  private HashMap<Integer, HashSet<Node>> toAdd = new HashMap<>();
+  private HashMap<Integer, HashSet<Node>> toRemove = new HashMap<>();
 
   public NodeManager() {
   }
 
-  public NodeManager(HashMap<Integer, List<Node>> entries) {
-    for (Map.Entry<Integer, List<Node>> e : entries.entrySet()) {
+  public NodeManager(HashMap<Integer, HashSet<Node>> entries) {
+    for (Map.Entry<Integer, HashSet<Node>> e : entries.entrySet()) {
       layerManager.getOrCreateLayer(e.getKey()).add(e.getValue());
     }
   }
@@ -28,10 +27,10 @@ public class NodeManager {
 
   public void update() {
     layerManager.update();
-    for (Map.Entry<Integer, List<Node>> e : toRemove.entrySet()) {
+    for (Map.Entry<Integer, HashSet<Node>> e : toRemove.entrySet()) {
       layerManager.getOrCreateLayer(e.getKey()).remove(e.getValue());
     }
-    for (Map.Entry<Integer, List<Node>> e : toAdd.entrySet()) {
+    for (Map.Entry<Integer, HashSet<Node>> e : toAdd.entrySet()) {
       layerManager.getOrCreateLayer(e.getKey()).add(e.getValue());
     }
     toRemove.clear();
@@ -43,18 +42,24 @@ public class NodeManager {
   }
 
   public void addNode(Node n) {
-    int layer = n.getLayer();
-    if (toAdd.containsKey(layer))
-      toAdd.get(layer).add(n);
-    else
-      toAdd.put(layer, Arrays.asList(n));
+    for (Node node : getNodeRecursive(n, new HashSet<>())) {
+      int layer = node.getLayer();
+      toAdd.computeIfAbsent(layer, k -> new HashSet<>()).add(node);
+    }
   }
 
   public void removeNode(Node n) {
     int layer = n.getLayer();
-    if (toRemove.containsKey(layer))
-      toRemove.get(layer).add(n);
-    else
-      toRemove.put(layer, Arrays.asList(n));
+    toRemove.computeIfAbsent(layer, k -> new HashSet<>()).add(n);
+  }
+
+  private HashSet<Node> getNodeRecursive(Node n, HashSet<Node> children) {
+    children.add(n);
+
+    for (Node child : n.getChildren()) {
+      getNodeRecursive(child, children);
+    }
+
+    return children;
   }
 }

@@ -19,6 +19,7 @@ public class BoardLogic extends Node {
 
   @Override
   public void fixedUpdate() {
+    super.fixedUpdate();
   }
 
   @Override

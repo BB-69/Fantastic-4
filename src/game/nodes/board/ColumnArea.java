@@ -30,7 +30,7 @@ public class ColumnArea extends Area {
     if (selected) {
       AffineTransform old = g.getTransform();
 
-      g.translate(x, y);
+      g.translate(getWorldX(), getWorldY());
       g.rotate(rotation);
       g.setColor(Color.cyan);
       g.fillRect(

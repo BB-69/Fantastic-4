@@ -22,6 +22,10 @@ public class BoardManager extends Node {
   private Signal signalBoardPos = new Signal();
 
   public BoardManager() {
+    boardl.setParent(this);
+    board.setParent(this);
+    colBoard.setParent(this);
+
     signalRCVal.connect(board::onRCVal);
     signalCurP.connect(board::onCurP);
     signalGameOver.connect(board::onGameOver);
@@ -39,14 +43,14 @@ public class BoardManager extends Node {
 
   @Override
   public void fixedUpdate() {
+    super.fixedUpdate();
+
     board.fixedUpdate();
     colBoard.fixedUpdate();
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
-    board.render(g, alpha);
-    colBoard.render(g, alpha);
   }
 
   public boolean handleMove(int column) {
