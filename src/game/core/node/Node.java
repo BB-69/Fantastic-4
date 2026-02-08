@@ -6,6 +6,8 @@ public abstract class Node {
 
   private boolean isActive = true;
 
+  protected int layer = 0;
+
   protected float x = 0f, y = 0f;
   protected float prevX = 0f, prevY = 0f;
 
@@ -15,6 +17,10 @@ public abstract class Node {
 
   public boolean isActive() {
     return isActive;
+  }
+
+  public int getLayer() {
+    return layer;
   }
 
   public abstract void update();

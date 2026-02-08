@@ -1,52 +1,51 @@
 package game.core;
 
 import java.awt.Graphics2D;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import game.core.node.Node;
 
 public class NodeManager {
-  private List<Node> nodes = new ArrayList<>();
-  private List<Node> toAdd = new ArrayList<>();
-  private List<Node> toRemove = new ArrayList<>();
+  private LayerManager layerManager = new LayerManager();
+  private HashMap<Integer, List<Node>> toAdd = new HashMap<>();
+  private HashMap<Integer, List<Node>> toRemove = new HashMap<>();
 
   public NodeManager() {
   }
 
-  public NodeManager(List<Node> nList) {
-    nodes.addAll(nList);
+  public NodeManager(HashMap<Integer, List<Node>> entries) {
+    for (Map.Entry<Integer, List<Node>> e : entries.entrySet()) {
+      layerManager.getOrCreateLayer(e.getKey()).add(e.getValue());
+    }
   }
 
   public void fixedUpdate() {
-    for (Node n : nodes) {
-      if (n.isActive())
-        n.fixedUpdate();
-    }
+    layerManager.fixedUpdate();
   }
 
   public void update() {
-    for (Node n : nodes)
-      if (n.isActive())
-        n.update();
-    nodes.addAll(toAdd);
-    nodes.removeAll(toRemove);
-    toAdd.clear();
+    layerManager.update();
+    for (Map.Entry<Integer, List<Node>> e : toRemove.entrySet()) {
+      layerManager.getOrCreateLayer(e.getKey()).remove(e.getValue());
+    }
+    for (Map.Entry<Integer, List<Node>> e : toAdd.entrySet()) {
+      layerManager.getOrCreateLayer(e.getKey()).add(e.getValue());
+    }
     toRemove.clear();
+    toAdd.clear();
   }
 
   public void render(Graphics2D g, float alpha) {
-    for (Node n : nodes) {
-      if (n.isActive())
-        n.render(g, alpha);
-    }
+    layerManager.render(g, alpha);
   }
 
   public void addNode(Node n) {
-    toAdd.add(n);
+    toAdd.get(n.getLayer()).add(n);
   }
 
   public void removeNode(Node n) {
-    toRemove.add(n);
+    toRemove.get(n.getLayer()).add(n);
   }
 }
