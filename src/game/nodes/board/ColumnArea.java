@@ -5,10 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
-import game.core.node.Area;
+import game.core.node.AreaDetect;
 import game.core.node.Node;
 
-public class ColumnArea extends Area {
+public class ColumnArea extends AreaDetect {
 
   public boolean selected = false;
 
