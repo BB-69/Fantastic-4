@@ -5,13 +5,13 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
-import game.core.node.AreaDetect;
+import game.core.node.Area;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.input.MouseInput;
 import game.nodes.coin.Coin;
 
-public class ColumnArea extends AreaDetect {
+public class ColumnArea extends Area {
 
   private int index = 0;
   public boolean selected = false;

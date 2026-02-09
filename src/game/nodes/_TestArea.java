@@ -5,9 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
-import game.core.node.AreaDetect;
+import game.core.node.Area;
 
-public class _TestArea extends AreaDetect {
+public class _TestArea extends Area {
 
   public _TestArea() {
     setPosition(GameCanvas.WIDTH / 2, GameCanvas.HEIGHT / 2);
