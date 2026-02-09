@@ -8,9 +8,9 @@ import game.input.MouseInput;
 public final class Engine {
 
   public static void fixedUpdate() {
-    KeyInput.update();
-    MouseInput.update();
     StateManager.fixedUpdate();
+    KeyInput.fixedUpdate();
+    MouseInput.fixedUpdate();
   }
 
   public static void update() {

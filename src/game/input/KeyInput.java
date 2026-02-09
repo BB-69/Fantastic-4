@@ -20,7 +20,7 @@ public final class KeyInput implements KeyListener {
 
   /* ===================== FRAME UPDATE ===================== */
 
-  public static void update() {
+  public static void fixedUpdate() {
     System.arraycopy(keys, 0, lastKeys, 0, KEY_COUNT);
   }
 

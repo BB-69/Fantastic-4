@@ -4,9 +4,12 @@ import java.awt.Graphics2D;
 
 import game.core.node.Node;
 import game.core.signal.Signal;
+import game.core.signal.SignedSignal;
 import game.util.Log;
 
 public class BoardManager extends Node {
+
+  private final BoardManager Instance = this;
 
   private BoardLogic boardl = new BoardLogic();
   private Board board = new Board();
@@ -15,26 +18,40 @@ public class BoardManager extends Node {
   private int currentPlayer = 1;
   private boolean gameOver = false;
 
+  private SignedSignal globalSignal;
+
   private Signal signalRCVal = new Signal();
   private Signal signalCurP = new Signal();
   private Signal signalGameOver = new Signal();
 
   private Signal signalBoardPos = new Signal();
 
-  public BoardManager() {
+  private Signal signalColClick = new Signal();
+
+  public BoardManager(SignedSignal globalSignal) {
+    super();
+
+    this.globalSignal = globalSignal;
+
     boardl.setParent(this);
     board.setParent(this);
     colBoard.setParent(this);
 
-    signalRCVal.connect(board::onRCVal);
-    signalCurP.connect(board::onCurP);
-    signalGameOver.connect(board::onGameOver);
+    signalRCVal.connect(board::onRCVal); // signalRCVal
+    signalCurP.connect(board::onCurP); // signalCurP
+    signalCurP.connect(Instance::onCurP);
+    colBoard.attachCurPSignal(signalCurP);
+    signalGameOver.connect(board::onGameOver); // signalGameOver
+    signalGameOver.connect(Instance::onGameOver);
+    colBoard.attachGameOverSignal(signalGameOver);
 
-    signalBoardPos.connect(colBoard::onBoardPos);
+    signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
 
+    signalColClick.connect(Instance::onColClick); // signalColClick
+    colBoard.passColClickSignaller(signalColClick);
+
     signalCurP.emit(currentPlayer);
-    signalGameOver.emit(false);
   }
 
   @Override
@@ -86,5 +103,17 @@ public class BoardManager extends Node {
 
   private void printState(String s) {
     Log.logInfo(String.format("P%d - %s", currentPlayer, s));
+  }
+
+  private void onCurP(Object... args) {
+    globalSignal.emit("currentPlayer", args);
+  }
+
+  private void onGameOver(Object... args) {
+    globalSignal.emit("gameOver", args);
+  }
+
+  private void onColClick(Object... args) {
+    handleMove((int) args[0]);
   }
 }

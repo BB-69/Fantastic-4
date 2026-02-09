@@ -1,13 +1,9 @@
 package game.states;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-
 import game.core.GameState;
+import game.core.signal.SignedSignal;
 import game.nodes.board.BoardManager;
-import game.GameCanvas;
+import game.nodes.ui.play.PlayUIManager;
 
 public class PlayState extends GameState {
 
@@ -16,22 +12,11 @@ public class PlayState extends GameState {
 
     stateName = "play";
 
-    BoardManager bmn = new BoardManager();
-    nodeManager.addNode(bmn);
-  }
+    SignedSignal globalSignal = new SignedSignal();
 
-  @Override
-  public void render(Graphics2D g, float alpha) {
-    super.render(g, alpha);
+    PlayUIManager ui = new PlayUIManager(globalSignal);
+    BoardManager bmn = new BoardManager(globalSignal);
 
-    g.setFont(new Font("Arial", Font.BOLD, 24));
-    g.setColor(Color.BLACK);
-
-    FontMetrics fm = g.getFontMetrics();
-    String text = "Connect 4";
-
-    g.drawString(text,
-        (GameCanvas.WIDTH - fm.stringWidth(text)) / 2,
-        fm.getHeight() / 2 + fm.getAscent());
+    nodeManager.addNode(bmn, ui);
   }
 }

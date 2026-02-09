@@ -13,6 +13,10 @@ public class BoardLogic extends Node {
 
   private final int[] lastDroppedPos = new int[2];
 
+  public BoardLogic() {
+    super();
+  }
+
   @Override
   public void update() {
   }

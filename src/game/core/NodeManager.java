@@ -42,15 +42,26 @@ public class NodeManager {
   }
 
   public void addNode(Node n) {
+    n.setNodeManagerInstance(this);
     for (Node node : getNodeRecursive(n, new HashSet<>())) {
       int layer = node.getLayer();
       toAdd.computeIfAbsent(layer, k -> new HashSet<>()).add(node);
     }
   }
 
+  public void addNode(Node... nodes) {
+    for (Node n : nodes)
+      addNode(n);
+  }
+
   public void removeNode(Node n) {
     int layer = n.getLayer();
     toRemove.computeIfAbsent(layer, k -> new HashSet<>()).add(n);
+  }
+
+  public void removeNode(Node... nodes) {
+    for (Node n : nodes)
+      removeNode(n);
   }
 
   private HashSet<Node> getNodeRecursive(Node n, HashSet<Node> children) {

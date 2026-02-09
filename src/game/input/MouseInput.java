@@ -26,7 +26,7 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   /* ===================== FRAME UPDATE ===================== */
 
-  public static void update() {
+  public static void fixedUpdate() {
     System.arraycopy(buttons, 0, lastButtons, 0, MOUSE_BUTTON_COUNT);
     lastIsAnyDown = isAnyDown;
     lastIsIn = isIn;

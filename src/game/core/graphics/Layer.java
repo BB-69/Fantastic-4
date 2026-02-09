@@ -42,13 +42,11 @@ public class Layer {
   }
 
   public void update() {
-
     for (Node n : nodes) {
       if (n.isActive())
         n.update();
       if (n.getLayer() != index) {
         toRemove.add(n);
-        System.out.println("B");
         signalSendNodeTo.emit(n, index);
       }
     }

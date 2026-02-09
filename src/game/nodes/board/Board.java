@@ -1,7 +1,6 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
 import game.core.node.Node;
@@ -13,14 +12,33 @@ public class Board extends Node {
   public static final float PIECE_HEIGHT = 60f;
 
   private final int[][] gridState = new int[BoardLogic.ROWS][BoardLogic.COLS];
+  private final BoardPiece[][] pieces = new BoardPiece[BoardLogic.ROWS][BoardLogic.COLS];
   private int currentPlayer = 1;
   private boolean gameOver = false;
 
   private Signal signalBoardPos;
 
   public Board() {
+    super();
+
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2 + 60;
+
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      for (int col = 0; col < BoardLogic.COLS; col++) {
+        BoardPiece p = new BoardPiece(
+            gridState[row][col],
+            Board.PIECE_WIDTH,
+            Board.PIECE_HEIGHT);
+
+        p.setPosition(
+            Board.PIECE_WIDTH * (col - ((BoardLogic.COLS - 1) / 2f)),
+            Board.PIECE_HEIGHT * (row - ((BoardLogic.ROWS - 1) / 2f)));
+
+        addChild(p);
+        pieces[row][col] = p;
+      }
+    }
   }
 
   @Override
@@ -37,11 +55,15 @@ public class Board extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
-    drawBoard(g, alpha);
   }
 
   public void onRCVal(Object... args) {
-    this.gridState[(int) args[0]][(int) args[1]] = (int) args[2];
+    int row = (int) args[0];
+    int col = (int) args[1];
+    int val = (int) args[2];
+
+    gridState[row][col] = val;
+    pieces[row][col].setValue(val);
   }
 
   public void onCurP(Object... args) {
@@ -50,23 +72,6 @@ public class Board extends Node {
 
   public void onGameOver(Object... args) {
     this.gameOver = true;
-  }
-
-  private void drawBoard(Graphics2D g, float alpha) {
-    AffineTransform old = g.getTransform();
-
-    g.translate(getWorldX() - Board.PIECE_WIDTH * ((BoardLogic.COLS - 1) / 2f),
-        getWorldY() - Board.PIECE_HEIGHT * ((BoardLogic.ROWS - 1) / 2f));
-
-    for (int row = 0; row < BoardLogic.ROWS; row++) {
-      for (int col = 0; col < BoardLogic.COLS; col++) {
-        BoardPiece p = new BoardPiece(gridState[row][col], Board.PIECE_WIDTH, Board.PIECE_HEIGHT);
-        p.setPosition(Board.PIECE_WIDTH * col, Board.PIECE_HEIGHT * row);
-        p.render(g, alpha);
-      }
-    }
-
-    g.setTransform(old);
   }
 
   public void attachPosSignal(Signal signalBoardPos) {
