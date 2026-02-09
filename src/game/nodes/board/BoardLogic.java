@@ -7,6 +7,7 @@ import game.core.node.Node;
 public class BoardLogic extends Node {
   public static final int ROWS = 6;
   public static final int COLS = 7;
+  public static final int TOTAL_CELL = ROWS * COLS;
 
   private final int[][] grid = new int[ROWS][COLS];
   // 0 = empty, 1 = player1, 2 = player2

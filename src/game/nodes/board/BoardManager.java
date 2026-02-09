@@ -16,6 +16,7 @@ public class BoardManager extends Node {
   private ColumnBoard colBoard = new ColumnBoard();
 
   private int currentPlayer = 1;
+  private int totalDropped = 0;
   private boolean gameOver = false;
 
   private SignedSignal globalSignal;
@@ -79,6 +80,7 @@ public class BoardManager extends Node {
       printState("Column full!");
       return false;
     }
+    totalDropped += 1;
 
     int[] pos = boardl.getlastDroppedPos();
     signalRCVal.emit(pos[0], pos[1], currentPlayer);
@@ -89,6 +91,12 @@ public class BoardManager extends Node {
       gameOver = true;
       signalGameOver.emit();
       printState("Wins!");
+      return true;
+    } else if (totalDropped == BoardLogic.TOTAL_CELL) {
+      signalCurP.emit(3);
+      gameOver = true;
+      signalGameOver.emit();
+      Log.logInfo("Tie!");
       return true;
     }
 
