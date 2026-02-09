@@ -3,6 +3,7 @@ package game.core.graphics;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 
 import game.core.AssetManager;
 
@@ -10,6 +11,7 @@ public class Sprite {
 
   // === DATA ===
   private BufferedImage image;
+  private String name;
 
   public float x, y;
   public float width, height;
@@ -20,9 +22,12 @@ public class Sprite {
   public float alpha = 1f; // 0..1
   public boolean visible = true;
 
+  private boolean colorInverted = false;
+
   // === CONSTRUCTOR ===
   public Sprite(String textureName) {
     image = AssetManager.getTexture(textureName);
+    name = textureName;
     width = image.getWidth();
     height = image.getHeight();
   }
@@ -34,17 +39,17 @@ public class Sprite {
 
   // === RENDER ===
   public void draw(Graphics2D g) {
-    if (!visible || alpha <= 0f)
+    if (!visible || this.alpha <= 0f)
       return;
 
     AffineTransform old = g.getTransform();
     Composite oldComp = g.getComposite();
 
     g.setComposite(AlphaComposite.getInstance(
-        AlphaComposite.SRC_OVER, alpha));
+        AlphaComposite.SRC_OVER, this.alpha));
 
     // Move to sprite center
-    g.translate(x + width / 2, y + height / 2);
+    g.translate(x, y);
     g.rotate(rotation);
 
     // Draw centered
@@ -74,5 +79,44 @@ public class Sprite {
   public void setCenter(float cx, float cy) {
     this.x = cx - width / 2;
     this.y = cy - height / 2;
+  }
+
+  public boolean isColorInverted() {
+    return colorInverted;
+  }
+
+  public void invertColor() {
+    if (colorInverted) {
+      image = AssetManager.getTexture(name);
+      colorInverted = false;
+      return;
+    } else {
+      BufferedImage safeImage = AssetManager.getTextureSafe(name + "-inverted");
+      if (safeImage != null) {
+        image = safeImage;
+        colorInverted = true;
+        return;
+      }
+    }
+
+    BufferedImage copy = new BufferedImage(
+        image.getWidth(),
+        image.getHeight(),
+        BufferedImage.TYPE_INT_ARGB);
+
+    Graphics2D g = copy.createGraphics();
+    g.drawImage(image, 0, 0, null);
+    g.dispose();
+
+    RescaleOp invertFilter = new RescaleOp(
+        new float[] { -1f, -1f, -1f, 1f }, // scale
+        new float[] { 255f, 255f, 255f, 0f }, // offset
+        null);
+
+    invertFilter.filter(copy, copy);
+
+    image = copy;
+    AssetManager.addTexture(name + "-inverted", copy);
+    colorInverted = true;
   }
 }

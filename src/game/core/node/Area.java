@@ -5,14 +5,15 @@ import java.awt.Point;
 import game.core.graphics.CanRotate;
 import game.input.MouseInput;
 
-public abstract class Area extends Node implements CanRotate {
+public abstract class Area extends Entity implements CanRotate {
 
-  protected float w = 0f, h = 0f;
+  public float w = 0f, h = 0f;
   protected float prevW = 0f, prevH = 0f;
-  protected float rotation = 0f;
+  public float rotation = 0f;
   protected float rotationVelocity = 0f;
 
   public Area() {
+    super();
   }
 
   public Area(Node parent) {

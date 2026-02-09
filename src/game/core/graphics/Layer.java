@@ -64,7 +64,6 @@ public class Layer {
   }
 
   public void onSendNodeTo(Object... args) {
-    System.out.println("A");
     if ((int) args[1] == index)
       add((Node) args[0]);
   }

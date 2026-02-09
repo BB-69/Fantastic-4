@@ -32,6 +32,7 @@ public class BoardManager extends Node {
     super();
 
     this.globalSignal = globalSignal;
+    globalSignal.connect(Instance::onGlobalSignal);
 
     boardl.setParent(this);
     board.setParent(this);
@@ -103,6 +104,12 @@ public class BoardManager extends Node {
 
   private void printState(String s) {
     Log.logInfo(String.format("P%d - %s", currentPlayer, s));
+  }
+
+  private void onGlobalSignal(String signalName, Object... args) {
+    switch (signalName) {
+      default:
+    }
   }
 
   private void onCurP(Object... args) {

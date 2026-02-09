@@ -1,5 +1,7 @@
 package game.nodes.ui.play.text;
 
+import java.awt.Color;
+
 import game.core.node.ui.Text;
 
 public class StatusText extends Text {
@@ -34,6 +36,7 @@ public class StatusText extends Text {
       case 1, 2 -> "Player " + currentPlayer + " Wins!";
       default -> "Game Over!";
     };
+    color = Color.RED;
     updateTextMetrics();
   }
 

@@ -183,6 +183,14 @@ public abstract class Node {
     return parent != null ? parent.getWorldY() + y : y;
   }
 
+  public float getPrevWorldX() {
+    return parent != null ? parent.getPrevWorldX() + prevX : prevX;
+  }
+
+  public float getPrevWorldY() {
+    return parent != null ? parent.getPrevWorldY() + prevY : prevY;
+  }
+
   public void setWorldPosition(float worldX, float worldY) {
     setWorldX(worldX);
     setWorldY(worldY);
