@@ -3,15 +3,27 @@ package game.core;
 import java.awt.Graphics2D;
 
 public abstract class GameState {
+
   protected String stateName;
+  protected NodeManager nodeManager;
+
+  public GameState() {
+    nodeManager = new NodeManager();
+  }
 
   public String getStateName() {
     return stateName;
   }
 
-  public abstract void fixedUpdate();
+  public void fixedUpdate() {
+    nodeManager.fixedUpdate();
+  }
 
-  public abstract void update();
+  public void update() {
+    nodeManager.update();
+  }
 
-  public abstract void render(Graphics2D g, float alpha);
+  public void render(Graphics2D g, float alpha) {
+    nodeManager.render(g, alpha);
+  }
 }

@@ -31,6 +31,14 @@ public class AssetManager {
     }
   }
 
+  public static BufferedImage getTextureSafe(String name) {
+    return textures.containsKey(name) ? textures.get(name) : null;
+  }
+
+  public static void addTexture(String name, BufferedImage image) {
+    textures.put(name, image);
+  }
+
   // ===== SOUNDS =====
   public static SoundData getSoundData(String name) {
     if (sounds.containsKey(name))

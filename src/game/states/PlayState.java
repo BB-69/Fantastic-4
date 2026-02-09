@@ -1,40 +1,63 @@
 package game.states;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import game.core.GameState;
-import game.entities.Player;
-import game.core.EntityManager;
+import game.core.signal.SignedSignal;
+import game.nodes.board.BoardManager;
+import game.nodes.ui.play.PlayUIManager;
 
 public class PlayState extends GameState {
 
-  private EntityManager entityManager;
+  private final PlayState Instance = this;
+
+  private boolean pendingRestart = false;
+
+  private SignedSignal globalSignal = new SignedSignal();
+
+  private PlayUIManager ui;
+  private BoardManager bmn;
 
   public PlayState() {
+    super();
+
     stateName = "play";
+    init();
 
-    entityManager = new EntityManager(new ArrayList<>(Arrays.asList(
-        new Player(0, 0))));
+    globalSignal.connect(Instance::onGlobalSignal);
   }
 
-  public void fixedUpdate() {
-    entityManager.fixedUpdate();
+  private void init() {
+    ui = new PlayUIManager(globalSignal);
+    bmn = new BoardManager(globalSignal);
+    nodeManager.addNode(bmn, ui);
   }
 
+  @Override
   public void update() {
-    entityManager.update();
+    super.update();
+
+    if (pendingRestart) {
+      pendingRestart = false;
+      init();
+    }
   }
 
-  public void render(Graphics2D g, float alpha) {
-    entityManager.render(g, alpha);
+  private void restart() {
+    nodeManager.removeNode(bmn, ui);
+    ui.destroyRecursive();
+    bmn.destroyRecursive();
+    pendingRestart = true;
+  }
 
-    g.setFont(new Font("Arial", Font.BOLD, 24));
-    g.setColor(Color.WHITE);
+  private void onGlobalSignal(String signalName, Object... args) {
+    switch (signalName) {
+      case "restart":
+        onRestart(args);
+        break;
+      default:
+    }
+  }
 
-    g.drawString("Hello World!", 10, 35);
+  private void onRestart(Object... args) {
+    restart();
   }
 }
