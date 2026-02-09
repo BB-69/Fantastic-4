@@ -34,6 +34,7 @@ public class StatusText extends Text {
 
     content = switch (currentPlayer) {
       case 1, 2 -> "Player " + currentPlayer + " Wins!";
+      case 3 -> "Game Tie!";
       default -> "Game Over!";
     };
     color = Color.RED;
