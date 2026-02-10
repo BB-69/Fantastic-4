@@ -10,8 +10,8 @@ import game.core.AssetManager;
 public class Sprite {
 
   // === DATA ===
-  private BufferedImage image;
-  private String name;
+  protected BufferedImage image;
+  protected String name;
 
   public float x, y;
   public float width, height;
@@ -26,10 +26,12 @@ public class Sprite {
 
   // === CONSTRUCTOR ===
   public Sprite(String textureName) {
+    if (textureName == null) {
+      return;
+    }
+
     image = AssetManager.getTexture(textureName);
-    name = textureName;
-    width = image.getWidth();
-    height = image.getHeight();
+    setSprite(textureName, image);
   }
 
   // === LOGIC UPDATE ===
@@ -63,6 +65,13 @@ public class Sprite {
 
     g.setTransform(old);
     g.setComposite(oldComp);
+  }
+
+  public void setSprite(String name, BufferedImage image) {
+    this.name = name;
+    this.image = image;
+    width = image.getWidth();
+    height = image.getHeight();
   }
 
   // === HELPERS ===
