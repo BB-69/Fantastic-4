@@ -5,6 +5,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import game.GameCanvas;
+import game.GameCanvas.RenderSize;
+
 public final class MouseInput implements MouseListener, MouseMotionListener {
   private static final int MOUSE_BUTTON_COUNT = 3;
   private static final boolean[] buttons = new boolean[MOUSE_BUTTON_COUNT];
@@ -72,12 +75,37 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
     return !isIn && lastIsIn;
   }
 
-  public static Point getPosition() {
+  public static Point getRawPosition() {
     return position;
   }
 
-  public static Point getLastPosition() {
+  public static Point getLastRawPosition() {
     return lastPosition;
+  }
+
+  private static Point calculateVirtualPosition(Point pos) {
+    Point offset = GameCanvas.getVirtualOffset();
+    float renderScale = GameCanvas.getRenderScale();
+    int vx = (int) ((pos.x - offset.x) / renderScale);
+    int vy = (int) ((pos.y - offset.y) / renderScale);
+    return new Point(vx, vy);
+  }
+
+  public static Point getPosition() {
+    return calculateVirtualPosition(position);
+  }
+
+  public static Point getLastPosition() {
+    return calculateVirtualPosition(lastPosition);
+  }
+
+  public static boolean isInsideGame() {
+    Point offset = GameCanvas.getVirtualOffset();
+    RenderSize render = GameCanvas.getRenderSize();
+    return position.x >= offset.x &&
+        position.y >= offset.y &&
+        position.x < offset.x + render.w &&
+        position.y < offset.y + render.h;
   }
 
   /* ===================== EVENTS ===================== */

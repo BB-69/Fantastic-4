@@ -40,7 +40,7 @@ public class ColumnArea extends Area {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    if (!gameOver && isMouseInside()) {
+    if (!gameOver && selected) {
       if (currentPlayer < 3 && currentPlayer > 0) {
         if (coin == null) {
           coin = new Coin(currentPlayer - 1);

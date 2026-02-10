@@ -1,7 +1,9 @@
 package game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 
 import game.util.Log;
@@ -64,8 +66,33 @@ public class GameLoop implements Runnable {
       do {
         do {
           Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+          // g.setTransform(new AffineTransform());
 
-          g.clearRect(0, 0, GameCanvas.WIDTH, GameCanvas.HEIGHT);
+          g.clearRect(0, 0, canvas.getRawWidth(), canvas.getRawHeight());
+
+          int screenW = canvas.getRawWidth();
+          int screenH = canvas.getRawHeight();
+
+          double scale = Math.min(
+              screenW / (double) GameCanvas.WIDTH,
+              screenH / (double) GameCanvas.HEIGHT);
+
+          int renderW = (int) (GameCanvas.WIDTH * scale);
+          int renderH = (int) (GameCanvas.HEIGHT * scale);
+
+          int offsetX = (screenW - renderW) / 2;
+          int offsetY = (screenH - renderH) / 2;
+
+          canvas.setVirtualOffset(offsetX, offsetY);
+          canvas.setRenderSize(renderW, renderH);
+          canvas.setRenderScale((float) scale);
+
+          g.translate(offsetX, offsetY);
+          g.scale(scale, scale);
+
+          g.setColor(Color.WHITE); // Game BG
+          g.fillRect(0, 0, GameCanvas.WIDTH, GameCanvas.HEIGHT);
+
           Engine.render(g, alpha);
 
           g.dispose();
