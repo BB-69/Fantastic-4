@@ -1,4 +1,4 @@
-package game.core;
+package game.core.audio;
 
 import javax.sound.sampled.AudioFormat;
 

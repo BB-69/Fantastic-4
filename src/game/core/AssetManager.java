@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 
+import game.core.audio.SoundData;
 import game.util.Log;
 
 public class AssetManager {

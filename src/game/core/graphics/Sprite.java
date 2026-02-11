@@ -25,6 +25,7 @@ public class Sprite {
   private boolean colorInverted = false;
 
   // === CONSTRUCTOR ===
+  /* 'assets/textures/<name>' */
   public Sprite(String textureName) {
     if (textureName == null) {
       return;

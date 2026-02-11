@@ -3,12 +3,12 @@ package game.core.audio;
 import javax.sound.sampled.*;
 
 import game.core.AssetManager;
-import game.core.SoundData;
 
 public class Sound {
 
   private Clip clip;
 
+  /* 'assets/sounds/<name>' */
   public Sound(String name) {
     try {
       SoundData data = AssetManager.getSoundData(name);
