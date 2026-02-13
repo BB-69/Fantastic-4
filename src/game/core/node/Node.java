@@ -149,6 +149,10 @@ public abstract class Node {
     return isActive;
   }
 
+  public void setActive(boolean active) {
+    this.isActive = active;
+  }
+
   public int getLayer() {
     return layer;
   }
