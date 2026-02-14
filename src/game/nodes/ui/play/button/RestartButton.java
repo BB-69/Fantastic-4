@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
 import game.util.Log;
+import game.util.calc.MathUtil;
 
 public class RestartButton extends Button {
 
@@ -29,8 +30,8 @@ public class RestartButton extends Button {
   public void render(Graphics2D g, float alpha) {
     super.render(g, alpha);
 
-    int renderX = (int) lerp(getPrevWorldX(), getWorldX(), alpha);
-    int renderY = (int) lerp(getPrevWorldY(), getWorldY(), alpha);
+    int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), alpha);
+    int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), alpha);
     sprite.setPosition(renderX, renderY + 1);
 
     sprite.draw(g);

@@ -10,8 +10,4 @@ public abstract class Entity extends Node {
   public Entity(Node parent) {
     super(parent);
   }
-
-  protected float lerp(float a, float b, float t) {
-    return a + (b - a) * t;
-  }
 }
