@@ -81,6 +81,24 @@ public class Coin extends Entity {
     sprite.spawn();
   }
 
+  public boolean isSpawning() {
+    return sprite.isSpawning();
+  }
+
+  public void shimmer() {
+    shimmer(false);
+  }
+
+  public void shimmer(boolean looped) {
+    if (!isActive())
+      return;
+    sprite.shimmer(looped);
+  }
+
+  public boolean isShimmering() {
+    return sprite.isShimmering();
+  }
+
   public void moveToX(int x) {
     targetX = x;
     isMovingToTargetX = true;

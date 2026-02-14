@@ -24,7 +24,11 @@ public class CoinSprite extends Sprite {
   }
 
   public void shimmer() {
-    shimmerAnim.start();
+    shimmer(false);
+  }
+
+  public void shimmer(boolean looped) {
+    shimmerAnim.start(looped);
     spawnAnim.stop();
   }
 
@@ -33,11 +37,6 @@ public class CoinSprite extends Sprite {
     super.update(deltaTime);
 
     spawnAnim.update(deltaTime);
-
-    if (spawnAnim.isFinished()) {
-      shimmerAnim.start();
-    }
-
     shimmerAnim.update(deltaTime);
   }
 
@@ -77,6 +76,10 @@ public class CoinSprite extends Sprite {
   public boolean isSpawning() {
     return spawnAnim.isActive();
   }
+
+  public boolean isShimmering() {
+    return shimmerAnim.isActive();
+  }
 }
 
 /* ===================================================== */
@@ -88,12 +91,10 @@ class SpawnAnimation {
   private float progress = 0f;
   private float speed = 4f;
   private boolean active = false;
-  private boolean finished = false;
 
   public void start() {
     progress = 0f;
     active = true;
-    finished = false;
   }
 
   public void stop() {
@@ -102,10 +103,6 @@ class SpawnAnimation {
 
   public boolean isActive() {
     return active;
-  }
-
-  public boolean isFinished() {
-    return finished;
   }
 
   public void update(float dt) {
@@ -117,7 +114,6 @@ class SpawnAnimation {
     if (progress >= 1f) {
       progress = 1f;
       active = false;
-      finished = true;
     }
   }
 
@@ -172,11 +168,15 @@ class ShimmerAnimation {
   private float offset = -200f;
   private float speed = 250f;
   private int stripeWidth = 30;
-  private float timer = -7f;
-  private float interval = 7f;
+  private float timer = 0f;
+  private float interval = 6f;
   private boolean active = false;
+  private boolean looped = false;
 
-  public void start() {
+  public void start(boolean looped) {
+    timer = 0f;
+
+    this.looped = looped;
     active = true;
   }
 
@@ -198,6 +198,8 @@ class ShimmerAnimation {
     if (timer > interval) {
       timer = 0f;
       offset = -200f;
+      if (!looped)
+        active = false;
     }
   }
 

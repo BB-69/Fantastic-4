@@ -49,14 +49,14 @@ public class ColumnBoard extends Node {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    updatePreviewCoin();
+    updateCoin();
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
   }
 
-  private void updatePreviewCoin() {
+  private void updateCoin() {
     if (gameOver || currentPlayer <= 0 || currentPlayer >= 3) {
       destroyPreviewCoin();
       return;
@@ -72,7 +72,8 @@ public class ColumnBoard extends Node {
       coin.setWorldY(150);
       if (hoveredIndex != -1)
         coin.x = moveX;
-    }
+    } else if (!coin.isSpawning() && !coin.isShimmering())
+      coin.shimmer(true);
 
     if (hoveredIndex != -1)
       coin.moveToX((int) moveX);
