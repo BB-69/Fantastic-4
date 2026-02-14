@@ -2,18 +2,13 @@ package game.nodes.coin;
 
 import java.awt.Graphics2D;
 
-import game.core.AssetManager;
-import game.core.graphics.AnimatedSprite;
-import game.core.graphics.Animation;
-import game.core.graphics.Animator;
+import game.core.graphics.Sprite;
 import game.core.node.Entity;
 import game.util.Time;
 
 public class Coin extends Entity {
 
-  private Animator animator;
-  private AnimatedSprite sprite;
-  public boolean spinning;
+  private Sprite sprite;
 
   public static final float COIN_SIZE = 52f;
 
@@ -28,28 +23,10 @@ public class Coin extends Entity {
 
     layer = -2;
     initSprite();
-    setSpinning(false);
   }
 
   private void initSprite() {
-    String[] frameGold = new String[8];
-    for (int i = 0; i < frameGold.length; i++)
-      frameGold[i] = "coin/gold00" + i + ".png";
-    String[] frameSilver = new String[8];
-    for (int i = 0; i < frameSilver.length; i++)
-      frameSilver[i] = "coin/silver00" + i + ".png";
-
-    Animation idleGold = new Animation(AssetManager.getTexture(new String[] { "coin/gold000.png" }), 1f, false);
-    Animation spinGold = new Animation(AssetManager.getTexture(frameGold), 0.1f, true);
-    Animation idleSilver = new Animation(AssetManager.getTexture(new String[] { "coin/silver000.png" }), 1f, false);
-    Animation spinSilver = new Animation(AssetManager.getTexture(frameSilver), 0.1f, true);
-    animator = new Animator();
-    animator.add("idleGold", idleGold);
-    animator.add("spinGold", spinGold);
-    animator.add("idleSilver", idleSilver);
-    animator.add("spinSilver", spinSilver);
-
-    sprite = new AnimatedSprite(animator);
+    sprite = new Sprite("coin.png");
     sprite.setSize(COIN_SIZE, COIN_SIZE);
   }
 
@@ -60,17 +37,6 @@ public class Coin extends Entity {
 
   @Override
   public void render(Graphics2D g, float alpha) {
-    // AffineTransform old = g.getTransform();
-    // g.translate(getWorldX(), getWorldY());
-
-    // g.setColor(player == 0 ? Color.RED : Color.YELLOW);
-    // g.fillOval((int) (-COIN_SIZE / 2f),
-    // (int) (-COIN_SIZE / 2f),
-    // (int) COIN_SIZE,
-    // (int) COIN_SIZE);
-
-    // g.setTransform(old);
-
     drawSprite(g, alpha);
   }
 
@@ -88,15 +54,5 @@ public class Coin extends Entity {
 
   public void setPlayer(int player) {
     this.player = player;
-  }
-
-  public void setSpinning(boolean spinning) {
-    this.spinning = spinning;
-
-    if (spinning) {
-      animator.play("spin" + (player == 0 ? "Gold" : "Silver"));
-    } else {
-      animator.play("idle" + (player == 0 ? "Gold" : "Silver"));
-    }
   }
 }

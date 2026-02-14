@@ -44,7 +44,7 @@ public class ColumnArea extends Area {
       if (currentPlayer < 3 && currentPlayer > 0) {
         if (coin == null) {
           coin = new Coin(currentPlayer - 1);
-          coin.setSpinning(true);
+          coin.setActive(false);
           coin.setParent(this);
           coin.x = 0;
           coin.setWorldY(150);
