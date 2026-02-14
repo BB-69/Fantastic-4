@@ -45,7 +45,7 @@ public class BoardPiece extends Entity {
     if (val < 3 && val > 0) {
       if (coin == null) {
         coin = new Coin(val - 1);
-        System.out.println("A");
+        coin.spawn();
         coin.setParent(this);
         coin.x = 0;
         coin.setWorldY(120);
@@ -103,6 +103,7 @@ public class BoardPiece extends Entity {
     } else if (val < 3) {
       if (coin == null) {
         coin = new Coin(val - 1);
+        coin.spawn();
         coin.setPosition(0, 0);
         coin.setParent(this);
       } else

@@ -42,9 +42,10 @@ public class BoardManager extends Node {
     signalRCVal.connect(board::onRCVal); // signalRCVal
     signalCurP.connect(board::onCurP); // signalCurP
     signalCurP.connect(Instance::onCurP);
-    colBoard.attachCurPSignal(signalCurP);
+    signalCurP.connect(colBoard::onCurP);
     signalGameOver.connect(board::onGameOver); // signalGameOver
     signalGameOver.connect(Instance::onGameOver);
+    signalGameOver.connect(colBoard::onGameOver);
     colBoard.attachGameOverSignal(signalGameOver);
 
     signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
