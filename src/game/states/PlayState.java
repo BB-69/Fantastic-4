@@ -2,6 +2,7 @@ package game.states;
 
 import game.core.GameState;
 import game.core.signal.SignedSignal;
+import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
 import game.nodes.ui.play.PlayUIManager;
 
@@ -13,6 +14,7 @@ public class PlayState extends GameState {
 
   private SignedSignal globalSignal = new SignedSignal();
 
+  private PlayTextureManager tex;
   private PlayUIManager ui;
   private BoardManager bmn;
 
@@ -26,9 +28,10 @@ public class PlayState extends GameState {
   }
 
   private void init() {
+    tex = new PlayTextureManager(globalSignal);
     ui = new PlayUIManager(globalSignal);
     bmn = new BoardManager(globalSignal);
-    nodeManager.addNode(bmn, ui);
+    nodeManager.addNode(tex, ui, bmn);
   }
 
   @Override
@@ -42,7 +45,8 @@ public class PlayState extends GameState {
   }
 
   private void restart() {
-    nodeManager.removeNode(bmn, ui);
+    nodeManager.removeNode(bmn, ui, tex);
+    tex.destroyRecursive();
     ui.destroyRecursive();
     bmn.destroyRecursive();
     pendingRestart = true;
