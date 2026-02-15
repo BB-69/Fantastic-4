@@ -11,7 +11,7 @@ import game.nodes.coin.CoinTrailChain;
 
 public class ColumnBoard extends Node {
 
-  public static final int topSpawnY = 150;
+  public static final int topSpawnY = 140;
   private float moveX = 0f;
 
   // private boolean haveSelected = false;

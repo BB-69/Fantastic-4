@@ -7,50 +7,62 @@ import java.util.concurrent.TimeUnit;
 
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
+import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.util.calc.MathUtil;
 
 public class BoardPiece extends Entity {
 
-  private Sprite sprite;
+  private Sprite backSprite;
 
-  private float pieceWidth = 0f;
-  private float pieceHeight = 0f;
+  private BoardPieceCover cover = new BoardPieceCover();;
+
+  public static enum SpritePhase {
+    Reveal, Hide, ToReveal, ToHide
+  };
+
+  private SpritePhase spritePhase = SpritePhase.Hide;
+  private Signal updateSpritePhase = new Signal();
 
   private boolean initPosition = false;
 
   private int val = 0;
   private Coin coin;
 
-  public BoardPiece(int val, float pieceSize) {
+  public BoardPiece(int val) {
     super();
 
-    this.pieceWidth = pieceSize;
-    this.pieceHeight = pieceSize;
     setValue(val);
 
     initSprite();
-  }
 
-  public BoardPiece(int val, float pieceWidth, float pieceHeight) {
-    super();
-
-    this.pieceWidth = pieceWidth;
-    this.pieceHeight = pieceHeight;
-    setValue(val);
-
-    initSprite();
+    addChild(cover);
+    updateSpritePhase.connect(cover::onUpdateSpritePhase);
   }
 
   private void initSprite() {
-    sprite = new Sprite("wooden-box.png");
-    sprite.setSize(Board.PIECE_WIDTH, Board.PIECE_HEIGHT);
+    backSprite = new Sprite("wooden-box_dark.png");
+    backSprite.setSize(Board.PIECE_WIDTH, Board.PIECE_HEIGHT);
+    backSprite.alpha = 0.92f;
 
     layer = -3;
   }
 
+  public void revealBack() {
+    spritePhase = SpritePhase.ToReveal;
+  }
+
+  public void hideBack() {
+    spritePhase = SpritePhase.ToHide;
+  }
+
+  public SpritePhase getSpritePhase() {
+    return spritePhase;
+  }
+
   @Override
   public void update() {
+    updateSpritePhase.emit(spritePhase);
   }
 
   @Override
@@ -76,39 +88,6 @@ public class BoardPiece extends Entity {
   @Override
   public void render(Graphics2D g, float alpha) {
     drawSprite(g, alpha);
-    // AffineTransform old = g.getTransform();
-    // g.translate(getWorldX(), getWorldY());
-
-    // Area rect = new Area(new Rectangle2D.Float(
-    // -pieceWidth / 2f,
-    // -pieceHeight / 2f,
-    // pieceWidth,
-    // pieceHeight));
-
-    // float innerRectWidth = pieceWidth * 0.9f;
-    // float innerRectHeight = pieceHeight * 0.9f;
-    // Area innerRect = new Area(new Rectangle2D.Float(
-    // -innerRectWidth / 2f,
-    // -innerRectHeight / 2f,
-    // innerRectWidth,
-    // innerRectHeight));
-
-    // float holeSize = Math.min(pieceWidth, pieceHeight) * 0.8f;
-    // Area hole = new Area(new Ellipse2D.Float(
-    // (int) (-holeSize / 2f),
-    // (int) (-holeSize / 2f),
-    // (int) holeSize,
-    // (int) holeSize));
-
-    // rect.subtract(hole);
-    // innerRect.subtract(hole);
-
-    // g.setColor(Color.BLACK);
-    // g.fill(rect);
-    // g.setColor(Color.BLUE);
-    // g.fill(innerRect);
-
-    // g.setTransform(old);
   }
 
   private void drawSprite(Graphics2D g, float alpha) {
@@ -118,9 +97,10 @@ public class BoardPiece extends Entity {
     if (!initPosition)
       initPosition = true;
 
-    sprite.setPosition(renderX, renderY);
-
-    sprite.draw(g);
+    if (spritePhase != SpritePhase.Hide) {
+      backSprite.setPosition(renderX, renderY);
+      backSprite.draw(g);
+    }
   }
 
   public void receiveCoin(Coin coin) {

@@ -63,6 +63,34 @@ public class PlayTextureManager extends Node {
 
       AssetManager.addTexture("coin_red.png", coin_red);
     }
+
+    { // wooden-box.png -> darker
+      BufferedImage src = AssetManager.getTexture("wooden-box.png");
+      int w = src.getWidth();
+      int h = src.getHeight();
+
+      BufferedImage wooden_box_dark = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+
+          int argb = src.getRGB(x, y);
+
+          int a = ColorUtil.getAlpha(argb);
+          int[] rgb = ColorUtil.unpackRGB(argb);
+
+          rgb[0] *= 0.35f;
+          rgb[1] *= 0.35f;
+          rgb[2] *= 0.35f;
+
+          int newArgb = ColorUtil.packARGB(a, rgb[0], rgb[1], rgb[2]);
+
+          wooden_box_dark.setRGB(x, y, newArgb);
+        }
+      }
+
+      AssetManager.addTexture("wooden-box_dark.png", wooden_box_dark);
+    }
   }
 
   private void onGlobalSignal(String signalName, Object... args) {

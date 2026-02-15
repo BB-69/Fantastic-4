@@ -20,7 +20,6 @@ public class Board extends Node {
   private boolean gameOver = false;
 
   private final int[] lastDroppedPos = new int[2];
-
   private Signal signalBoardPos;
 
   private final List<DroppingCoin> droppingCoins = new ArrayList<>();
@@ -34,9 +33,7 @@ public class Board extends Node {
     for (int row = 0; row < BoardLogic.ROWS; row++) {
       for (int col = 0; col < BoardLogic.COLS; col++) {
         BoardPiece p = new BoardPiece(
-            gridState[row][col],
-            Board.PIECE_WIDTH,
-            Board.PIECE_HEIGHT);
+            gridState[row][col]);
 
         p.setPosition(
             Board.PIECE_WIDTH * (col - ((BoardLogic.COLS - 1) / 2f)),
@@ -107,9 +104,15 @@ public class Board extends Node {
     p.receiveCoin(drop.coin);
   }
 
+  private void revealBack(int col) {
+    for (BoardPiece[] row : pieces)
+      row[col].revealBack();
+  }
+
   public void onRCVal(Object... args) {
     setRCVal((int) args[0], (int) args[1], (int) args[2]);
     startDrop((int) args[0], (int) args[1], (int) args[2]);
+    revealBack((int) args[1]);
   }
 
   public void onCurP(Object... args) {

@@ -52,7 +52,7 @@ public class ColumnArea extends Area {
 
       g.translate(getWorldX(), getWorldY());
       g.rotate(rotation);
-      g.setColor(Color.cyan);
+      g.setColor(Color.getHSBColor(0f, 0f, 0.75f));
       g.fillRect(
           (int) (-w / 2),
           (int) (-h / 2),
