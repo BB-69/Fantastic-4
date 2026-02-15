@@ -109,9 +109,6 @@ public class BoardPiece extends Entity {
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     scheduler.schedule(() -> {
-      while (coin.isSpawning()) {
-      }
-
       coin.shimmer();
     }, 200, TimeUnit.MILLISECONDS);
   }
