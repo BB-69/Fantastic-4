@@ -45,7 +45,9 @@ public class CoinTrail extends Node {
 
     float coinSize = Coin.COIN_SIZE * ((lifeSpanLeft <= fadeTime)
         ? lifeSpanLeft / fadeTime
-        : 1);
+        : (lifeSpanLeft <= fadeTime * 2)
+            ? 1 + 0.2f * (fadeTime * 2 - lifeSpanLeft) / fadeTime
+            : 1);
 
     { // outer fill
       g.setColor(color.darker());

@@ -114,6 +114,8 @@ public class ColumnBoard extends Node {
   }
 
   private void gameOver() {
+    checkIfTrail();
+
     this.gameOver = true;
     destroyPreviewCoin();
   }
