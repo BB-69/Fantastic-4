@@ -6,6 +6,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import game.core.node.Entity;
 import game.nodes.coin.Coin;
@@ -100,7 +103,17 @@ public class BoardPiece extends Entity {
     coin.setParent(this);
     coin.initPosition();
     coin.setPosition(0, 0);
+    coin.flash(0.15f);
     setValue(coin.getPlayer() + 1);
+
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    scheduler.schedule(() -> {
+      while (coin.isSpawning()) {
+      }
+
+      coin.shimmer();
+    }, 200, TimeUnit.MILLISECONDS);
   }
 
   public Coin extractCoin() {

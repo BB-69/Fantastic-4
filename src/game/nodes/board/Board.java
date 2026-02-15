@@ -83,6 +83,7 @@ public class Board extends Node {
 
     coin.setWorldPosition(spawnX, spawnY);
     coin.gravityOn = true;
+    coin.flash(0.25f);
 
     droppingCoins.add(new DroppingCoin(coin, row, col, targetY));
   }

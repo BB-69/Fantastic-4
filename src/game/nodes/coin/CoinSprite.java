@@ -12,6 +12,7 @@ import game.core.graphics.Sprite;
 public class CoinSprite extends Sprite {
 
   private final SpawnAnimation spawnAnim = new SpawnAnimation();
+  private final FlashAnimation flashAnim = new FlashAnimation();
   private final ShimmerAnimation shimmerAnim = new ShimmerAnimation();
 
   public CoinSprite(String textureName) {
@@ -20,6 +21,13 @@ public class CoinSprite extends Sprite {
 
   public void spawn() {
     spawnAnim.start();
+    flashAnim.stop();
+    shimmerAnim.stop();
+  }
+
+  public void flashAnim(float duration) {
+    spawnAnim.stop();
+    flashAnim.start(duration);
     shimmerAnim.stop();
   }
 
@@ -29,6 +37,7 @@ public class CoinSprite extends Sprite {
 
   public void shimmer(boolean looped) {
     shimmerAnim.start(looped);
+    flashAnim.stop();
     spawnAnim.stop();
   }
 
@@ -37,6 +46,7 @@ public class CoinSprite extends Sprite {
     super.update(deltaTime);
 
     spawnAnim.update(deltaTime);
+    flashAnim.update(deltaTime);
     shimmerAnim.update(deltaTime);
   }
 
@@ -59,6 +69,8 @@ public class CoinSprite extends Sprite {
 
     if (spawnAnim.isActive()) {
       spawnAnim.draw(g, image, (int) width, (int) height, drawX, drawY);
+    } else if (flashAnim.isActive()) {
+      flashAnim.draw(g, image, (int) width, (int) height, drawX, drawY);
     } else {
       g.drawImage(image, drawX, drawY,
           (int) width, (int) height, null);
@@ -75,6 +87,10 @@ public class CoinSprite extends Sprite {
 
   public boolean isSpawning() {
     return spawnAnim.isActive();
+  }
+
+  public boolean isFlashing() {
+    return flashAnim.isActive();
   }
 
   public boolean isShimmering() {
@@ -163,13 +179,79 @@ class SpawnAnimation {
 /* ================= Shimmer Animation ================= */
 /* ===================================================== */
 
+class FlashAnimation {
+  private float progress = 0f;
+  private float duration = 0f;
+  private boolean active = false;
+
+  public void start(float duration) {
+    progress = 0f;
+    this.duration = duration;
+
+    active = true;
+  }
+
+  public void stop() {
+    active = false;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void update(float dt) {
+    if (!active)
+      return;
+
+    progress += dt;
+
+    if (progress > duration) {
+      active = false;
+    }
+  }
+
+  public void draw(Graphics2D g,
+      BufferedImage image,
+      int w, int h,
+      int drawX, int drawY) {
+
+    BufferedImage buffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+    Graphics2D bg = buffer.createGraphics();
+    bg.drawImage(image, 0, 0, w, h, null);
+
+    BufferedImage buffer2 = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+    {
+      Graphics2D bg2 = buffer2.createGraphics();
+
+      bg2.setComposite(AlphaComposite.getInstance(
+          AlphaComposite.SRC_OVER, ((duration - progress) / duration) * 0.8f));
+      bg2.setColor(Color.WHITE);
+      bg2.fillRect(0, 0, w, h);
+
+      bg2.dispose();
+    }
+
+    bg.setComposite(AlphaComposite.SrcAtop);
+    bg.drawImage(buffer2, 0, 0, null);
+
+    bg.dispose();
+
+    g.drawImage(buffer, drawX, drawY, null);
+  }
+}
+
+/* ===================================================== */
+/* ================= Shimmer Animation ================= */
+/* ===================================================== */
+
 class ShimmerAnimation {
 
   private float offset = -200f;
   private float speed = 250f;
   private int stripeWidth = 30;
   private float timer = 0f;
-  private float interval = 6f;
+  private float interval = 4f;
   private boolean active = false;
   private boolean looped = false;
 
@@ -193,7 +275,7 @@ class ShimmerAnimation {
       return;
 
     timer += dt;
-    offset = -200f + speed * timer;
+    offset = (looped ? -200f : -stripeWidth * 2) + speed * timer;
 
     if (timer > interval) {
       timer = 0f;

@@ -95,6 +95,16 @@ public class Coin extends Entity {
     return sprite.isSpawning();
   }
 
+  public void flash(float duration) {
+    if (!isActive())
+      return;
+    sprite.flashAnim(duration);
+  }
+
+  public boolean isFlashing() {
+    return sprite.isFlashing();
+  }
+
   public void shimmer() {
     shimmer(false);
   }
