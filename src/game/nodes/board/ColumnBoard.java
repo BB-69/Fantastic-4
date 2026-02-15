@@ -1,15 +1,18 @@
 package game.nodes.board;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 import game.GameCanvas;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
+import game.nodes.coin.CoinTrailChain;
 
 public class ColumnBoard extends Node {
 
   public static final int topSpawnY = 150;
+  private float moveX = 0f;
 
   // private boolean haveSelected = false;
   private int hoveredIndex = -1;
@@ -64,12 +67,12 @@ public class ColumnBoard extends Node {
       return;
     }
 
-    float moveX = (hoveredIndex - (BoardLogic.COLS - 1) / 2f)
+    moveX = (hoveredIndex - (BoardLogic.COLS - 1) / 2f)
         * Board.PIECE_WIDTH;
 
     if (coin == null) {
       coin = new Coin(currentPlayer - 1);
-      coin.layer = -5;
+      coin.layer = -7;
       coin.spawn();
       coin.setParent(this);
       coin.setWorldY(topSpawnY);
@@ -90,8 +93,24 @@ public class ColumnBoard extends Node {
   }
 
   private void setCurrentPlayer(int cur) {
+    checkIfTrail();
+
     this.currentPlayer = cur;
     destroyPreviewCoin();
+  }
+
+  private void checkIfTrail() {
+    if (coin != null)
+      getNodeManagerInstance().addNode(
+          new CoinTrailChain((int) coin.getWorldX(),
+              (int) coin.getWorldY(),
+              (int) (getWorldX() + moveX),
+              (int) coin.getWorldY(),
+              switch (currentPlayer) {
+                case 1 -> Color.RED;
+                case 2 -> Color.YELLOW;
+                default -> Color.DARK_GRAY;
+              }));
   }
 
   private void gameOver() {

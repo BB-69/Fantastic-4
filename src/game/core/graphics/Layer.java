@@ -1,15 +1,16 @@
 package game.core.graphics;
 
 import java.awt.Graphics2D;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import game.core.node.Node;
 import game.core.signal.Signal;
 
 public class Layer {
   public final int index;
-  private final HashSet<Node> nodes = new HashSet<>();
-  private final HashSet<Node> toRemove = new HashSet<>();
+  private final List<Node> nodes = new ArrayList<>();
+  private final List<Node> toRemove = new ArrayList<>();
 
   private Signal signalSendNodeTo;
 
@@ -22,7 +23,7 @@ public class Layer {
     nodes.add(n);
   }
 
-  public void add(HashSet<Node> nList) {
+  public void add(List<Node> nList) {
     nodes.addAll(nList);
   }
 
@@ -30,7 +31,7 @@ public class Layer {
     nodes.remove(n);
   }
 
-  public void remove(HashSet<Node> nList) {
+  public void remove(List<Node> nList) {
     nodes.removeAll(nList);
   }
 

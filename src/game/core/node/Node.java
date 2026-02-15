@@ -1,8 +1,8 @@
 package game.core.node;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import game.core.NodeManager;
@@ -13,7 +13,7 @@ public abstract class Node {
   private NodeManager nodeManagerInstance;
 
   protected Node parent;
-  protected HashSet<Node> children = new HashSet<>();
+  protected List<Node> children = new ArrayList<>();
 
   protected String id = Id.getUniqueId("node");
   protected boolean isActive = true;
@@ -113,12 +113,12 @@ public abstract class Node {
   }
 
   public void clearChildren() {
-    for (Node c : new HashSet<>(children))
+    for (Node c : new ArrayList<>(children))
       removeChild(c);
     children.clear();
   }
 
-  public HashSet<Node> getChildren() {
+  public List<Node> getChildren() {
     return children;
   }
 
@@ -132,7 +132,7 @@ public abstract class Node {
   }
 
   public void destroyRecursive() {
-    for (Node c : new HashSet<>(children))
+    for (Node c : new ArrayList<>(children))
       c.destroyRecursive();
     this.destroy();
   }
