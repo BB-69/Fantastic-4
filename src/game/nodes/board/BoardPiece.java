@@ -1,22 +1,23 @@
 package game.nodes.board;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import game.core.graphics.Sprite;
 import game.core.node.Entity;
 import game.nodes.coin.Coin;
+import game.util.calc.MathUtil;
 
 public class BoardPiece extends Entity {
 
+  private Sprite sprite;
+
   private float pieceWidth = 0f;
   private float pieceHeight = 0f;
+
+  private boolean initPosition = false;
 
   private int val = 0;
   private Coin coin;
@@ -27,6 +28,8 @@ public class BoardPiece extends Entity {
     this.pieceWidth = pieceSize;
     this.pieceHeight = pieceSize;
     setValue(val);
+
+    initSprite();
   }
 
   public BoardPiece(int val, float pieceWidth, float pieceHeight) {
@@ -35,6 +38,15 @@ public class BoardPiece extends Entity {
     this.pieceWidth = pieceWidth;
     this.pieceHeight = pieceHeight;
     setValue(val);
+
+    initSprite();
+  }
+
+  private void initSprite() {
+    sprite = new Sprite("wooden-box.png");
+    sprite.setSize(Board.PIECE_WIDTH, Board.PIECE_HEIGHT);
+
+    layer = -3;
   }
 
   @Override
@@ -63,39 +75,52 @@ public class BoardPiece extends Entity {
 
   @Override
   public void render(Graphics2D g, float alpha) {
-    AffineTransform old = g.getTransform();
-    g.translate(getWorldX(), getWorldY());
+    drawSprite(g, alpha);
+    // AffineTransform old = g.getTransform();
+    // g.translate(getWorldX(), getWorldY());
 
-    Area rect = new Area(new Rectangle2D.Float(
-        -pieceWidth / 2f,
-        -pieceHeight / 2f,
-        pieceWidth,
-        pieceHeight));
+    // Area rect = new Area(new Rectangle2D.Float(
+    // -pieceWidth / 2f,
+    // -pieceHeight / 2f,
+    // pieceWidth,
+    // pieceHeight));
 
-    float innerRectWidth = pieceWidth * 0.9f;
-    float innerRectHeight = pieceHeight * 0.9f;
-    Area innerRect = new Area(new Rectangle2D.Float(
-        -innerRectWidth / 2f,
-        -innerRectHeight / 2f,
-        innerRectWidth,
-        innerRectHeight));
+    // float innerRectWidth = pieceWidth * 0.9f;
+    // float innerRectHeight = pieceHeight * 0.9f;
+    // Area innerRect = new Area(new Rectangle2D.Float(
+    // -innerRectWidth / 2f,
+    // -innerRectHeight / 2f,
+    // innerRectWidth,
+    // innerRectHeight));
 
-    float holeSize = Math.min(pieceWidth, pieceHeight) * 0.8f;
-    Area hole = new Area(new Ellipse2D.Float(
-        (int) (-holeSize / 2f),
-        (int) (-holeSize / 2f),
-        (int) holeSize,
-        (int) holeSize));
+    // float holeSize = Math.min(pieceWidth, pieceHeight) * 0.8f;
+    // Area hole = new Area(new Ellipse2D.Float(
+    // (int) (-holeSize / 2f),
+    // (int) (-holeSize / 2f),
+    // (int) holeSize,
+    // (int) holeSize));
 
-    rect.subtract(hole);
-    innerRect.subtract(hole);
+    // rect.subtract(hole);
+    // innerRect.subtract(hole);
 
-    g.setColor(Color.BLACK);
-    g.fill(rect);
-    g.setColor(Color.BLUE);
-    g.fill(innerRect);
+    // g.setColor(Color.BLACK);
+    // g.fill(rect);
+    // g.setColor(Color.BLUE);
+    // g.fill(innerRect);
 
-    g.setTransform(old);
+    // g.setTransform(old);
+  }
+
+  private void drawSprite(Graphics2D g, float alpha) {
+    int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), initPosition ? alpha : 1);
+    int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), initPosition ? alpha : 1);
+
+    if (!initPosition)
+      initPosition = true;
+
+    sprite.setPosition(renderX, renderY);
+
+    sprite.draw(g);
   }
 
   public void receiveCoin(Coin coin) {

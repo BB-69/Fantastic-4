@@ -33,12 +33,14 @@ public class PlayTextureManager extends Node {
 
   public void initTextures() {
 
+    AssetManager.getTexture("coin.png", "wooden-box.png", "rotate-left.png");
+
     { // coin.png -> tint red
       BufferedImage src = AssetManager.getTexture("coin.png");
       int w = src.getWidth();
       int h = src.getHeight();
 
-      BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage coin_red = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
@@ -55,11 +57,11 @@ public class PlayTextureManager extends Node {
 
           int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
 
-          result.setRGB(x, y, newArgb);
+          coin_red.setRGB(x, y, newArgb);
         }
       }
 
-      AssetManager.addTexture("coin_red.png", result);
+      AssetManager.addTexture("coin_red.png", coin_red);
     }
   }
 
