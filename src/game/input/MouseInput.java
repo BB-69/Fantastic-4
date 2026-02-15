@@ -9,6 +9,8 @@ import game.GameCanvas;
 import game.GameCanvas.RenderSize;
 
 public final class MouseInput implements MouseListener, MouseMotionListener {
+  private static boolean listenerActive = true;
+
   private static final int MOUSE_BUTTON_COUNT = 3;
   private static final boolean[] buttons = new boolean[MOUSE_BUTTON_COUNT];
   private static final boolean[] lastButtons = new boolean[MOUSE_BUTTON_COUNT];
@@ -38,6 +40,10 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
   }
 
   /* ===================== QUERY API ===================== */
+
+  public static void setListenerActive(boolean active) {
+    listenerActive = active;
+  }
 
   public static boolean isAnyDown() {
     return isAnyDown;
@@ -112,10 +118,15 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseClicked(MouseEvent e) {
+    if (!listenerActive)
+      return;
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     switch (e.getButton()) {
       case MouseEvent.BUTTON1:
         buttons[0] = true;
@@ -135,6 +146,9 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseReleased(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     switch (e.getButton()) {
       case MouseEvent.BUTTON1:
         buttons[0] = false;
@@ -154,17 +168,26 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseEntered(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     isIn = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     isIn = false;
   }
 
   // isDown = true;
   @Override
   public void mouseDragged(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     if (isAnyDown) {
       position.x = e.getX();
       position.y = e.getY();
@@ -174,6 +197,9 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
   // isDown = false;
   @Override
   public void mouseMoved(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     if (!isAnyDown) {
       position.x = e.getX();
       position.y = e.getY();

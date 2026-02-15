@@ -5,6 +5,8 @@ import java.awt.event.KeyListener;
 
 public final class KeyInput implements KeyListener {
 
+  private static boolean listenerActive = true;
+
   private static final int KEY_COUNT = 256;
   private static final boolean[] keys = new boolean[KEY_COUNT];
   private static final boolean[] lastKeys = new boolean[KEY_COUNT];
@@ -26,6 +28,10 @@ public final class KeyInput implements KeyListener {
 
   /* ===================== QUERY API ===================== */
 
+  public static void setListenerActive(boolean active) {
+    listenerActive = active;
+  }
+
   public static boolean isDown(int key) {
     return key < KEY_COUNT && keys[key];
   }
@@ -42,6 +48,9 @@ public final class KeyInput implements KeyListener {
 
   @Override
   public void keyPressed(KeyEvent e) {
+    if (!listenerActive)
+      return;
+
     int code = e.getKeyCode();
     if (code < KEY_COUNT)
       keys[code] = true;
@@ -49,6 +58,9 @@ public final class KeyInput implements KeyListener {
 
   @Override
   public void keyReleased(KeyEvent e) {
+    if (!listenerActive)
+      return;
+
     int code = e.getKeyCode();
     if (code < KEY_COUNT)
       keys[code] = false;
@@ -56,5 +68,7 @@ public final class KeyInput implements KeyListener {
 
   @Override
   public void keyTyped(KeyEvent e) {
+    if (!listenerActive)
+      return;
   }
 }
