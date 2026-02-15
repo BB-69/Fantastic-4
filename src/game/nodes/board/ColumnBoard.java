@@ -9,6 +9,8 @@ import game.nodes.coin.Coin;
 
 public class ColumnBoard extends Node {
 
+  public static final int topSpawnY = 150;
+
   // private boolean haveSelected = false;
   private int hoveredIndex = -1;
   private int currentPlayer = 0;
@@ -67,9 +69,10 @@ public class ColumnBoard extends Node {
 
     if (coin == null) {
       coin = new Coin(currentPlayer - 1);
+      coin.layer = -5;
       coin.spawn();
       coin.setParent(this);
-      coin.setWorldY(150);
+      coin.setWorldY(topSpawnY);
       if (hoveredIndex != -1)
         coin.x = moveX;
     } else if (!coin.isSpawning() && !coin.isShimmering())

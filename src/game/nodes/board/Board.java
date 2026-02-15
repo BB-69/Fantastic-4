@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import game.GameCanvas;
 import game.core.node.Node;
 import game.core.signal.Signal;
+import game.nodes.coin.Coin;
 
 public class Board extends Node {
 
@@ -16,7 +17,14 @@ public class Board extends Node {
   private int currentPlayer = 1;
   private boolean gameOver = false;
 
+  private final int[] lastDroppedPos = new int[2];
+
   private Signal signalBoardPos;
+
+  private Coin activeDropCoin;
+  private float targetY;
+  private final int[] droppingTo = new int[2];
+  private boolean isDropping = false;
 
   public Board() {
     super();
@@ -51,19 +59,44 @@ public class Board extends Node {
 
     if (signalBoardPos != null)
       signalBoardPos.emit(x, y);
+    if (isDropping && activeDropCoin.getWorldY() >= targetY) {
+      isDropping = false;
+
+      BoardPiece p = pieces[droppingTo[0]][droppingTo[1]];
+      activeDropCoin.gravityOn = false;
+      activeDropCoin.vy = 0;
+      p.receiveCoin(activeDropCoin);
+
+      activeDropCoin = null;
+    }
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
   }
 
-  public void onRCVal(Object... args) {
-    int row = (int) args[0];
-    int col = (int) args[1];
-    int val = (int) args[2];
-
+  private void setRCVal(int row, int col, int val) {
     gridState[row][col] = val;
-    pieces[row][col].setValue(val);
+    lastDroppedPos[0] = row;
+    lastDroppedPos[1] = col;
+    // pieces[row][col].setValue(val);
+  }
+
+  private void startDrop(int row, int col, int val) {
+    activeDropCoin = new Coin(val - 1);
+    activeDropCoin.setParent(this);
+
+    activeDropCoin.setWorldPosition(pieces[row][col].getWorldX(), ColumnBoard.topSpawnY);
+    targetY = pieces[row][col].getWorldY();
+    droppingTo[0] = row;
+    droppingTo[1] = col;
+    isDropping = true;
+    activeDropCoin.gravityOn = true;
+  }
+
+  public void onRCVal(Object... args) {
+    setRCVal((int) args[0], (int) args[1], (int) args[2]);
+    startDrop((int) args[0], (int) args[1], (int) args[2]);
   }
 
   public void onCurP(Object... args) {

@@ -18,7 +18,7 @@ public abstract class Node {
   protected String id = Id.getUniqueId("node");
   protected boolean isActive = true;
 
-  protected int layer = 0;
+  public int layer = 0;
 
   public float x = 0f, y = 0f;
   protected float prevX = 0f, prevY = 0f;

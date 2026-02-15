@@ -26,7 +26,7 @@ public class ColumnArea extends Area {
     setPosition(x, 0);
     setSize(w, GameCanvas.HEIGHT);
 
-    layer = -5;
+    layer = -10;
   }
 
   @Override

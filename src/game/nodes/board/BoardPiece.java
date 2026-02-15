@@ -47,8 +47,7 @@ public class BoardPiece extends Entity {
         coin = new Coin(val - 1);
         coin.spawn();
         coin.setParent(this);
-        coin.x = 0;
-        coin.setWorldY(120);
+        coin.setPosition(0, 0);
       } else
         coin.setPlayer(val - 1);
     } else {
@@ -96,6 +95,20 @@ public class BoardPiece extends Entity {
     g.setTransform(old);
   }
 
+  public void receiveCoin(Coin coin) {
+    this.coin = coin;
+    coin.setParent(this);
+    coin.initPosition();
+    coin.setPosition(0, 0);
+    setValue(coin.getPlayer() + 1);
+  }
+
+  public Coin extractCoin() {
+    Coin coin = this.coin;
+    this.coin = null;
+    return coin;
+  }
+
   public void setValue(int val) {
     this.val = val;
     if (val == 0) {
@@ -104,8 +117,8 @@ public class BoardPiece extends Entity {
       if (coin == null) {
         coin = new Coin(val - 1);
         coin.spawn();
-        coin.setPosition(0, 0);
         coin.setParent(this);
+        coin.setPosition(0, 0);
       } else
         coin.setPlayer(val - 1);
     }

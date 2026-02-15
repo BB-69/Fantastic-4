@@ -44,10 +44,12 @@ public class Coin extends Entity {
     super.fixedUpdate();
 
     if (!sprite.isSpawning() && isMovingToTargetX) {
-      x = MathUtil.lerp(x, targetX, 0.25f);
+      x = MathUtil.lerp(x, targetX, 0.3f);
 
-      if (Math.abs(x - targetX) < 5)
+      if (Math.abs(x - targetX) < 1) {
+        x = targetX;
         isMovingToTargetX = false;
+      }
     }
   }
 
@@ -66,6 +68,14 @@ public class Coin extends Entity {
     sprite.setPosition(renderX, renderY);
 
     sprite.draw(g);
+  }
+
+  public void initPosition() {
+    initPosition = false;
+  }
+
+  public int getPlayer() {
+    return player;
   }
 
   public void setPlayer(int player) {

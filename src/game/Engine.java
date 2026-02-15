@@ -7,6 +7,8 @@ import game.input.MouseInput;
 
 public final class Engine {
 
+  public static final float GRAVITY = 9.8f;
+
   public static void fixedUpdate() {
     StateManager.fixedUpdate();
     KeyInput.fixedUpdate();
