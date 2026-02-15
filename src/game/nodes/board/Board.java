@@ -1,6 +1,8 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import game.GameCanvas;
 import game.core.node.Node;
@@ -21,10 +23,7 @@ public class Board extends Node {
 
   private Signal signalBoardPos;
 
-  private Coin activeDropCoin;
-  private float targetY;
-  private final int[] droppingTo = new int[2];
-  private boolean isDropping = false;
+  private final List<DroppingCoin> droppingCoins = new ArrayList<>();
 
   public Board() {
     super();
@@ -59,16 +58,8 @@ public class Board extends Node {
 
     if (signalBoardPos != null)
       signalBoardPos.emit(x, y);
-    if (isDropping && activeDropCoin.getWorldY() >= targetY) {
-      isDropping = false;
 
-      BoardPiece p = pieces[droppingTo[0]][droppingTo[1]];
-      activeDropCoin.gravityOn = false;
-      activeDropCoin.vy = 0;
-      p.receiveCoin(activeDropCoin);
-
-      activeDropCoin = null;
-    }
+    updateDroppingCoins();
   }
 
   @Override
@@ -83,15 +74,36 @@ public class Board extends Node {
   }
 
   private void startDrop(int row, int col, int val) {
-    activeDropCoin = new Coin(val - 1);
-    activeDropCoin.setParent(this);
+    Coin coin = new Coin(val - 1);
+    coin.setParent(this);
 
-    activeDropCoin.setWorldPosition(pieces[row][col].getWorldX(), ColumnBoard.topSpawnY);
-    targetY = pieces[row][col].getWorldY();
-    droppingTo[0] = row;
-    droppingTo[1] = col;
-    isDropping = true;
-    activeDropCoin.gravityOn = true;
+    float spawnX = pieces[row][col].getWorldX();
+    float spawnY = ColumnBoard.topSpawnY;
+    float targetY = pieces[row][col].getWorldY();
+
+    coin.setWorldPosition(spawnX, spawnY);
+    coin.gravityOn = true;
+
+    droppingCoins.add(new DroppingCoin(coin, row, col, targetY));
+  }
+
+  private void updateDroppingCoins() {
+    for (int i = droppingCoins.size() - 1; i >= 0; i--) {
+      DroppingCoin drop = droppingCoins.get(i);
+
+      if (drop.coin.getWorldY() >= drop.targetY) {
+        landCoin(drop);
+        droppingCoins.remove(i);
+      }
+    }
+  }
+
+  private void landCoin(DroppingCoin drop) {
+    drop.coin.gravityOn = false;
+    drop.coin.vy = 0;
+
+    BoardPiece p = pieces[drop.row][drop.col];
+    p.receiveCoin(drop.coin);
   }
 
   public void onRCVal(Object... args) {
@@ -109,5 +121,19 @@ public class Board extends Node {
 
   public void attachPosSignal(Signal signalBoardPos) {
     this.signalBoardPos = signalBoardPos;
+  }
+
+  private static class DroppingCoin {
+    Coin coin;
+    int row;
+    int col;
+    float targetY;
+
+    DroppingCoin(Coin coin, int row, int col, float targetY) {
+      this.coin = coin;
+      this.row = row;
+      this.col = col;
+      this.targetY = targetY;
+    }
   }
 }
