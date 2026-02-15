@@ -78,11 +78,10 @@ public class ColumnBoard extends Node {
       coin.setWorldY(topSpawnY);
       if (hoveredIndex != -1)
         coin.x = moveX;
-    } else if (!coin.isSpawning() && !coin.isShimmering())
-      coin.shimmer(true);
+    }
 
     if (hoveredIndex != -1)
-      coin.moveToX((int) moveX);
+      coin.moveToX((int) (getWorldX() + moveX));
   }
 
   private void destroyPreviewCoin() {

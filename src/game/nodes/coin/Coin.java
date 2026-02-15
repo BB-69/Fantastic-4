@@ -44,10 +44,10 @@ public class Coin extends Entity {
     super.fixedUpdate();
 
     if (!sprite.isSpawning() && isMovingToTargetX) {
-      x = MathUtil.lerp(x, targetX, 0.12f);
+      setWorldX(MathUtil.lerp(getWorldX(), targetX, 0.12f));
 
-      if (Math.abs(x - targetX) < 1) {
-        x = targetX;
+      if (Math.abs(getWorldX() - targetX) < 1) {
+        setWorldX(targetX);
         isMovingToTargetX = false;
       }
     }
