@@ -2,11 +2,16 @@ package game.nodes.ui.play;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
 import game.core.node.Node;
 import game.nodes.ui.play.button.QuitButton;
 import game.nodes.ui.play.button.RestartButton;
+import game.util.graphics.ColorUtil;
 
 public class TopMenu extends Node {
 
@@ -43,7 +48,21 @@ public class TopMenu extends Node {
     AffineTransform old = g.getTransform();
     g.translate(getWorldX(), getWorldY());
 
-    // g.fillRect((int) (-width / 2), 0, (int) width, (int) height);
+    { // shadow
+      Paint oldPaint = g.getPaint();
+
+      int radius = (int) ((width + height) * 0.67f);
+      RadialGradientPaint paint = new RadialGradientPaint(new Point2D.Float(),
+          radius,
+          new float[] { 0, 1 },
+          new Color[] { Color.BLACK, ColorUtil.TRANSPARENT });
+
+      g.setPaint(paint);
+      g.fill(new Ellipse2D.Float(-radius, -radius, radius * 2, radius * 2));
+
+      g.setPaint(oldPaint);
+    }
+
     g.setColor(c1);
     g.fillPolygon(
         new int[] { (int) (-(width + trapezoidOffset) / 2 - extensionX),

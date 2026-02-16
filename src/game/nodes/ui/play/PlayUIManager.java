@@ -7,14 +7,13 @@ import game.core.node.Node;
 import game.core.node.ui.Text;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
-import game.nodes.ui.play.text._StatusText;
+import game.nodes.ui.play.text.StatusText;
 
 public class PlayUIManager extends Node {
 
   private final PlayUIManager Instance = this;
 
-  private Text titleText = new Text("Connect 4");
-  private _StatusText statusText = new _StatusText();
+  private StatusText statusText = new StatusText();
 
   private TopMenu topMenu = new TopMenu();
   private StatusTurn statusTurn = new StatusTurn();
@@ -33,15 +32,17 @@ public class PlayUIManager extends Node {
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2;
 
-    addChildren(titleText, statusText, topMenu, statusTurn);
+    StatusTurnBG statusBG = new StatusTurnBG();
 
-    titleText.y = -GameCanvas.HEIGHT / 2 + titleText.getTextHeight();
-    statusText.y = -GameCanvas.HEIGHT / 2 + 3 * titleText.getTextHeight();
+    addChildren(statusText, topMenu, statusTurn, statusBG);
+
+    statusText.y = -GameCanvas.HEIGHT / 2 + 85;
     topMenu.setWorldY(0);
     statusTurn.setWorldY(0);
 
     signalCurP.connect(statusText::onCurP); // signalCurP
     signalCurP.connect(statusTurn::onCurP);
+    signalCurP.connect(statusBG::onCurP);
     signalGameOver.connect(statusText::onGameOver); // signalGameOver
   }
 

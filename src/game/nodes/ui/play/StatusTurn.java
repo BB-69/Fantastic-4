@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import game.core.node.Node;
+import game.core.node.ui.Text;
 import game.util.Time;
 import game.util.calc.MathUtil;
 
@@ -54,23 +55,33 @@ public class StatusTurn extends Node {
 
 class StatusPlayer extends Node {
 
-  private float width = 300f;
+  private float width = 280f;
   private float height = 75f;
   private float scale = 1f;
   private float scaleTo = 1f;
   private final float scaleMin = 0.6f;
 
-  private boolean flipped;
+  private float scaledWidth = width * scale;
+  private float scaledHeight = height * scale;
+
+  private boolean isLeft;
   private boolean expand = false;
 
   private final Color expandColor = Color.getHSBColor(0.12f, 0.8f, 0.9f);
   private final Color expandColorFlipped = Color.getHSBColor(0f, 0.8f, 0.78f);
 
-  public StatusPlayer(boolean flipped) {
+  private final Text pfText = new Text();
+
+  public StatusPlayer(boolean isLeft) {
     super();
 
-    this.flipped = flipped;
+    this.isLeft = isLeft;
     expandPlayer(false);
+
+    addChild(pfText);
+
+    pfText.layer = 106;
+    pfText.content = isLeft ? "1" : "2";
 
     layer = 105;
   }
@@ -81,16 +92,22 @@ class StatusPlayer extends Node {
     scale = MathUtil.lerp(scale, scaleTo, 15 * Time.deltaTime);
   }
 
+  public void fixedUpdate() {
+    scaledWidth = width * scale;
+    scaledHeight = height * scale;
+
+    pfText.setPosition(scaledWidth * (isLeft ? -1 : 1), scaledHeight * 0.4f);
+    pfText.size = (int) (scaledHeight * 0.5f);
+    pfText.updateTextMetrics();
+  }
+
   @Override
   public void render(Graphics2D g, float alpha) {
     AffineTransform old = g.getTransform();
     g.translate(getWorldX(), getWorldY());
-    g.scale((flipped ? -1 : 1), 1);
+    g.scale((isLeft ? -1 : 1), 1);
 
-    g.setColor(expand ? (flipped ? expandColorFlipped : expandColor) : Color.BLACK);
-
-    float scaledWidth = width * scale;
-    float scaledHeight = height * scale;
+    g.setColor(expand ? (isLeft ? expandColorFlipped : expandColor) : Color.BLACK);
 
     g.fillRect(0, 0, (int) scaledWidth, (int) (scaledHeight / 4));
     g.fillPolygon(new int[] { 0, (int) scaledWidth, (int) scaledWidth, 0 },
@@ -116,5 +133,6 @@ class StatusPlayer extends Node {
 
   public void expandPlayer(boolean expand) {
     this.expand = expand;
+    pfText.color = expand ? (isLeft ? expandColorFlipped : expandColor) : Color.BLACK;
   }
 }

@@ -1,19 +1,29 @@
 package game.nodes.ui.play.text;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 
 import game.core.node.ui.Text;
 
-public class _StatusText extends Text {
+public class StatusText extends Text {
 
   private int currentPlayer = 0;
   private boolean gameOver = false;
 
-  public _StatusText() {
+  public StatusText() {
     super();
 
     content = "No Player Active!";
     updateTextMetrics();
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
+    int width = getTextWidth();
+    int height = getTextHeight();
+    int padding = 5;
+
+    super.render(g, alpha);
   }
 
   private void setPlayerText(int currentPlayer) {
