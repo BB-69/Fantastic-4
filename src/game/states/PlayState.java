@@ -21,6 +21,7 @@ public class PlayState extends GameState {
     super();
 
     stateName = "play";
+    stateOrder = 0;
     init();
 
     StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
@@ -45,7 +46,7 @@ public class PlayState extends GameState {
     }
   }
 
-  private void restart() {
+  private void restartReload() {
     nodeManager.removeNode(bmn, ui, tex);
     tex.destroyRecursive();
     ui.destroyRecursive();
@@ -55,14 +56,14 @@ public class PlayState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
-      case "restart":
-        onRestart(args);
+      case "restartReload":
+        onRestartReload(args);
         break;
       default:
     }
   }
 
-  private void onRestart(Object... args) {
-    restart();
+  private void onRestartReload(Object... args) {
+    restartReload();
   }
 }
