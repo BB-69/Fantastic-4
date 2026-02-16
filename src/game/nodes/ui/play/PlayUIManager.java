@@ -64,8 +64,4 @@ public class PlayUIManager extends Node {
       default:
     }
   }
-
-  private void onRestart(Object... args) {
-    globalSignal.emit("restart", args);
-  }
 }
