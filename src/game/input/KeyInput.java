@@ -2,6 +2,7 @@ package game.input;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.stream.IntStream;
 
 public final class KeyInput implements KeyListener {
 
@@ -30,6 +31,13 @@ public final class KeyInput implements KeyListener {
 
   public static void setListenerActive(boolean active) {
     listenerActive = active;
+
+    if (!active) {
+      IntStream.range(0, keys.length)
+          .forEach(i -> keys[i] = false);
+      IntStream.range(0, lastKeys.length)
+          .forEach(i -> lastKeys[i] = false);
+    }
   }
 
   public static boolean isDown(int key) {

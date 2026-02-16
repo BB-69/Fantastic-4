@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.stream.IntStream;
 
 import game.GameCanvas;
 import game.GameCanvas.RenderSize;
@@ -33,6 +34,7 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   public static void fixedUpdate() {
     System.arraycopy(buttons, 0, lastButtons, 0, MOUSE_BUTTON_COUNT);
+
     lastIsAnyDown = isAnyDown;
     lastIsIn = isIn;
     lastPosition.x = position.x;
@@ -43,6 +45,17 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   public static void setListenerActive(boolean active) {
     listenerActive = active;
+
+    if (!active) {
+      IntStream.range(0, buttons.length)
+          .forEach(i -> buttons[i] = false);
+      IntStream.range(0, lastButtons.length)
+          .forEach(i -> lastButtons[i] = false);
+      isAnyDown = false;
+      lastIsAnyDown = false;
+      isIn = false;
+      lastIsIn = false;
+    }
   }
 
   public static boolean isAnyDown() {
