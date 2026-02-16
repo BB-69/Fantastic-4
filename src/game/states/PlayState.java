@@ -1,6 +1,7 @@
 package game.states;
 
 import game.core.GameState;
+import game.core.StateManager;
 import game.core.signal.SignedSignal;
 import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
@@ -12,8 +13,6 @@ public class PlayState extends GameState {
 
   private boolean pendingRestart = false;
 
-  private SignedSignal globalSignal = new SignedSignal();
-
   private PlayTextureManager tex;
   private PlayUIManager ui;
   private BoardManager bmn;
@@ -24,10 +23,12 @@ public class PlayState extends GameState {
     stateName = "play";
     init();
 
-    globalSignal.connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
   }
 
   private void init() {
+    SignedSignal globalSignal = StateManager.getGlobalSignal();
+
     tex = new PlayTextureManager(globalSignal);
     ui = new PlayUIManager(globalSignal);
     bmn = new BoardManager(globalSignal);
