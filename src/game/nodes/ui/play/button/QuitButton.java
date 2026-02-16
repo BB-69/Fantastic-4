@@ -28,6 +28,8 @@ public class QuitButton extends Button {
 
     QuitButton instance = this;
     signalButtonClicked.connect(instance::onQuit);
+
+    layer = 111;
   }
 
   @Override

@@ -28,6 +28,8 @@ public class RestartButton extends Button {
 
     RestartButton instance = this;
     signalButtonClicked.connect(instance::onRestart);
+
+    layer = 111;
   }
 
   @Override

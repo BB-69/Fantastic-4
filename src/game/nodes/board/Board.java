@@ -28,7 +28,7 @@ public class Board extends Node {
     super();
 
     x = GameCanvas.WIDTH / 2;
-    y = GameCanvas.HEIGHT / 2 + 60;
+    y = GameCanvas.HEIGHT / 2 + 70;
 
     for (int row = 0; row < BoardLogic.ROWS; row++) {
       for (int col = 0; col < BoardLogic.COLS; col++) {

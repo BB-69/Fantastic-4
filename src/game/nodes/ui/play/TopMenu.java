@@ -23,11 +23,15 @@ public class TopMenu extends Node {
   private QuitButton quitButton = new QuitButton();
 
   public TopMenu() {
+    super();
+
     addChildren(restartButton, quitButton);
 
     int padding = 6;
     restartButton.setPosition((restartButton.w + padding) / 2, (height + extensionY) / 2);
     quitButton.setPosition(-(quitButton.w + padding) / 2, (height + extensionY) / 2);
+
+    layer = 110;
   }
 
   @Override

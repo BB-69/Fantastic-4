@@ -44,7 +44,7 @@ public class Coin extends Entity {
     super.fixedUpdate();
 
     if (!sprite.isSpawning() && isMovingToTargetX) {
-      setWorldX(MathUtil.lerp(getWorldX(), targetX, 0.12f));
+      setWorldX(MathUtil.lerp(getWorldX(), targetX, 6 * Time.FIXED_DELTA));
 
       if (Math.abs(getWorldX() - targetX) < 1) {
         setWorldX(targetX);

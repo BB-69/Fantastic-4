@@ -4,12 +4,12 @@ import java.awt.Color;
 
 import game.core.node.ui.Text;
 
-public class StatusText extends Text {
+public class _StatusText extends Text {
 
   private int currentPlayer = 0;
   private boolean gameOver = false;
 
-  public StatusText() {
+  public _StatusText() {
     super();
 
     content = "No Player Active!";
