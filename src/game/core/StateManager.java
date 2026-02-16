@@ -2,7 +2,10 @@ package game.core;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import game.core.signal.SignedSignal;
 
@@ -42,20 +45,23 @@ public class StateManager {
   }
 
   public static void fixedUpdate() {
-    globalStates.stream().forEach(GameState::fixedUpdate);
-    if (current != null)
-      current.fixedUpdate();
+    Arrays.stream(
+        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+            .toArray(GameState[]::new))
+        .forEach(GameState::fixedUpdate);
   }
 
   public static void update() {
-    globalStates.stream().forEach(GameState::update);
-    if (current != null)
-      current.update();
+    Arrays.stream(
+        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+            .toArray(GameState[]::new))
+        .forEach(GameState::update);
   }
 
   public static void render(Graphics2D g, float alpha) {
-    globalStates.stream().forEach(s -> s.render(g, alpha));
-    if (current != null)
-      current.render(g, alpha);
+    Arrays.stream(
+        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+            .toArray(GameState[]::new))
+        .forEach(s -> s.render(g, alpha));
   }
 }

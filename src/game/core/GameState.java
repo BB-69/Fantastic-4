@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 public abstract class GameState {
 
   protected String stateName;
+  protected int stateOrder = 0;
   protected NodeManager nodeManager;
 
   public GameState() {
@@ -13,6 +14,10 @@ public abstract class GameState {
 
   public String getStateName() {
     return stateName;
+  }
+
+  public int getStateOrder() {
+    return stateOrder;
   }
 
   public void fixedUpdate() {
