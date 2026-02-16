@@ -198,9 +198,6 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
   // isDown = true;
   @Override
   public void mouseDragged(MouseEvent e) {
-    if (!listenerActive)
-      return;
-
     if (isAnyDown) {
       position.x = e.getX();
       position.y = e.getY();
@@ -210,9 +207,6 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
   // isDown = false;
   @Override
   public void mouseMoved(MouseEvent e) {
-    if (!listenerActive)
-      return;
-
     if (!isAnyDown) {
       position.x = e.getX();
       position.y = e.getY();
