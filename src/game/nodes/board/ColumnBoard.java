@@ -39,7 +39,7 @@ public class ColumnBoard extends Node {
     for (int i = 0; i < BoardLogic.COLS; i++) {
       caList[i].selected = false;
 
-      if (hoveredIndex == -1 && caList[i].isMouseInside()) {
+      if (hoveredIndex == -1 && caList[i].isHovered()) {
         hoveredIndex = i;
         caList[i].selected = true;
       }

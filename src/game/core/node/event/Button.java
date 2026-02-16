@@ -40,7 +40,7 @@ public class Button extends Area {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    if (MouseInput.isAnyPressed() && isMouseInside())
+    if (MouseInput.isAnyPressed() && isHovered())
       signalButtonClicked.emit();
   }
 
@@ -50,7 +50,7 @@ public class Button extends Area {
     g.translate(getWorldX(), getWorldY());
 
     g.rotate(rotation);
-    g.setColor(MouseInput.isAnyDown() && isMouseInside()
+    g.setColor(MouseInput.isAnyDown() && isHovered()
         ? getClickColor(color)
         : color);
     g.fillRect(
