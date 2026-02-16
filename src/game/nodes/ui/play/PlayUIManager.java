@@ -7,7 +7,6 @@ import game.core.node.Node;
 import game.core.node.ui.Text;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
-import game.nodes.ui.play.button.RestartButton;
 import game.nodes.ui.play.text.StatusText;
 
 public class PlayUIManager extends Node {
@@ -17,13 +16,12 @@ public class PlayUIManager extends Node {
   private Text titleText = new Text("Connect 4");
   private StatusText statusText = new StatusText();
 
-  private RestartButton restartButton = new RestartButton();
+  private TopMenu topMenu = new TopMenu();
 
   private SignedSignal globalSignal;
 
   private Signal signalCurP = new Signal();
   private Signal signalGameOver = new Signal();
-  private Signal signalRestart;
 
   public PlayUIManager(SignedSignal globalSignal) {
     super();
@@ -34,19 +32,15 @@ public class PlayUIManager extends Node {
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2;
 
-    addChildren(titleText, statusText, restartButton);
+    addChildren(titleText, statusText, topMenu);
 
     titleText.y = -GameCanvas.HEIGHT / 2 + titleText.getTextHeight();
     statusText.y = -GameCanvas.HEIGHT / 2 + 3 * titleText.getTextHeight();
-    restartButton.setPosition(
-        GameCanvas.WIDTH / 2 - restartButton.w,
-        -GameCanvas.HEIGHT / 2 + restartButton.h);
-
-    signalRestart = restartButton.getClickSignal();
+    topMenu.setWorldX(GameCanvas.WIDTH / 2);
+    topMenu.setWorldY(0);
 
     signalCurP.connect(statusText::onCurP); // signalCurP
     signalGameOver.connect(statusText::onGameOver); // signalGameOver
-    signalRestart.connect(Instance::onRestart); // signalRestart
   }
 
   @Override

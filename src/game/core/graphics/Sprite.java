@@ -73,6 +73,7 @@ public class Sprite {
     this.image = image;
     width = image.getWidth();
     height = image.getHeight();
+    colorInverted = false;
   }
 
   // === HELPERS ===
@@ -101,7 +102,7 @@ public class Sprite {
       colorInverted = false;
       return;
     } else {
-      BufferedImage safeImage = AssetManager.getTextureSafe(name + "-inverted");
+      BufferedImage safeImage = AssetManager.getTextureSafe(name + "_inverted");
       if (safeImage != null) {
         image = safeImage;
         colorInverted = true;
@@ -126,7 +127,7 @@ public class Sprite {
     invertFilter.filter(copy, copy);
 
     image = copy;
-    AssetManager.addTexture(name + "-inverted", copy);
+    AssetManager.addTexture(name + "_inverted", copy);
     colorInverted = true;
   }
 }

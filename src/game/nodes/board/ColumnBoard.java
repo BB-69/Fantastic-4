@@ -11,6 +11,7 @@ import game.nodes.coin.CoinTrailChain;
 
 public class ColumnBoard extends Node {
 
+  private static final int offsetTop = 100;
   public static final int topSpawnY = 140;
   private float moveX = 0f;
 
@@ -29,7 +30,7 @@ public class ColumnBoard extends Node {
   public ColumnBoard() {
     super();
 
-    y = GameCanvas.HEIGHT / 2;
+    y = GameCanvas.HEIGHT / 2 + offsetTop;
   }
 
   @Override

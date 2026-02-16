@@ -1,8 +1,13 @@
 package game.util.graphics;
 
+import java.awt.Color;
+
 import game.util.calc.MathUtil;
 
 public class ColorUtil {
+
+  public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+
   public static int getAlpha(int argb) {
     return (argb >> 24) & 0xff;
   }

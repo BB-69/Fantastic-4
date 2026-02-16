@@ -20,6 +20,8 @@ public class TransitionManager extends Node {
   private float progress = 0f;
   private float speed = 2.4f;
 
+  private boolean quittingGame = false;
+
   @Override
   public void update() {
     if (isTransitioning) {
@@ -34,6 +36,9 @@ public class TransitionManager extends Node {
           game.input.KeyInput.setListenerActive(true);
           game.input.MouseInput.setListenerActive(true);
         }
+
+        if (quittingGame)
+          System.exit(0);
       }
     }
   }
@@ -91,6 +96,20 @@ public class TransitionManager extends Node {
 
     game.input.KeyInput.setListenerActive(false);
     game.input.MouseInput.setListenerActive(false);
+  }
+
+  public void transitionExitGame() {
+    if (isTransitioning)
+      return;
+    isTransitioning = true;
+    progress = 0;
+    speed = 1.6f;
+    currentMode = TransitionMode.Enter;
+
+    game.input.KeyInput.setListenerActive(false);
+    game.input.MouseInput.setListenerActive(false);
+
+    quittingGame = true;
   }
 
   public boolean isTransitioning() {

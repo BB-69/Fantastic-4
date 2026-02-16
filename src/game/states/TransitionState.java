@@ -65,6 +65,9 @@ public class TransitionState extends GameState {
       case "restart":
         onRestart(args);
         break;
+      case "quit":
+        onQuit(args);
+        break;
       default:
     }
   }
@@ -77,5 +80,9 @@ public class TransitionState extends GameState {
     tra.transitionEnter();
     loadTimer = 0f;
     isTransitioning = true;
+  }
+
+  private void onQuit(Object... args) {
+    tra.transitionExitGame();
   }
 }

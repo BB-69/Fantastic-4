@@ -14,6 +14,7 @@ public class Button extends Area {
   protected Signal signalButtonClicked = new Signal();
 
   public Color color = Color.LIGHT_GRAY;
+  public Color hoverColor = null;
 
   public Button() {
     super();
@@ -40,7 +41,7 @@ public class Button extends Area {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    if (MouseInput.isAnyPressed() && isHovered())
+    if (MouseInput.isAnyReleased() && isHovered())
       signalButtonClicked.emit();
   }
 
@@ -50,9 +51,10 @@ public class Button extends Area {
     g.translate(getWorldX(), getWorldY());
 
     g.rotate(rotation);
-    g.setColor(MouseInput.isAnyDown() && isHovered()
-        ? getClickColor(color)
-        : color);
+    g.setColor(isHovered() ? (hoverColor != null ? hoverColor : color)
+        : isHovered() && MouseInput.isAnyDown()
+            ? getClickColor(hoverColor != null ? hoverColor : color)
+            : color);
     g.fillRect(
         (int) (-w / 2),
         (int) (-h / 2),
