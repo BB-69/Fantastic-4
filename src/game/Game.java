@@ -12,7 +12,14 @@ public final class Game {
     KeyInput.init(canvas);
     MouseInput.init(canvas);
 
-    StateManager.addGlobalState(new TransitionState());
+    game.input.KeyInput.setListenerActive(false);
+    game.input.MouseInput.setListenerActive(false);
+
+    TransitionState ts = new TransitionState();
+
+    StateManager.addGlobalState(ts);
     StateManager.setState(new PlayState());
+
+    StateManager.getGlobalSignal().emit("enterGame");
   }
 }

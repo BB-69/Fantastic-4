@@ -14,7 +14,7 @@ public class TransitionState extends GameState {
   private boolean isTransitioning = false;
   private boolean isLoading = false;
   private float loadTimer = 0f;
-  private float loadDuration = 0.5f;
+  private float loadDuration = 0.3f;
 
   public TransitionState() {
     super();
@@ -59,11 +59,18 @@ public class TransitionState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
+      case "enterGame":
+        onEnterGame(args);
+        break;
       case "restart":
         onRestart(args);
         break;
       default:
     }
+  }
+
+  private void onEnterGame(Object... args) {
+    tra.transitionEnterGame();
   }
 
   private void onRestart(Object... args) {
