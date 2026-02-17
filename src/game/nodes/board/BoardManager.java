@@ -85,6 +85,8 @@ public class BoardManager extends Node {
     }
     totalDropped += 1;
 
+    // boardl.printGrid();
+
     int[] pos = boardl.getlastDroppedPos();
     signalRCVal.emit(pos[0], pos[1], currentPlayer);
 
@@ -98,7 +100,8 @@ public class BoardManager extends Node {
   }
 
   private boolean checkWin(int row, int col) {
-    if (boardl.checkWin(row, col, currentPlayer)) {
+    int cellPlayer = boardl.getCell(row, col);
+    if (cellPlayer != 0 && boardl.checkWin(row, col, cellPlayer)) {
       gameOver = true;
       signalGameOver.emit();
       printState("Wins!");
@@ -149,9 +152,13 @@ public class BoardManager extends Node {
   private void onBoardCoinRemoved(Object... args) {
     int col = (int) args[1];
 
+    // boardl.printGrid();
+
     for (int row = 0; row < BoardLogic.ROWS; row++) {
       if (checkWin(row, col))
         break;
     }
+
+    totalDropped -= 1;
   }
 }

@@ -108,6 +108,10 @@ public class Board extends Node {
         landCoin(drop);
         droppingCoins.remove(i);
 
+        /*
+         * === PASSIVE ===
+         * If column full, destroy bottom coin
+         */
         if (drop.row == 0) {
           pieces[BoardLogic.ROWS - 1][drop.col].despawnCoin();
         }
