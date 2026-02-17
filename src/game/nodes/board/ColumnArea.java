@@ -22,6 +22,8 @@ public class ColumnArea extends Area {
 
   private boolean gameOver = false;
 
+  private boolean coinDropFinished = false;
+
   private Signal signalColClick;
 
   public ColumnArea(Node parent, int index, float x, float w) {
@@ -43,10 +45,12 @@ public class ColumnArea extends Area {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    if (!gameOver && selected) {
+    if (!gameOver && coinDropFinished && selected) {
       if (MouseInput.isAnyPressed()) {
-        if (signalColClick != null)
+        if (signalColClick != null) {
           signalColClick.emit(index);
+          coinDropFinished = false;
+        }
       }
     }
   }
@@ -83,8 +87,16 @@ public class ColumnArea extends Area {
     }
   }
 
+  public void informCoinDropStart() {
+    coinDropFinished = false;
+  }
+
   private void setGameOver(boolean gameOver) {
     this.gameOver = gameOver;
+  }
+
+  private void informCoinDropFinished() {
+    coinDropFinished = true;
   }
 
   public void setColClickSignal(Signal signalColClick) {
@@ -93,5 +105,9 @@ public class ColumnArea extends Area {
 
   public void onGameOver(Object... args) {
     setGameOver(true);
+  }
+
+  public void onCoinDropFinish(Object... args) {
+    informCoinDropFinished();
   }
 }

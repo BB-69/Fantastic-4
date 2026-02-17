@@ -128,6 +128,8 @@ public class BoardPiece extends Entity {
 
     scheduler.schedule(() -> {
       coin.shimmer();
+
+      scheduler.close();
     }, 200, TimeUnit.MILLISECONDS);
   }
 

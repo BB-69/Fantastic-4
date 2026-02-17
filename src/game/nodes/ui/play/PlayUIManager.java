@@ -1,12 +1,16 @@
 package game.nodes.ui.play;
 
 import java.awt.Graphics2D;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.nodes.ui.play.text.StatusText;
+import game.util.Log;
 
 public class PlayUIManager extends Node {
 
@@ -21,6 +25,8 @@ public class PlayUIManager extends Node {
 
   private Signal signalCurP = new Signal();
   private Signal signalGameOver = new Signal();
+
+  private boolean uiInit = false;
 
   public PlayUIManager(SignedSignal globalSignal) {
     super();
@@ -57,8 +63,32 @@ public class PlayUIManager extends Node {
   public void render(Graphics2D g, float alpha) {
   }
 
+  private void initUI() {
+    if (!uiInit) {
+      uiInit = true;
+
+      statusText.slideIn();
+
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+      scheduler.schedule(() -> {
+        globalSignal.emit("startGameAction");
+        Log.logInfo("Game Action Started!");
+
+        scheduler.close();
+      }, 1, TimeUnit.SECONDS);
+    }
+  }
+
+  private void onRestartReload(Object... args) {
+    uiInit = false;
+  }
+
   private void onTransitionDone(Object... args) {
-    statusText.slideIn();
+    boolean isEnter = ((String) args[0]).equals("enter");
+
+    if (!isEnter)
+      initUI();
   }
 
   private void onGlobalSignal(String signalName, Object... args) {
@@ -70,6 +100,9 @@ public class PlayUIManager extends Node {
         signalGameOver.emit(args);
         break;
       case "restart":
+        break;
+      case "restartReload":
+        onRestartReload(args);
         break;
       case "transitionDone":
         onTransitionDone(args);

@@ -30,10 +30,12 @@ public class TransitionManager extends Node {
       if ((currentMode == TransitionMode.Enter && progress > 1)
           || (currentMode == TransitionMode.Exit && progress < 0)) {
 
-        StateManager.getGlobalSignal().emit("transitionDone");
+        isTransitioning = false;
+
+        StateManager.getGlobalSignal().emit("transitionDone",
+            currentMode == TransitionMode.Enter ? "enter" : "exit");
 
         progress = currentMode == TransitionMode.Enter ? 1 : 0;
-        isTransitioning = false;
 
         if (currentMode == TransitionMode.Exit) {
           game.input.KeyInput.setListenerActive(true);

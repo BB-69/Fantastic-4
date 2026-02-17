@@ -206,6 +206,8 @@ class StatusPlayer extends Node {
     scheduler.schedule(() -> {
       midScalerWidthSpd = 1.1f;
       midScalerWidthTo = 2.3f;
+
+      scheduler.close();
     }, 300, TimeUnit.MILLISECONDS);
   }
 }

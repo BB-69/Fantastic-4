@@ -24,6 +24,8 @@ public class Board extends Node {
   private final int[] lastDroppedPos = new int[2];
   private Signal signalBoardPos;
 
+  private Signal signalCoinDropFinish;
+
   private final List<DroppingCoin> droppingCoins = new ArrayList<>();
 
   public Board() {
@@ -114,6 +116,9 @@ public class Board extends Node {
          */
         if (drop.row == 0) {
           pieces[BoardLogic.ROWS - 1][drop.col].despawnCoin();
+        } else {
+          if (signalCoinDropFinish != null)
+            signalCoinDropFinish.emit();
         }
       }
     }
@@ -173,6 +178,10 @@ public class Board extends Node {
 
   public void attachPosSignal(Signal signalBoardPos) {
     this.signalBoardPos = signalBoardPos;
+  }
+
+  public void attachCoinDropFinishSignal(Signal signalCoinDropFinish) {
+    this.signalCoinDropFinish = signalCoinDropFinish;
   }
 
   private static class DroppingCoin {

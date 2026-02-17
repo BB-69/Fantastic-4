@@ -21,6 +21,8 @@ public class ColumnBoard extends Node {
   private boolean gameOver = false;
   private Coin coin;
 
+  private boolean canSpawnNewCoin = false;
+
   private final ColumnArea[] caList = java.util.stream.IntStream
       .range(0, BoardLogic.COLS)
       .mapToObj(
@@ -71,7 +73,8 @@ public class ColumnBoard extends Node {
     moveX = (hoveredIndex - (BoardLogic.COLS - 1) / 2f)
         * Board.PIECE_WIDTH;
 
-    if (coin == null) {
+    if (coin == null && canSpawnNewCoin) {
+      canSpawnNewCoin = false;
       coin = new Coin(currentPlayer - 1);
       coin.layer = -7;
       coin.spawn();
@@ -81,7 +84,7 @@ public class ColumnBoard extends Node {
         coin.x = moveX;
     }
 
-    if (hoveredIndex != -1)
+    if (coin != null && hoveredIndex != -1)
       coin.moveToX((int) (getWorldX() + moveX));
   }
 
@@ -120,14 +123,26 @@ public class ColumnBoard extends Node {
     destroyPreviewCoin();
   }
 
+  private void setSpawnNewCoin() {
+    canSpawnNewCoin = true;
+  }
+
   public void attachGameOverSignal(Signal signalGameOver) {
     for (int i = 0; i < BoardLogic.COLS; i++)
       signalGameOver.connect(caList[i]::onGameOver);
   }
 
+  public void attachCoinDropFinishSignal(Signal signalCoinDropFinish) {
+    for (int i = 0; i < BoardLogic.COLS; i++)
+      signalCoinDropFinish.connect(caList[i]::onCoinDropFinish);
+  }
+
   public void passColClickSignaller(Signal signalColClick) {
     for (int i = 0; i < BoardLogic.COLS; i++)
       caList[i].setColClickSignal(signalColClick);
+
+    ColumnBoard colb = this;
+    signalColClick.connect(colb::onColClick);
   }
 
   public void onCurP(Object... args) {
@@ -140,5 +155,14 @@ public class ColumnBoard extends Node {
 
   public void onBoardPos(Object... args) {
     this.x = (float) args[0];
+  }
+
+  public void onCoinDropFinish(Object... args) {
+    setSpawnNewCoin();
+  }
+
+  private void onColClick(Object... args) {
+    for (int i = 0; i < BoardLogic.COLS; i++)
+      caList[i].informCoinDropStart();
   }
 }

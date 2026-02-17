@@ -27,6 +27,7 @@ public class BoardManager extends Node {
 
   private Signal signalBoardPos = new Signal();
 
+  private Signal signalCoinDropFinish = new Signal();
   private Signal signalColClick = new Signal();
 
   public BoardManager(SignedSignal globalSignal) {
@@ -53,6 +54,9 @@ public class BoardManager extends Node {
     signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
 
+    signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
+    colBoard.attachCoinDropFinishSignal(signalCoinDropFinish);
+    board.attachCoinDropFinishSignal(signalCoinDropFinish);
     signalColClick.connect(Instance::onColClick); // signalColClick
     colBoard.passColClickSignaller(signalColClick);
 
@@ -128,6 +132,9 @@ public class BoardManager extends Node {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
+      case "startGameAction":
+        signalCoinDropFinish.emit();
+        break;
       case "boardCoinRemoved":
         boardl.onBoardCoinRemoved(args);
         board.onBoardCoinRemoved(args);
