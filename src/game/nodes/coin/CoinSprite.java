@@ -25,6 +25,12 @@ public class CoinSprite extends Sprite {
     shimmerAnim.stop();
   }
 
+  public void deSpawn() {
+    spawnAnim.startReverse();
+    flashAnim.stop();
+    shimmerAnim.stop();
+  }
+
   public void flashAnim(float duration) {
     spawnAnim.stop();
     flashAnim.start(duration);
@@ -107,10 +113,20 @@ class SpawnAnimation {
   private float progress = 0f;
   private float speed = 4f;
   private boolean active = false;
+  private boolean isReversed = false;
 
   public void start() {
     progress = 0f;
     active = true;
+    speed = 4f;
+    isReversed = false;
+  }
+
+  public void startReverse() {
+    progress = 1f;
+    active = true;
+    speed = -4f;
+    isReversed = true;
   }
 
   public void stop() {
@@ -127,8 +143,11 @@ class SpawnAnimation {
 
     progress += speed * dt;
 
-    if (progress >= 1f) {
+    if (!isReversed && progress >= 1f) {
       progress = 1f;
+      active = false;
+    } else if (isReversed && progress <= 0f) {
+      progress = 0f;
       active = false;
     }
   }
@@ -180,6 +199,7 @@ class SpawnAnimation {
 /* ===================================================== */
 
 class FlashAnimation {
+
   private float progress = 0f;
   private float duration = 0f;
   private boolean active = false;

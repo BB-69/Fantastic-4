@@ -3,8 +3,10 @@ package game.nodes.board;
 import java.awt.Graphics2D;
 
 import game.core.node.Node;
+import game.util.Log;
 
 public class BoardLogic extends Node {
+
   public static final int ROWS = 6;
   public static final int COLS = 7;
   public static final int TOTAL_CELL = ROWS * COLS;
@@ -29,6 +31,17 @@ public class BoardLogic extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
+  }
+
+  public void printGrid() {
+    String output = "Current BoardLogic State:";
+    for (int[] row : grid) {
+      output += "\n";
+      for (int val : row) {
+        output += "[" + val + "] ";
+      }
+    }
+    Log.logInfo(output);
   }
 
   boolean dropPiece(int col, int player) {
@@ -77,5 +90,24 @@ public class BoardLogic extends Node {
       c += dc;
     }
     return count;
+  }
+
+  int getCell(int row, int col) {
+    return grid[row][col];
+  }
+
+  private void collapseColumn(int startRow, int col) {
+    for (int row = startRow; row > 0; row--) {
+      grid[row][col] = grid[row - 1][col];
+    }
+
+    grid[0][col] = 0;
+  }
+
+  public void onBoardCoinRemoved(Object... args) {
+    int removedRow = (int) args[0];
+    int col = (int) args[1];
+
+    collapseColumn(removedRow, col);
   }
 }

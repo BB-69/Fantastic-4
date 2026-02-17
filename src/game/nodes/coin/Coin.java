@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import game.core.AssetManager;
 import game.core.node.Entity;
+import game.core.signal.Signal;
 import game.util.Time;
 import game.util.calc.MathUtil;
 
@@ -20,6 +21,9 @@ public class Coin extends Entity {
   private int targetX = 0;
   private boolean isMovingToTargetX = false;
 
+  private boolean despawning = false;
+  private Signal signalCoinRemoved;
+
   public Coin(int player) {
     super();
 
@@ -34,9 +38,17 @@ public class Coin extends Entity {
     sprite.setSize(COIN_SIZE, COIN_SIZE);
   }
 
+  public void attachCoinRemovedSignal(Signal signalCoinRemoved) {
+    this.signalCoinRemoved = signalCoinRemoved;
+  }
+
   @Override
   public void update() {
     sprite.update(Time.deltaTime);
+
+    if (despawning && !sprite.isSpawning()) {
+      explode();
+    }
   }
 
   @Override
@@ -89,6 +101,20 @@ public class Coin extends Entity {
   public void spawn() {
     setActive(true);
     sprite.spawn();
+  }
+
+  public void deSpawn() {
+    setActive(true);
+    sprite.deSpawn();
+    despawning = true;
+  }
+
+  private void explode() {
+    despawning = false;
+    getNodeManagerInstance().addNode(new CoinExplodeAni(getWorldX(), getWorldY()));
+    if (signalCoinRemoved != null)
+      signalCoinRemoved.emit();
+    destroyRecursive();
   }
 
   public boolean isSpawning() {

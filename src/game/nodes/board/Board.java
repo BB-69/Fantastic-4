@@ -11,6 +11,8 @@ import game.nodes.coin.Coin;
 
 public class Board extends Node {
 
+  private BoardLogic boardLogic;
+
   public static final float PIECE_WIDTH = 60f;
   public static final float PIECE_HEIGHT = 60f;
 
@@ -33,7 +35,7 @@ public class Board extends Node {
     for (int row = 0; row < BoardLogic.ROWS; row++) {
       for (int col = 0; col < BoardLogic.COLS; col++) {
         BoardPiece p = new BoardPiece(
-            gridState[row][col]);
+            gridState[row][col], row, col);
 
         p.setPosition(
             Board.PIECE_WIDTH * (col - ((BoardLogic.COLS - 1) / 2f)),
@@ -43,6 +45,10 @@ public class Board extends Node {
         pieces[row][col] = p;
       }
     }
+  }
+
+  public void attachLogic(BoardLogic logic) {
+    this.boardLogic = logic;
   }
 
   @Override
@@ -71,16 +77,25 @@ public class Board extends Node {
   }
 
   private void startDrop(int row, int col, int val) {
+    startDrop(row, col, val, -1);
+  }
+
+  private void startDrop(int row, int col, int val, int fromRow) {
     Coin coin = new Coin(val - 1);
     coin.setParent(this);
 
+    boolean fromExistingRow = fromRow > -1 && fromRow < BoardLogic.ROWS;
+
     float spawnX = pieces[row][col].getWorldX();
-    float spawnY = ColumnBoard.topSpawnY;
+    float spawnY = (fromExistingRow)
+        ? pieces[fromRow][col].getWorldY()
+        : ColumnBoard.topSpawnY;
     float targetY = pieces[row][col].getWorldY();
 
     coin.setWorldPosition(spawnX, spawnY);
     coin.gravityOn = true;
-    coin.flash(0.25f);
+    if (!fromExistingRow)
+      coin.flash(0.25f);
 
     droppingCoins.add(new DroppingCoin(coin, row, col, targetY));
   }
@@ -92,6 +107,10 @@ public class Board extends Node {
       if (drop.coin.getWorldY() >= drop.targetY) {
         landCoin(drop);
         droppingCoins.remove(i);
+
+        if (drop.row == 0) {
+          pieces[BoardLogic.ROWS - 1][drop.col].despawnCoin();
+        }
       }
     }
   }
@@ -109,6 +128,24 @@ public class Board extends Node {
       row[col].revealBack();
   }
 
+  private void rebuildColumnFromLogic(int startRow, int col) {
+
+    for (int row = startRow; row >= 0; row--) {
+
+      int targetVal = boardLogic.getCell(row, col);
+      BoardPiece piece = pieces[row][col];
+
+      piece.destroyCoin();
+
+      if (targetVal == 0) {
+        piece.setValue(0);
+        continue;
+      }
+
+      startDrop(row, col, targetVal, row - 1);
+    }
+  }
+
   public void onRCVal(Object... args) {
     setRCVal((int) args[0], (int) args[1], (int) args[2]);
     startDrop((int) args[0], (int) args[1], (int) args[2]);
@@ -121,6 +158,13 @@ public class Board extends Node {
 
   public void onGameOver(Object... args) {
     this.gameOver = true;
+  }
+
+  public void onBoardCoinRemoved(Object... args) {
+    int removedRow = (int) args[0];
+    int col = (int) args[1];
+
+    rebuildColumnFromLogic(removedRow, col);
   }
 
   public void attachPosSignal(Signal signalBoardPos) {

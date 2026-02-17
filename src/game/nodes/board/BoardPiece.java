@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import game.core.StateManager;
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
 import game.core.signal.Signal;
@@ -13,9 +14,11 @@ import game.util.calc.MathUtil;
 
 public class BoardPiece extends Entity {
 
+  private final BoardPiece Instance = this;
+
   private Sprite backSprite;
 
-  private BoardPieceCover cover = new BoardPieceCover();;
+  private BoardPieceCover cover = new BoardPieceCover();
 
   public static enum SpritePhase {
     Reveal, Hide, ToReveal, ToHide
@@ -24,15 +27,23 @@ public class BoardPiece extends Entity {
   private SpritePhase spritePhase = SpritePhase.Hide;
   private Signal updateSpritePhase = new Signal();
 
+  private Signal signalCoinRemoved = new Signal();
+
   private boolean initPosition = false;
 
   private int val = 0;
+  private int row;
+  private int col;
   private Coin coin;
 
-  public BoardPiece(int val) {
+  public BoardPiece(int val, int row, int col) {
     super();
 
     setValue(val);
+    this.row = row;
+    this.col = col;
+
+    signalCoinRemoved.connect(Instance::onCoinRemoved);
 
     initSprite();
 
@@ -75,6 +86,7 @@ public class BoardPiece extends Entity {
         coin.spawn();
         coin.setParent(this);
         coin.setPosition(0, 0);
+        coin.attachCoinRemovedSignal(signalCoinRemoved);
       } else
         coin.setPlayer(val - 1);
     } else {
@@ -108,6 +120,7 @@ public class BoardPiece extends Entity {
     coin.setParent(this);
     coin.initPosition();
     coin.setPosition(0, 0);
+    coin.attachCoinRemovedSignal(signalCoinRemoved);
     coin.flash(0.15f);
     setValue(coin.getPlayer() + 1);
 
@@ -121,7 +134,17 @@ public class BoardPiece extends Entity {
   public Coin extractCoin() {
     Coin coin = this.coin;
     this.coin = null;
+    this.val = 0;
     return coin;
+  }
+
+  public void destroyCoin() {
+    if (coin != null)
+      coin.destroy();
+  }
+
+  public void despawnCoin() {
+    coin.deSpawn();
   }
 
   public void setValue(int val) {
@@ -134,8 +157,13 @@ public class BoardPiece extends Entity {
         coin.spawn();
         coin.setParent(this);
         coin.setPosition(0, 0);
+        coin.attachCoinRemovedSignal(signalCoinRemoved);
       } else
         coin.setPlayer(val - 1);
     }
+  }
+
+  private void onCoinRemoved(Object... args) {
+    StateManager.getGlobalSignal().emit("boardCoinRemoved", row, col);
   }
 }

@@ -39,6 +39,8 @@ public class BoardManager extends Node {
     board.setParent(this);
     colBoard.setParent(this);
 
+    board.attachLogic(boardl);
+
     signalRCVal.connect(board::onRCVal); // signalRCVal
     signalCurP.connect(board::onCurP); // signalCurP
     signalCurP.connect(Instance::onCurP);
@@ -88,7 +90,15 @@ public class BoardManager extends Node {
 
     printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
 
-    if (boardl.checkWin(pos[0], pos[1], currentPlayer)) {
+    if (checkWin(pos[0], pos[1]))
+      return true;
+
+    switchTurn();
+    return true;
+  }
+
+  private boolean checkWin(int row, int col) {
+    if (boardl.checkWin(row, col, currentPlayer)) {
       gameOver = true;
       signalGameOver.emit();
       printState("Wins!");
@@ -100,9 +110,7 @@ public class BoardManager extends Node {
       Log.logInfo("Tie!");
       return true;
     }
-
-    switchTurn();
-    return true;
+    return false;
   }
 
   private void switchTurn() {
@@ -117,6 +125,11 @@ public class BoardManager extends Node {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
+      case "boardCoinRemoved":
+        boardl.onBoardCoinRemoved(args);
+        board.onBoardCoinRemoved(args);
+        onBoardCoinRemoved(args);
+        break;
       default:
     }
   }
@@ -131,5 +144,14 @@ public class BoardManager extends Node {
 
   private void onColClick(Object... args) {
     handleMove((int) args[0]);
+  }
+
+  private void onBoardCoinRemoved(Object... args) {
+    int col = (int) args[1];
+
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      if (checkWin(row, col))
+        break;
+    }
   }
 }
