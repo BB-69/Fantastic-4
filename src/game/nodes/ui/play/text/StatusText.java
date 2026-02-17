@@ -8,7 +8,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-import game.GameCanvas;
 import game.core.node.ui.Text;
 import game.nodes.ui.play.TopMenu;
 import game.util.Time;
@@ -34,10 +33,6 @@ public class StatusText extends Text {
 
   private final Color p1Color = Color.getHSBColor(0f, 1f, 0.95f);
   private final Color p2Color = Color.getHSBColor(0.12f, 0.9f, 0.9f);
-
-  private final float lineWidth = GameCanvas.WIDTH / 2f / scale;
-  private float lineHeight = alphaHeight * 0.15f;
-  private final float angle = (float) (Math.PI / 6f);
 
   public StatusText() {
     super();
@@ -71,7 +66,7 @@ public class StatusText extends Text {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    setWorldY(MathUtil.lerp(getWorldY(), targetY, 8 * Time.FIXED_DELTA));
+    setWorldY(MathUtil.lerp(getWorldY(), targetY, 6 * Time.FIXED_DELTA));
   }
 
   @Override
@@ -106,33 +101,6 @@ public class StatusText extends Text {
 
       g.setPaint(oldPaint);
       g.setTransform(old2);
-    }
-
-    { // lines
-      lineHeight = alphaHeight * 0.15f;
-      g.setColor(TopMenu.c1.darker());
-
-      g.rotate(angle);
-      g.fillRect((int) (-lineWidth),
-          (int) (-lineHeight * 3),
-          (int) (lineWidth),
-          (int) (lineHeight * 2));
-      g.fillRect((int) (-lineWidth),
-          (int) (lineHeight),
-          (int) (lineWidth),
-          (int) (lineHeight * 2));
-
-      g.rotate(-angle * 2);
-      g.fillRect(0,
-          (int) (-lineHeight * 3),
-          (int) (lineWidth),
-          (int) (lineHeight * 2));
-      g.fillRect(0,
-          (int) (lineHeight),
-          (int) (lineWidth),
-          (int) (lineHeight * 2));
-
-      g.rotate(angle);
     }
 
     g.setColor(TopMenu.c1);

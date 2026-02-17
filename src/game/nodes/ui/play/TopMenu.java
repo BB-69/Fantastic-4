@@ -8,9 +8,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
+import game.GameCanvas;
 import game.core.node.Node;
 import game.nodes.ui.play.button.QuitButton;
 import game.nodes.ui.play.button.RestartButton;
+import game.util.Time;
+import game.util.calc.MathUtil;
 import game.util.graphics.ColorUtil;
 
 public class TopMenu extends Node {
@@ -27,6 +30,10 @@ public class TopMenu extends Node {
   private RestartButton restartButton = new RestartButton();
   private QuitButton quitButton = new QuitButton();
 
+  private int currentPlayer = 0;
+
+  private float targetLocalX = 0f;
+
   public TopMenu() {
     super();
 
@@ -41,6 +48,12 @@ public class TopMenu extends Node {
 
   @Override
   public void update() {
+    x = MathUtil.lerp(x, targetLocalX, 10 * Time.deltaTime);
+  }
+
+  @Override
+  public void fixedUpdate() {
+    super.fixedUpdate();
   }
 
   @Override
@@ -81,5 +94,33 @@ public class TopMenu extends Node {
         4);
 
     g.setTransform(old);
+  }
+
+  private void setCurrentPlayer(int cur) {
+    this.currentPlayer = cur;
+  }
+
+  private void setGameOver(boolean gameOver) {
+    // this.gameOver = gameOver;
+
+    switch (currentPlayer) {
+      case 1:
+        targetLocalX = GameCanvas.WIDTH / 2f - width;
+        break;
+      case 2:
+        targetLocalX = -(GameCanvas.WIDTH / 2f - width);
+        break;
+      default:
+        targetLocalX = 0;
+        break;
+    }
+  }
+
+  public void onCurP(Object... args) {
+    setCurrentPlayer((int) args[0]);
+  }
+
+  public void onGameOver(Object... args) {
+    setGameOver(true);
   }
 }

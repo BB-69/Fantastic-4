@@ -33,16 +33,20 @@ public class PlayUIManager extends Node {
 
     StatusTurnBG statusBG = new StatusTurnBG();
 
-    addChildren(statusText, topMenu, statusTurn, statusBG);
+    addChildren(statusText, topMenu, statusBG);
+    topMenu.addChild(statusTurn);
 
     statusText.setWorldY(-statusText.getTextHeight() * 2);
     topMenu.setWorldY(0);
     statusTurn.setWorldY(0);
 
-    signalCurP.connect(statusText::onCurP); // signalCurP
+    signalCurP.connect(topMenu::onCurP); // signalCurP
+    signalCurP.connect(statusText::onCurP);
     signalCurP.connect(statusTurn::onCurP);
     signalCurP.connect(statusBG::onCurP);
-    signalGameOver.connect(statusText::onGameOver); // signalGameOver
+    signalGameOver.connect(topMenu::onGameOver); // signalGameOver
+    signalGameOver.connect(statusText::onGameOver);
+    signalGameOver.connect(statusTurn::onGameOver);
   }
 
   @Override
