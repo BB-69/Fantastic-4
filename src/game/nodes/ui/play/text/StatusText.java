@@ -59,7 +59,8 @@ public class StatusText extends Text {
     color = ColorUtil.lerp(color, targetColor, 2 * Time.deltaTime);
     scale = MathUtil.lerp(scale, targetScale, 12 * Time.deltaTime);
     size = (int) (textSize * Math.pow(scale, 2.2f));
-    updateTextMetrics();
+    if (lastSize != size)
+      updateTextMetrics();
   }
 
   @Override

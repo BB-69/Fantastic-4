@@ -141,7 +141,9 @@ class StatusPlayer extends Node {
 
     pfText.setPosition(scaledWidth * (isLeft ? -1 : 1), scaledHeight * 0.4f);
     pfText.size = (int) (scaledHeight * 0.5f);
-    pfText.updateTextMetrics();
+    if (pfText.lastSize != pfText.size)
+      pfText.updateTextMetrics();
+
   }
 
   public void fixedUpdate() {
