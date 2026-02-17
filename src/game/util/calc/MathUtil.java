@@ -5,8 +5,7 @@ public class MathUtil {
     return a + (b - a) * t;
   }
 
-  public static float clamp(float v) {
-    return Math.max(0, Math.min(255, v));
+  public static float clamp(float min, float max, float v) {
+    return Math.max(min, Math.min(max, v));
   }
-
 }

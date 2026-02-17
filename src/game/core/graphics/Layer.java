@@ -36,19 +36,19 @@ public class Layer {
   }
 
   public void fixedUpdate() {
-    for (Node n : nodes) {
+    for (Node n : new ArrayList<>(nodes)) {
       if (n.isActive())
         n.fixedUpdate();
     }
   }
 
   public void update() {
-    for (Node n : nodes) {
+    for (Node n : new ArrayList<>(nodes)) {
       if (n.isActive())
         n.update();
       if (n.getLayer() != index) {
         toRemove.add(n);
-        signalSendNodeTo.emit(n, index);
+        signalSendNodeTo.emit(n, n.layer);
       }
     }
     if (!toRemove.isEmpty()) {
@@ -58,14 +58,9 @@ public class Layer {
   }
 
   public void render(Graphics2D g, float alpha) {
-    for (Node n : nodes) {
+    for (Node n : new ArrayList<>(nodes)) {
       if (n.isActive())
         n.render(g, alpha);
     }
-  }
-
-  public void onSendNodeTo(Object... args) {
-    if ((int) args[1] == index)
-      add((Node) args[0]);
   }
 }

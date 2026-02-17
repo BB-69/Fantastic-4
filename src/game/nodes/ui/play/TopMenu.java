@@ -51,7 +51,7 @@ public class TopMenu extends Node {
     { // shadow
       Paint oldPaint = g.getPaint();
 
-      int radius = (int) ((width + height) * 0.67f);
+      int radius = (int) ((width + height) * 0.6f);
       RadialGradientPaint paint = new RadialGradientPaint(new Point2D.Float(),
           radius,
           new float[] { 0, 1 },

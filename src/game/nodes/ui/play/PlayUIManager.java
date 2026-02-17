@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 
 import game.GameCanvas;
 import game.core.node.Node;
-import game.core.node.ui.Text;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.nodes.ui.play.text.StatusText;
@@ -36,7 +35,7 @@ public class PlayUIManager extends Node {
 
     addChildren(statusText, topMenu, statusTurn, statusBG);
 
-    statusText.y = -GameCanvas.HEIGHT / 2 + 85;
+    statusText.setWorldY(-statusText.getTextHeight() * 2);
     topMenu.setWorldY(0);
     statusTurn.setWorldY(0);
 
@@ -54,6 +53,10 @@ public class PlayUIManager extends Node {
   public void render(Graphics2D g, float alpha) {
   }
 
+  private void onTransitionDone(Object... args) {
+    statusText.slideIn();
+  }
+
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
       case "currentPlayer":
@@ -63,6 +66,9 @@ public class PlayUIManager extends Node {
         signalGameOver.emit(args);
         break;
       case "restart":
+        break;
+      case "transitionDone":
+        onTransitionDone(args);
         break;
       default:
     }

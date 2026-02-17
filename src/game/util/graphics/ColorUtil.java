@@ -45,10 +45,20 @@ public class ColorUtil {
     int value = (int) (brightness * 255);
 
     return new int[] {
-        (int) MathUtil.clamp(value * tintR),
-        (int) MathUtil.clamp(value * tintG),
-        (int) MathUtil.clamp(value * tintB)
+        (int) MathUtil.clamp(0, 255, value * tintR),
+        (int) MathUtil.clamp(0, 255, value * tintG),
+        (int) MathUtil.clamp(0, 255, value * tintB)
     };
   }
 
+  public static Color lerp(Color a, Color b, float t) {
+    t = MathUtil.clamp(0, 1, t);
+
+    int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
+    int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+    int bC = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
+    int aC = (int) (a.getAlpha() + (b.getAlpha() - a.getAlpha()) * t);
+
+    return new Color(r, g, bC, aC);
+  }
 }

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
+import game.core.StateManager;
 import game.core.node.Node;
 import game.util.Time;
 
@@ -28,6 +29,8 @@ public class TransitionManager extends Node {
       progress += speed * (currentMode == TransitionMode.Enter ? 1 : -1) * Time.deltaTime;
       if ((currentMode == TransitionMode.Enter && progress > 1)
           || (currentMode == TransitionMode.Exit && progress < 0)) {
+
+        StateManager.getGlobalSignal().emit("transitionDone");
 
         progress = currentMode == TransitionMode.Enter ? 1 : 0;
         isTransitioning = false;
