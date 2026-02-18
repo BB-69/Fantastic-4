@@ -4,10 +4,15 @@ import java.awt.Graphics2D;
 
 import game.core.node.Node;
 
+import java.util.*;
+
 public class BoardLogic extends Node {
   public static final int ROWS = 6;
   public static final int COLS = 7;
   public static final int TOTAL_CELL = ROWS * COLS;
+
+  private boolean[] isReverseGravity = new boolean[COLS];  //สถานะแรงโน้มถ่วงของแต่ละคอลัมน์            
+  private int turnCount = 0;       //นับจำนวนเทิร์นที่เล่นไปแล้ว                                    
 
   private final int[][] grid = new int[ROWS][COLS];
   // 0 = empty, 1 = player1, 2 = player2
@@ -35,13 +40,33 @@ public class BoardLogic extends Node {
     if (col < 0 || col >= COLS)
       return false;
 
-    for (int row = ROWS - 1; row >= 0; row--) {
+    boolean droped = false;
+    if (isReverseGravity[col]) {
+        //แรงโน้มถ่วงกลับด้าน
+        for (int row = 0; row < ROWS; row++) {
+            if (grid[row][col] == 0) {
+              grid[row][col] = player;
+              lastDroppedPos[0] = row;
+              lastDroppedPos[1] = col;
+              droped = true;
+              break;
+            }
+        }
+    } else{for (int row = ROWS - 1; row >= 0; row--) {
       if (grid[row][col] == 0) {
         grid[row][col] = player;
         lastDroppedPos[0] = row;
         lastDroppedPos[1] = col;
-        return true;
+        droped = true;
+        break;
       }
+    }
+    }if (droped) { ///จัดการหลังจบเทิร์น
+        turnCount++;
+        if (turnCount % 4 == 0) {
+            applyRandomGravity();
+        }
+        return true;
     }
     return false; // column full
   }
@@ -77,5 +102,23 @@ public class BoardLogic extends Node {
       c += dc;
     }
     return count;
+  }
+
+  private void applyRandomGravity(){ ///สุ่มแรงโน้มถ่วง
+    for (int i = 0; i < COLS; i++) { ///รีเซ็ตแรงโน้มถ่วงใหม่
+    isReverseGravity[i] = false;
+    }
+
+    ArrayList<Integer> columns = new ArrayList<>(); ///สร้างลิสต์หมายเลขคอลัมน์
+    for (int i = 0; i < COLS; i++) {
+        columns.add(i);
+    }
+
+    Collections.shuffle(columns);///สลับตำแหน่งหมายเลขคอลัมน์ในลิสต์แบบสุ่ม
+
+    for (int i = 0; i < 3; i++) {///เลือก 3 คอลัมน์แรกที่สุ่มได้เพื่อเปลี่ยนแรงโน้มถ่วง
+    int selectedColumn = columns.get(i);
+    isReverseGravity[selectedColumn] = true;
+    }
   }
 }
