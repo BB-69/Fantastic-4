@@ -115,6 +115,10 @@ public class BoardPiece extends Entity {
     }
   }
 
+  public Coin getCoin() {
+    return coin;
+  }
+
   public void receiveCoin(Coin coin) {
     this.coin = coin;
     coin.setParent(this);

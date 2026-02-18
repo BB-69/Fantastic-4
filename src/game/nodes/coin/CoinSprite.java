@@ -4,7 +4,10 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import game.core.graphics.Sprite;
@@ -14,6 +17,8 @@ public class CoinSprite extends Sprite {
   private final SpawnAnimation spawnAnim = new SpawnAnimation();
   private final FlashAnimation flashAnim = new FlashAnimation();
   private final ShimmerAnimation shimmerAnim = new ShimmerAnimation();
+
+  private final GlowEffect glowFx = new GlowEffect();
 
   public CoinSprite(String textureName) {
     super(textureName);
@@ -47,6 +52,10 @@ public class CoinSprite extends Sprite {
     spawnAnim.stop();
   }
 
+  public void setGlow(boolean active) {
+    glowFx.setActive(active);
+  }
+
   @Override
   public void update(float deltaTime) {
     super.update(deltaTime);
@@ -72,6 +81,9 @@ public class CoinSprite extends Sprite {
 
     int drawX = (int) (-width / 2);
     int drawY = (int) (-height / 2);
+
+    if (glowFx.isActive())
+      glowFx.draw(g, (int) (Math.max(width, height) * 0.7f));
 
     if (spawnAnim.isActive()) {
       spawnAnim.draw(g, image, (int) width, (int) height, drawX, drawY);
@@ -101,6 +113,10 @@ public class CoinSprite extends Sprite {
 
   public boolean isShimmering() {
     return shimmerAnim.isActive();
+  }
+
+  public boolean isGlowing() {
+    return glowFx.isActive();
   }
 }
 
@@ -325,5 +341,46 @@ class ShimmerAnimation {
     bg.dispose();
 
     g.drawImage(buffer, drawX, drawY, null);
+  }
+}
+
+class GlowEffect {
+
+  private boolean active = false;
+
+  private final float[] fractions = {
+      0.0f,
+      0.5f,
+      1.0f
+  };
+  private final Color[] colors = {
+      Color.WHITE,
+      Color.WHITE,
+      new Color(0, 0, 0, 0)
+  };
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void draw(Graphics2D g, int radius) {
+    if (!active)
+      return;
+
+    Paint oldPaint = g.getPaint();
+
+    RadialGradientPaint paint = new RadialGradientPaint(
+        new Point2D.Float(0, 0),
+        radius,
+        fractions,
+        colors);
+
+    g.setPaint(paint);
+    g.fillOval(-radius, -radius, radius * 2, radius * 2);
+    g.setPaint(oldPaint);
   }
 }
