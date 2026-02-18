@@ -83,7 +83,7 @@ public class CoinSprite extends Sprite {
     int drawY = (int) (-height / 2);
 
     if (glowFx.isActive())
-      glowFx.draw(g, (int) (Math.max(width, height) * 1.4f));
+      glowFx.draw(g, (int) (Math.max(width, height) * 0.7f));
 
     if (spawnAnim.isActive()) {
       spawnAnim.draw(g, image, (int) width, (int) height, drawX, drawY);
@@ -374,13 +374,13 @@ class GlowEffect {
     Paint oldPaint = g.getPaint();
 
     RadialGradientPaint paint = new RadialGradientPaint(
-        new Point2D.Float(radius / 2, radius / 2),
+        new Point2D.Float(0, 0),
         radius,
         fractions,
         colors);
 
     g.setPaint(paint);
-    g.fillOval(-radius / 2, -radius / 2, radius, radius);
+    g.fillOval(-radius, -radius, radius * 2, radius * 2);
     g.setPaint(oldPaint);
   }
 }

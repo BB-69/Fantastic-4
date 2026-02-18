@@ -155,6 +155,16 @@ public class Board extends Node {
     }
   }
 
+  public void invokeGlow(List<List<int[]>> wins) {
+    if (!wins.isEmpty()) {
+      for (int i = 0; i < wins.size(); i++) {
+        for (int[] pos : wins.get(i)) {
+          pieces[pos[0]][pos[1]].getCoin().setGlow(true);
+        }
+      }
+    }
+  }
+
   public void onRCVal(Object... args) {
     setRCVal((int) args[0], (int) args[1], (int) args[2]);
     startDrop((int) args[0], (int) args[1], (int) args[2]);

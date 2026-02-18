@@ -144,7 +144,7 @@ public class BoardManager extends Node {
       result = 2;
     }
 
-    resolveResult(result);
+    pendingResult = result;
   }
 
   private void resolveResult(int result) {
@@ -160,6 +160,8 @@ public class BoardManager extends Node {
       signalCurP.emit(result);
       printState("Wins!");
     }
+
+    board.invokeGlow(boardl.getWinChains());
 
     signalGameOver.emit();
   }
@@ -233,5 +235,7 @@ public class BoardManager extends Node {
 
     if (!gameOver)
       switchTurn();
+    else
+      board.invokeGlow(boardl.getWinChains());
   }
 }

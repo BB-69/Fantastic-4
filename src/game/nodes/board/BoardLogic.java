@@ -20,8 +20,12 @@ public class BoardLogic extends Node {
 
   private List<List<int[]>> lastWinChains = new ArrayList<>();
 
-  public List<List<int[]>> getLastWinChains() {
+  public List<List<int[]>> getWinChains() {
     return lastWinChains;
+  }
+
+  public void clearWinChainsHistory() {
+    lastWinChains.clear();
   }
 
   public BoardLogic() {
@@ -89,7 +93,7 @@ public class BoardLogic extends Node {
       }
     }
 
-    lastWinChains = wins;
+    lastWinChains.addAll(wins);
 
     return !wins.isEmpty();
   }
