@@ -1,6 +1,7 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.util.Arrays;
 
 import game.core.node.Node;
 import game.core.signal.Signal;
@@ -15,9 +16,12 @@ public class BoardManager extends Node {
   private Board board = new Board();
   private ColumnBoard colBoard = new ColumnBoard();
 
-  private int currentPlayer = 1;
+  private int currentPlayer = 0;
   private int totalDropped = 0;
   private boolean gameOver = false;
+
+  // 0 = none, 1 = P1 win, 2 = P2 win, 3 = tie
+  private int pendingResult = 0;
 
   private SignedSignal globalSignal;
 
@@ -55,6 +59,7 @@ public class BoardManager extends Node {
     board.attachPosSignal(signalBoardPos);
 
     signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
+    signalCoinDropFinish.connect(Instance::onCoinDropFinish);
     colBoard.attachCoinDropFinishSignal(signalCoinDropFinish);
     board.attachCoinDropFinishSignal(signalCoinDropFinish);
     signalColClick.connect(Instance::onColClick); // signalColClick
@@ -80,7 +85,7 @@ public class BoardManager extends Node {
   }
 
   public boolean handleMove(int column) {
-    if (gameOver)
+    if (currentPlayer == 0 || gameOver || pendingResult != 0)
       return false;
 
     if (!boardl.dropPiece(column, currentPlayer)) {
@@ -96,32 +101,76 @@ public class BoardManager extends Node {
 
     printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
 
-    if (checkWin(pos[0], pos[1]))
-      return true;
-
-    switchTurn();
+    pendingResult = checkWin(pos[0], pos[1]);
     return true;
   }
 
-  private boolean checkWin(int row, int col) {
+  private int checkWin(int row, int col) {
     int cellPlayer = boardl.getCell(row, col);
-    if (cellPlayer != 0 && boardl.checkWin(row, col, cellPlayer)) {
-      gameOver = true;
-      signalGameOver.emit();
-      printState("Wins!");
-      return true;
-    } else if (totalDropped == BoardLogic.TOTAL_CELL) {
-      signalCurP.emit(3);
-      gameOver = true;
-      signalGameOver.emit();
-      Log.logInfo("Tie!");
-      return true;
+    if (cellPlayer != 0 && boardl.checkWin(row, col, cellPlayer))
+      return cellPlayer;
+    else if (totalDropped == BoardLogic.TOTAL_CELL)
+      return 3;
+    return 0;
+  }
+
+  private void checkMultipleWins(int col) {
+    int[] results = new int[BoardLogic.ROWS];
+
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      results[row] = checkWin(row, col);
     }
-    return false;
+
+    // [0] -> P1
+    // [1] -> P2
+    // [2] -> tie
+    long[] playerPoints = {
+        Arrays.stream(results).filter(x -> x == 1).count(),
+        Arrays.stream(results).filter(x -> x == 2).count(),
+        Arrays.stream(results).filter(x -> x == 3).count()
+    };
+
+    int result = 0;
+
+    if (playerPoints[0] + playerPoints[1] == 0)
+      return;
+
+    if (playerPoints[2] > 0
+        || (playerPoints[0] == playerPoints[1])) {
+      result = 3; // tie
+    } else if (playerPoints[0] > playerPoints[1]) {
+      result = 1;
+    } else if (playerPoints[1] > playerPoints[0]) {
+      result = 2;
+    }
+
+    resolveResult(result);
+  }
+
+  private void resolveResult(int result) {
+    if (result == 0)
+      return;
+
+    gameOver = true;
+
+    if (result == 3) {
+      signalCurP.emit(3);
+      Log.logInfo("Tie!");
+    } else {
+      signalCurP.emit(result);
+      printState("Wins!");
+    }
+
+    signalGameOver.emit();
   }
 
   private void switchTurn() {
-    currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    if (currentPlayer == 0) {
+      currentPlayer = 1; // first real turn
+    } else {
+      currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    }
+
     signalCurP.emit(currentPlayer);
     Log.logInfo("Next -> P" + currentPlayer);
   }
@@ -130,9 +179,18 @@ public class BoardManager extends Node {
     Log.logInfo(String.format("P%d - %s", currentPlayer, s));
   }
 
+  private void resetGameState() {
+    currentPlayer = 0;
+    pendingResult = 0;
+    totalDropped = 0;
+    gameOver = false;
+  }
+
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
       case "startGameAction":
+        resetGameState();
+        signalCurP.emit(currentPlayer);
         signalCoinDropFinish.emit();
         break;
       case "boardCoinRemoved":
@@ -161,11 +219,19 @@ public class BoardManager extends Node {
 
     // boardl.printGrid();
 
-    for (int row = 0; row < BoardLogic.ROWS; row++) {
-      if (checkWin(row, col))
-        break;
-    }
+    checkMultipleWins(col);
 
     totalDropped -= 1;
+  }
+
+  private void onCoinDropFinish(Object... args) {
+    if (pendingResult != 0) {
+      resolveResult(pendingResult);
+      pendingResult = 0;
+      return;
+    }
+
+    if (!gameOver)
+      switchTurn();
   }
 }

@@ -96,10 +96,7 @@ public class ColumnBoard extends Node {
   }
 
   private void setCurrentPlayer(int cur) {
-    checkIfTrail();
-
     this.currentPlayer = cur;
-    destroyPreviewCoin();
   }
 
   private void checkIfTrail() {
@@ -164,5 +161,8 @@ public class ColumnBoard extends Node {
   private void onColClick(Object... args) {
     for (int i = 0; i < BoardLogic.COLS; i++)
       caList[i].informCoinDropStart();
+
+    checkIfTrail();
+    destroyPreviewCoin();
   }
 }

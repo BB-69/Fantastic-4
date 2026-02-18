@@ -1,6 +1,8 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import game.core.node.Node;
 import game.util.Log;
@@ -15,6 +17,12 @@ public class BoardLogic extends Node {
   // 0 = empty, 1 = player1, 2 = player2
 
   private final int[] lastDroppedPos = new int[2];
+
+  private List<List<int[]>> lastWinChains = new ArrayList<>();
+
+  public List<List<int[]>> getLastWinChains() {
+    return lastWinChains;
+  }
 
   public BoardLogic() {
     super();
@@ -64,32 +72,60 @@ public class BoardLogic extends Node {
   }
 
   boolean checkWin(int row, int col, int player) {
-    return checkDir(row, col, 1, 0, player) // vertical
-        || checkDir(row, col, 0, 1, player) // horizontal
-        || checkDir(row, col, 1, 1, player) // diag ↘
-        || checkDir(row, col, 1, -1, player); // diag ↙
+    List<List<int[]>> wins = new ArrayList<>();
+
+    collectDir(row, col, 1, 0, player, wins); // vertical
+    collectDir(row, col, 0, 1, player, wins); // horizontal
+    collectDir(row, col, 1, 1, player, wins); // diag ↘
+    collectDir(row, col, 1, -1, player, wins); // diag ↙
+
+    if (!wins.isEmpty()) {
+      for (int i = 0; i < wins.size(); i++) {
+        String msg = "Win chain " + (i + 1) + ": ";
+        for (int[] pos : wins.get(i)) {
+          msg += "(" + pos[0] + "," + pos[1] + ") ";
+        }
+        Log.logInfo(msg);
+      }
+    }
+
+    lastWinChains = wins;
+
+    return !wins.isEmpty();
   }
 
-  private boolean checkDir(int r, int c, int dr, int dc, int p) {
-    int count = 1;
+  private void collectDir(int r, int c, int dr, int dc, int p,
+      List<List<int[]>> wins) {
 
-    count += countPieces(r, c, dr, dc, p);
-    count += countPieces(r, c, -dr, -dc, p);
+    List<int[]> chain = new ArrayList<>();
+    chain.add(new int[] { r, c });
 
-    return count >= 4;
+    collectOneSide(r, c, dr, dc, p, chain, true);
+    collectOneSide(r, c, -dr, -dc, p, chain, false);
+
+    if (chain.size() >= 4) {
+      wins.add(chain);
+    }
   }
 
-  private int countPieces(int r, int c, int dr, int dc, int p) {
-    int count = 0;
+  private void collectOneSide(int r, int c, int dr, int dc, int p,
+      List<int[]> chain, boolean appendEnd) {
+
     r += dr;
     c += dc;
 
     while (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] == p) {
-      count++;
+      int[] pos = new int[] { r, c };
+
+      if (appendEnd) {
+        chain.add(pos);
+      } else {
+        chain.add(0, pos);
+      }
+
       r += dr;
       c += dc;
     }
-    return count;
   }
 
   int getCell(int row, int col) {

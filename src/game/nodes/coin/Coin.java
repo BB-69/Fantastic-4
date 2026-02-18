@@ -145,6 +145,14 @@ public class Coin extends Entity {
     return sprite.isShimmering();
   }
 
+  public void setGlow(boolean active) {
+    sprite.setGlow(active);
+  }
+
+  public boolean isGlowing() {
+    return sprite.isGlowing();
+  }
+
   public void moveToX(int x) {
     targetX = x;
     isMovingToTargetX = true;
