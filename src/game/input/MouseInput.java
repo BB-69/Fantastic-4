@@ -4,11 +4,14 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.stream.IntStream;
 
 import game.GameCanvas;
 import game.GameCanvas.RenderSize;
 
 public final class MouseInput implements MouseListener, MouseMotionListener {
+  private static boolean listenerActive = true;
+
   private static final int MOUSE_BUTTON_COUNT = 3;
   private static final boolean[] buttons = new boolean[MOUSE_BUTTON_COUNT];
   private static final boolean[] lastButtons = new boolean[MOUSE_BUTTON_COUNT];
@@ -31,6 +34,7 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   public static void fixedUpdate() {
     System.arraycopy(buttons, 0, lastButtons, 0, MOUSE_BUTTON_COUNT);
+
     lastIsAnyDown = isAnyDown;
     lastIsIn = isIn;
     lastPosition.x = position.x;
@@ -38,6 +42,21 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
   }
 
   /* ===================== QUERY API ===================== */
+
+  public static void setListenerActive(boolean active) {
+    listenerActive = active;
+
+    if (!active) {
+      IntStream.range(0, buttons.length)
+          .forEach(i -> buttons[i] = false);
+      IntStream.range(0, lastButtons.length)
+          .forEach(i -> lastButtons[i] = false);
+      isAnyDown = false;
+      lastIsAnyDown = false;
+      isIn = false;
+      lastIsIn = false;
+    }
+  }
 
   public static boolean isAnyDown() {
     return isAnyDown;
@@ -112,10 +131,15 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseClicked(MouseEvent e) {
+    if (!listenerActive)
+      return;
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     switch (e.getButton()) {
       case MouseEvent.BUTTON1:
         buttons[0] = true;
@@ -135,6 +159,9 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseReleased(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     switch (e.getButton()) {
       case MouseEvent.BUTTON1:
         buttons[0] = false;
@@ -154,11 +181,17 @@ public final class MouseInput implements MouseListener, MouseMotionListener {
 
   @Override
   public void mouseEntered(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     isIn = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
+    if (!listenerActive)
+      return;
+
     isIn = false;
   }
 

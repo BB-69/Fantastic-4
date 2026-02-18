@@ -3,23 +3,26 @@ package game.nodes.coin;
 import java.awt.Graphics2D;
 
 import game.core.AssetManager;
-import game.core.graphics.AnimatedSprite;
-import game.core.graphics.Animation;
-import game.core.graphics.Animator;
 import game.core.node.Entity;
+import game.core.signal.Signal;
 import game.util.Time;
+import game.util.calc.MathUtil;
 
 public class Coin extends Entity {
 
-  private Animator animator;
-  private AnimatedSprite sprite;
-  public boolean spinning;
+  private CoinSprite sprite;
 
   public static final float COIN_SIZE = 52f;
 
   private int player;
 
   private boolean initPosition = false;
+
+  private int targetX = 0;
+  private boolean isMovingToTargetX = false;
+
+  private boolean despawning = false;
+  private Signal signalCoinRemoved;
 
   public Coin(int player) {
     super();
@@ -28,75 +31,122 @@ public class Coin extends Entity {
 
     layer = -2;
     initSprite();
-    setSpinning(false);
   }
 
   private void initSprite() {
-    String[] frameGold = new String[8];
-    for (int i = 0; i < frameGold.length; i++)
-      frameGold[i] = "coin/gold00" + i + ".png";
-    String[] frameSilver = new String[8];
-    for (int i = 0; i < frameSilver.length; i++)
-      frameSilver[i] = "coin/silver00" + i + ".png";
-
-    Animation idleGold = new Animation(AssetManager.getTexture(new String[] { "coin/gold000.png" }), 1f, false);
-    Animation spinGold = new Animation(AssetManager.getTexture(frameGold), 0.1f, true);
-    Animation idleSilver = new Animation(AssetManager.getTexture(new String[] { "coin/silver000.png" }), 1f, false);
-    Animation spinSilver = new Animation(AssetManager.getTexture(frameSilver), 0.1f, true);
-    animator = new Animator();
-    animator.add("idleGold", idleGold);
-    animator.add("spinGold", spinGold);
-    animator.add("idleSilver", idleSilver);
-    animator.add("spinSilver", spinSilver);
-
-    sprite = new AnimatedSprite(animator);
+    sprite = new CoinSprite(String.format("coin%s.png", player == 0 ? "_red" : ""));
     sprite.setSize(COIN_SIZE, COIN_SIZE);
+  }
+
+  public void attachCoinRemovedSignal(Signal signalCoinRemoved) {
+    this.signalCoinRemoved = signalCoinRemoved;
   }
 
   @Override
   public void update() {
     sprite.update(Time.deltaTime);
+
+    if (despawning && !sprite.isSpawning()) {
+      explode();
+    }
+  }
+
+  @Override
+  public void fixedUpdate() {
+    super.fixedUpdate();
+
+    if (!sprite.isSpawning() && isMovingToTargetX) {
+      setWorldX(MathUtil.lerp(getWorldX(), targetX, 6 * Time.FIXED_DELTA));
+
+      if (Math.abs(getWorldX() - targetX) < 1) {
+        setWorldX(targetX);
+        isMovingToTargetX = false;
+      }
+    }
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
-    // AffineTransform old = g.getTransform();
-    // g.translate(getWorldX(), getWorldY());
-
-    // g.setColor(player == 0 ? Color.RED : Color.YELLOW);
-    // g.fillOval((int) (-COIN_SIZE / 2f),
-    // (int) (-COIN_SIZE / 2f),
-    // (int) COIN_SIZE,
-    // (int) COIN_SIZE);
-
-    // g.setTransform(old);
-
     drawSprite(g, alpha);
   }
 
   private void drawSprite(Graphics2D g, float alpha) {
-    int renderX = (int) lerp(getPrevWorldX(), getWorldX(), initPosition ? alpha : 1);
-    int renderY = (int) lerp(getPrevWorldY(), getWorldY(), initPosition ? alpha : 1);
+    int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), initPosition ? alpha : 1);
+    int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), initPosition ? alpha : 1);
 
     if (!initPosition)
       initPosition = true;
 
-    sprite.setPosition(renderX + 2, renderY);
+    sprite.setPosition(renderX, renderY);
 
     sprite.draw(g);
   }
 
-  public void setPlayer(int player) {
-    this.player = player;
+  public void initPosition() {
+    initPosition = false;
   }
 
-  public void setSpinning(boolean spinning) {
-    this.spinning = spinning;
+  public int getPlayer() {
+    return player;
+  }
 
-    if (spinning) {
-      animator.play("spin" + (player == 0 ? "Gold" : "Silver"));
-    } else {
-      animator.play("idle" + (player == 0 ? "Gold" : "Silver"));
-    }
+  public void setPlayer(int player) {
+    this.player = player;
+
+    String textureName = String.format("coin%s.png", player == 0 ? "_red" : "");
+    sprite.setSprite(textureName, AssetManager.getTexture(textureName));
+    sprite.setSize(COIN_SIZE, COIN_SIZE);
+  }
+
+  public void spawn() {
+    setActive(true);
+    sprite.spawn();
+  }
+
+  public void deSpawn() {
+    setActive(true);
+    sprite.deSpawn();
+    despawning = true;
+  }
+
+  private void explode() {
+    despawning = false;
+    getNodeManagerInstance().addNode(new CoinExplodeAni(getWorldX(), getWorldY()));
+    if (signalCoinRemoved != null)
+      signalCoinRemoved.emit();
+    destroyRecursive();
+  }
+
+  public boolean isSpawning() {
+    return sprite.isSpawning();
+  }
+
+  public void flash(float duration) {
+    if (!isActive())
+      return;
+    sprite.flashAnim(duration);
+  }
+
+  public boolean isFlashing() {
+    return sprite.isFlashing();
+  }
+
+  public void shimmer() {
+    shimmer(false);
+  }
+
+  public void shimmer(boolean looped) {
+    if (!isActive())
+      return;
+    sprite.shimmer(looped);
+  }
+
+  public boolean isShimmering() {
+    return sprite.isShimmering();
+  }
+
+  public void moveToX(int x) {
+    targetX = x;
+    isMovingToTargetX = true;
   }
 }

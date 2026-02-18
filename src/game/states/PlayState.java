@@ -1,7 +1,9 @@
 package game.states;
 
 import game.core.GameState;
+import game.core.StateManager;
 import game.core.signal.SignedSignal;
+import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
 import game.nodes.ui.play.PlayUIManager;
 
@@ -11,8 +13,7 @@ public class PlayState extends GameState {
 
   private boolean pendingRestart = false;
 
-  private SignedSignal globalSignal = new SignedSignal();
-
+  private PlayTextureManager tex;
   private PlayUIManager ui;
   private BoardManager bmn;
 
@@ -20,15 +21,19 @@ public class PlayState extends GameState {
     super();
 
     stateName = "play";
+    stateOrder = 0;
     init();
 
-    globalSignal.connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
   }
 
   private void init() {
+    SignedSignal globalSignal = StateManager.getGlobalSignal();
+
+    tex = new PlayTextureManager(globalSignal);
     ui = new PlayUIManager(globalSignal);
     bmn = new BoardManager(globalSignal);
-    nodeManager.addNode(bmn, ui);
+    nodeManager.addNode(tex, ui, bmn);
   }
 
   @Override
@@ -41,8 +46,9 @@ public class PlayState extends GameState {
     }
   }
 
-  private void restart() {
-    nodeManager.removeNode(bmn, ui);
+  private void restartReload() {
+    nodeManager.removeNode(bmn, ui, tex);
+    tex.destroyRecursive();
     ui.destroyRecursive();
     bmn.destroyRecursive();
     pendingRestart = true;
@@ -50,14 +56,14 @@ public class PlayState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
-      case "restart":
-        onRestart(args);
+      case "restartReload":
+        onRestartReload(args);
         break;
       default:
     }
   }
 
-  private void onRestart(Object... args) {
-    restart();
+  private void onRestartReload(Object... args) {
+    restartReload();
   }
 }

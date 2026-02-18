@@ -10,24 +10,24 @@ import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class RestartButton extends Button {
+public class QuitButton extends Button {
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
   private boolean hoveredSprite = false;
 
-  public RestartButton() {
+  public QuitButton() {
     super();
 
     setSize(36, 36);
     color = TopMenu.c2;
     hoverColor = TopMenu.c1;
 
-    sprite = new Sprite("rotate-left_brown.png");
+    sprite = new Sprite("x_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    RestartButton instance = this;
-    signalButtonClicked.connect(instance::onRestart);
+    QuitButton instance = this;
+    signalButtonClicked.connect(instance::onQuit);
 
     layer = 111;
   }
@@ -37,11 +37,11 @@ public class RestartButton extends Button {
     super.update();
 
     if (isHovered() && !hoveredSprite) {
-      sprite.setSprite("rotate-left_inverted.png", AssetManager.getTexture("rotate-left_inverted.png"));
+      sprite.setSprite("x_inverted.png", AssetManager.getTexture("x_inverted.png"));
       sprite.setSize(w * spriteScale, h * spriteScale);
       hoveredSprite = true;
     } else if (!isHovered() && hoveredSprite) {
-      sprite.setSprite("rotate-left_brown.png", AssetManager.getTexture("rotate-left_brown.png"));
+      sprite.setSprite("x_brown.png", AssetManager.getTexture("x_brown.png"));
       sprite.setSize(w * spriteScale, h * spriteScale);
       hoveredSprite = false;
     }
@@ -58,8 +58,8 @@ public class RestartButton extends Button {
     sprite.draw(g);
   }
 
-  private void onRestart(Object... args) {
-    Log.logInfo("Game Restarted!");
-    StateManager.getGlobalSignal().emit("restart");
+  private void onQuit(Object... args) {
+    Log.logInfo("Game Quitted!");
+    StateManager.getGlobalSignal().emit("quit");
   }
 }

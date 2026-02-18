@@ -2,6 +2,7 @@ package game;
 
 import game.core.StateManager;
 import game.states.PlayState;
+import game.states.TransitionState;
 import game.input.KeyInput;
 import game.input.MouseInput;
 
@@ -11,6 +12,14 @@ public final class Game {
     KeyInput.init(canvas);
     MouseInput.init(canvas);
 
+    game.input.KeyInput.setListenerActive(false);
+    game.input.MouseInput.setListenerActive(false);
+
+    TransitionState ts = new TransitionState();
+
+    StateManager.addGlobalState(ts);
     StateManager.setState(new PlayState());
+
+    StateManager.getGlobalSignal().emit("enterGame");
   }
 }

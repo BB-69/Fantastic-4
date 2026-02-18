@@ -18,6 +18,8 @@ public class Text extends Node {
   private Font font;
   private Rectangle2D bounds;
 
+  public int lastSize = size;
+
   public Text() {
     super();
 
@@ -33,6 +35,7 @@ public class Text extends Node {
 
   @Override
   public void update() {
+    lastSize = size;
   }
 
   @Override

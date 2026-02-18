@@ -1,29 +1,32 @@
 package game.nodes.ui.play;
 
 import java.awt.Graphics2D;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
 import game.core.node.Node;
-import game.core.node.ui.Text;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
-import game.nodes.ui.play.button.RestartButton;
 import game.nodes.ui.play.text.StatusText;
+import game.util.Log;
 
 public class PlayUIManager extends Node {
 
   private final PlayUIManager Instance = this;
 
-  private Text titleText = new Text("Connect 4");
   private StatusText statusText = new StatusText();
 
-  private RestartButton restartButton = new RestartButton();
+  private TopMenu topMenu = new TopMenu();
+  private StatusTurn statusTurn = new StatusTurn();
 
   private SignedSignal globalSignal;
 
   private Signal signalCurP = new Signal();
   private Signal signalGameOver = new Signal();
-  private Signal signalRestart;
+
+  private boolean uiInit = false;
 
   public PlayUIManager(SignedSignal globalSignal) {
     super();
@@ -34,19 +37,22 @@ public class PlayUIManager extends Node {
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2;
 
-    addChildren(titleText, statusText, restartButton);
+    StatusTurnBG statusBG = new StatusTurnBG();
 
-    titleText.y = -GameCanvas.HEIGHT / 2 + titleText.getTextHeight();
-    statusText.y = -GameCanvas.HEIGHT / 2 + 3 * titleText.getTextHeight();
-    restartButton.setPosition(
-        GameCanvas.WIDTH / 2 - restartButton.w,
-        -GameCanvas.HEIGHT / 2 + restartButton.h);
+    addChildren(statusText, topMenu, statusBG);
+    topMenu.addChild(statusTurn);
 
-    signalRestart = restartButton.getClickSignal();
+    statusText.setWorldY(-statusText.getTextHeight() * 2);
+    topMenu.setWorldY(0);
+    statusTurn.setWorldY(0);
 
-    signalCurP.connect(statusText::onCurP); // signalCurP
-    signalGameOver.connect(statusText::onGameOver); // signalGameOver
-    signalRestart.connect(Instance::onRestart); // signalRestart
+    signalCurP.connect(topMenu::onCurP); // signalCurP
+    signalCurP.connect(statusText::onCurP);
+    signalCurP.connect(statusTurn::onCurP);
+    signalCurP.connect(statusBG::onCurP);
+    signalGameOver.connect(topMenu::onGameOver); // signalGameOver
+    signalGameOver.connect(statusText::onGameOver);
+    signalGameOver.connect(statusTurn::onGameOver);
   }
 
   @Override
@@ -55,6 +61,34 @@ public class PlayUIManager extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
+  }
+
+  private void initUI() {
+    if (!uiInit) {
+      uiInit = true;
+
+      statusText.slideIn();
+
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+      scheduler.schedule(() -> {
+        globalSignal.emit("startGameAction");
+        Log.logInfo("Game Action Started!");
+
+        scheduler.close();
+      }, 1, TimeUnit.SECONDS);
+    }
+  }
+
+  private void onRestartReload(Object... args) {
+    uiInit = false;
+  }
+
+  private void onTransitionDone(Object... args) {
+    boolean isEnter = ((String) args[0]).equals("enter");
+
+    if (!isEnter)
+      initUI();
   }
 
   private void onGlobalSignal(String signalName, Object... args) {
@@ -67,11 +101,13 @@ public class PlayUIManager extends Node {
         break;
       case "restart":
         break;
+      case "restartReload":
+        onRestartReload(args);
+        break;
+      case "transitionDone":
+        onTransitionDone(args);
+        break;
       default:
     }
-  }
-
-  private void onRestart(Object... args) {
-    globalSignal.emit("restart", args);
   }
 }
