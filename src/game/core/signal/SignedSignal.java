@@ -12,7 +12,7 @@ public class SignedSignal {
   }
 
   public void emit(String signalName, Object... args) {
-    for (BiConsumer<String, Object[]> c : listeners) {
+    for (BiConsumer<String, Object[]> c : new ArrayList<>(listeners)) {
       c.accept(signalName, args);
     }
   }

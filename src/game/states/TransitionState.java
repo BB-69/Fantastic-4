@@ -1,5 +1,9 @@
 package game.states;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import game.core.GameState;
 import game.core.StateManager;
 import game.nodes.ui.transition.TransitionManager;
@@ -10,6 +14,20 @@ public class TransitionState extends GameState {
   private final TransitionState Instance = this;
 
   private TransitionManager tra;
+
+  private static final Map<String, Supplier<GameState>> stateRegistry = new HashMap<>();
+
+  static {
+    stateRegistry.put("play", PlayState::new);
+  }
+
+  private static enum TransitionIntent {
+    Restart, Change
+  }
+
+  private TransitionIntent intent = TransitionIntent.Change;
+
+  private String pendingStateChange = null;
 
   private boolean isTransitioning = false;
   private boolean isLoading = false;
@@ -39,9 +57,23 @@ public class TransitionState extends GameState {
       handleTransition();
   }
 
+  public static GameState createState(String key) {
+    Supplier<GameState> supplier = stateRegistry.get(key);
+    if (supplier == null) {
+      throw new IllegalArgumentException("Unknown key: " + key);
+    }
+    return supplier.get();
+  }
+
   private void handleTransition() {
     if (!tra.isTransitioning() && loadTimer == 0f) {
-      StateManager.getGlobalSignal().emit("restartReload");
+      if (intent == TransitionIntent.Restart)
+        StateManager.getGlobalSignal().emit("restartReload");
+      else {
+        if (pendingStateChange != null)
+          StateManager.setState(createState(pendingStateChange));
+        pendingStateChange = null;
+      }
       isLoading = true;
       loadTimer = 0.0001f;
     }
@@ -57,10 +89,17 @@ public class TransitionState extends GameState {
     }
   }
 
+  private void setPendingStateChange(String stateName) {
+    pendingStateChange = stateName;
+  }
+
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
       case "enterGame":
         onEnterGame(args);
+        break;
+      case "transitionToState":
+        onTransitionToState(args);
         break;
       case "restart":
         onRestart(args);
@@ -76,7 +115,16 @@ public class TransitionState extends GameState {
     tra.transitionEnterGame();
   }
 
+  private void onTransitionToState(Object... args) {
+    intent = TransitionIntent.Change;
+    setPendingStateChange((String) args[0]);
+    tra.transitionEnter();
+    loadTimer = 0f;
+    isTransitioning = true;
+  }
+
   private void onRestart(Object... args) {
+    intent = TransitionIntent.Restart;
     tra.transitionEnter();
     loadTimer = 0f;
     isTransitioning = true;

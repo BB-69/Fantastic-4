@@ -13,11 +13,12 @@ public class StateManager {
 
   private static List<GameState> globalStates = new ArrayList<>();
   private static GameState current;
+  private static GameState stateToSet;
 
   private static SignedSignal globalSignal = new SignedSignal();
 
   public static void setState(GameState state) {
-    current = state;
+    stateToSet = state;
   }
 
   public static String currentState() {
@@ -46,21 +47,28 @@ public class StateManager {
 
   public static void fixedUpdate() {
     Arrays.stream(
-        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+        Stream.concat(Stream.ofNullable(current), globalStates.stream())
+            .sorted(Comparator.comparing(GameState::getStateOrder))
             .toArray(GameState[]::new))
         .forEach(GameState::fixedUpdate);
   }
 
   public static void update() {
+    if (stateToSet != null) {
+      current = stateToSet;
+      stateToSet = null;
+    }
     Arrays.stream(
-        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+        Stream.concat(Stream.ofNullable(current), globalStates.stream())
+            .sorted(Comparator.comparing(GameState::getStateOrder))
             .toArray(GameState[]::new))
         .forEach(GameState::update);
   }
 
   public static void render(Graphics2D g, float alpha) {
     Arrays.stream(
-        Stream.concat(Stream.of(current), globalStates.stream()).sorted(Comparator.comparing(GameState::getStateOrder))
+        Stream.concat(Stream.ofNullable(current), globalStates.stream())
+            .sorted(Comparator.comparing(GameState::getStateOrder))
             .toArray(GameState[]::new))
         .forEach(s -> s.render(g, alpha));
   }
