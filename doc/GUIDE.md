@@ -136,7 +136,6 @@ core/
 
 - ⚠️📘 [GameState](/src/game/core/GameState.java)
 - ❌ [StateManager](/src/game/core/StateManager.java) - Manage state update loops & state changes.
-  - Call `setState()` whenever you want to change the **entire state** to another.
 - ❌ [NodeManager](/src/game/core/NodeManager.java) - Handles update loop for every game [Nodes](/src/game/core/node/Node.java)
   - Call `getNodeManagerInstance().addNode()` everytime you just created new nodes, so it can be handled by NodeManager **otherwise your object won't be processed and appear in-game.**
   - If you are setting said **nodes as one of your node's children** via `this.addChild(node)` or `node.setParent(this)` then `getNodeManagerInstance().addNode()` will be handled automatically, so no need to call it again.
@@ -168,6 +167,10 @@ This directory contains **custom input handlers** that actively listen to input 
 ## states/
 
 This directory contain states that can be managed in the game logic. A state contains all the nodes needed for the session. **It is not recommended to be used as a game object/node.** Have it only act like a scene space of that session.
+
+> **To do state change *with transitions*, call `StateManager.getGlobalSignal().emit("transitionToState", <stateName_lowercase: String>)`**
+
+> Otherwise call `setState()` from [StateManager](/src/game/core/StateManager.java) directly
 
 ## nodes/
 
