@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import game.core.AssetManager;
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
 import game.core.node.Node;
@@ -65,6 +66,27 @@ public class BoardPiece extends Entity {
 
   public void hideBack() {
     spritePhase = SpritePhase.ToHide;
+  }
+
+  public void flash() {
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    float oldSpeed = cover.getTransitionSpd();
+    float speed = 5f;
+
+    spritePhase = SpritePhase.Hide;
+    cover.setTransitionSpd(speed * 0.6f);
+    cover.setTexture("wooden-box_red.png", AssetManager.getTexture("wooden-box_red.png"));
+
+    scheduler.schedule(() -> {
+      spritePhase = SpritePhase.ToReveal;
+    }, (int) (1f / speed * 400), TimeUnit.MILLISECONDS);
+
+    scheduler.schedule(() -> {
+      cover.setTransitionSpd(oldSpeed);
+      cover.setTexture("wooden-box.png", AssetManager.getTexture("wooden-box.png"));
+      scheduler.shutdown();
+    }, (int) (1f / oldSpeed * 1000) + 1, TimeUnit.MILLISECONDS);
   }
 
   public SpritePhase getSpritePhase() {

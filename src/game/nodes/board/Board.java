@@ -202,7 +202,9 @@ public class Board extends Node {
       Coin c = pieces[pos[0]][pos[1]].getCoin();
       if (c != null) {
         pendingDespawnAnimations++;
-        pieces[pos[0]][pos[1]].despawnCoin();
+        BoardPiece p = pieces[pos[0]][pos[1]];
+        p.despawnCoin();
+        p.flash();
       }
     }
 

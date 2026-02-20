@@ -65,32 +65,57 @@ public class PlayTextureManager extends Node {
       AssetManager.addTexture("coin_red.png", coin_red);
     }
 
-    { // wooden-box.png -> darker
+    { // wooden-box.png
       BufferedImage src = AssetManager.getTexture("wooden-box.png");
       int w = src.getWidth();
       int h = src.getHeight();
 
       BufferedImage wooden_box_dark = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage wooden_box_red = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-      for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
+      { // wooden-box.png -> darker
+        for (int y = 0; y < h; y++) {
+          for (int x = 0; x < w; x++) {
 
-          int argb = src.getRGB(x, y);
+            int argb = src.getRGB(x, y);
 
-          int a = ColorUtil.getAlpha(argb);
-          int[] rgb = ColorUtil.unpackRGB(argb);
+            int a = ColorUtil.getAlpha(argb);
+            int[] rgb = ColorUtil.unpackRGB(argb);
 
-          rgb[0] *= 0.35f;
-          rgb[1] *= 0.35f;
-          rgb[2] *= 0.35f;
+            rgb[0] *= 0.35f;
+            rgb[1] *= 0.35f;
+            rgb[2] *= 0.35f;
 
-          int newArgb = ColorUtil.packARGB(a, rgb[0], rgb[1], rgb[2]);
+            int newArgb = ColorUtil.packARGB(a, rgb[0], rgb[1], rgb[2]);
 
-          wooden_box_dark.setRGB(x, y, newArgb);
+            wooden_box_dark.setRGB(x, y, newArgb);
+          }
         }
+
+        AssetManager.addTexture("wooden-box_dark.png", wooden_box_dark);
       }
 
-      AssetManager.addTexture("wooden-box_dark.png", wooden_box_dark);
+      { // wooden-box.png -> tint red
+        for (int y = 0; y < h; y++) {
+          for (int x = 0; x < w; x++) {
+
+            int argb = src.getRGB(x, y);
+
+            int a = ColorUtil.getAlpha(argb);
+            int[] rgb = ColorUtil.unpackRGB(argb);
+
+            float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
+
+            int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
+
+            int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+
+            wooden_box_red.setRGB(x, y, newArgb);
+          }
+        }
+
+        AssetManager.addTexture("wooden-box_red.png", wooden_box_red);
+      }
     }
 
     { // rotate-left.png
