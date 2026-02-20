@@ -2,9 +2,12 @@ package game.nodes.ui.play.text;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
-import game.GameCanvas;
 import game.core.node.ui.Text;
 import game.nodes.ui.play.TopMenu;
 import game.util.Time;
@@ -13,33 +16,25 @@ import game.util.graphics.ColorUtil;
 
 public class TotalCoinText extends Text {
 
-  private int totalCoin = 0;
+  private int textPadding = 10;
+  private int borderPadding = 4;
 
   private float targetX;
-  private Color targetColor;
 
-  private final Color cNormal = TopMenu.c1;
+  private final Color cNormal = TopMenu.c1.darker().darker();
   private final Color cDanger = Color.getHSBColor(0f, 1f, 0.95f);
 
   public TotalCoinText() {
     super();
 
-    size = 18;
-    color = TopMenu.c1.darker().darker();
-    targetColor = color;
-    content = "No Player Active!";
+    size = 14;
+    color = cNormal;
+    content = "Total 00/24";
     updateTextMetrics();
 
     targetX = getWorldX();
 
     layer = 104;
-  }
-
-  @Override
-  public void update() {
-    super.update();
-
-    color = ColorUtil.lerp(color, targetColor, 2 * Time.deltaTime);
   }
 
   @Override
@@ -60,9 +55,12 @@ public class TotalCoinText extends Text {
     AffineTransform old = g.getTransform();
     g.translate(getWorldX(), getWorldY() + getTextHeight() / 4);
 
+    int textWidth = getTextWidth();
+    int textHeight = getTextHeight();
+
     { // shadow
-      float scaledWidth = alphaWidth * 1.4f;
-      float scaledHeight = alphaHeight * 2.8f;
+      float scaledWidth = textWidth * 1.4f;
+      float scaledHeight = textHeight * 2.8f;
 
       AffineTransform old2 = g.getTransform();
       Paint oldPaint = g.getPaint();
@@ -85,15 +83,15 @@ public class TotalCoinText extends Text {
     g.setColor(TopMenu.c1);
     drawBannerWithPad(
         g,
-        (int) alphaWidth,
-        (int) alphaHeight,
+        textWidth,
+        textHeight,
         textPadding + borderPadding + 5,
         textPadding + borderPadding);
     g.setColor(TopMenu.c2);
     drawBannerWithPad(
         g,
-        (int) alphaWidth,
-        (int) alphaHeight,
+        textWidth,
+        textHeight,
         textPadding + 5,
         textPadding);
 
@@ -121,7 +119,22 @@ public class TotalCoinText extends Text {
         6);
   }
 
-  public void slideIn() {
-    targetX = GameCanvas.WIDTH - 85;
+  public void setTargetX(float targetX) {
+    this.targetX = targetX;
+  }
+
+  private void slideIn() {
+    targetX = 100;
+  }
+
+  private void setTotalCoin(int totalCoin) {
+    if (totalCoin > 0)
+      slideIn();
+    content = String.format("Total %02d/24", totalCoin);
+    color = totalCoin >= 20 ? cDanger : cNormal;
+  }
+
+  public void onTotalCoin(Object... args) {
+    setTotalCoin((int) args[0]);
   }
 }

@@ -143,6 +143,10 @@ public class StatusText extends Text {
         6);
   }
 
+  public void setTargetY(float targetY) {
+    this.targetY = targetY;
+  }
+
   public void slideIn() {
     targetY = 85;
   }

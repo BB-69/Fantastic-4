@@ -5,9 +5,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import game.core.StateManager;
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
+import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.util.calc.MathUtil;
@@ -150,7 +150,8 @@ public class BoardPiece extends Entity {
   }
 
   public void despawnCoin() {
-    coin.deSpawn();
+    if (coin != null)
+      coin.deSpawn();
   }
 
   public void setValue(int val) {
@@ -170,6 +171,10 @@ public class BoardPiece extends Entity {
   }
 
   private void onCoinRemoved(Object... args) {
-    StateManager.getGlobalSignal().emit("boardCoinRemoved", row, col);
+    Node n = getParent();
+    if (n instanceof Board) {
+      Board b = (Board) n;
+      b.notifyCoinDespawnFinished(row, col);
+    }
   }
 }

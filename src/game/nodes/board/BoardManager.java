@@ -1,7 +1,9 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import game.core.node.Node;
 import game.core.signal.Signal;
@@ -27,6 +29,7 @@ public class BoardManager extends Node {
 
   private Signal signalRCVal = new Signal();
   private Signal signalCurP = new Signal();
+  private Signal signalTotalCoin = new Signal();
   private Signal signalGameOver = new Signal();
 
   private Signal signalBoardPos = new Signal();
@@ -50,6 +53,8 @@ public class BoardManager extends Node {
     signalCurP.connect(board::onCurP); // signalCurP
     signalCurP.connect(Instance::onCurP);
     signalCurP.connect(colBoard::onCurP);
+    signalTotalCoin.connect(Instance::onTotalCoin); // signalTotalCoin
+    signalTotalCoin.connect(board::onTotalCoin);
     signalGameOver.connect(board::onGameOver); // signalGameOver
     signalGameOver.connect(Instance::onGameOver);
     signalGameOver.connect(colBoard::onGameOver);
@@ -92,7 +97,7 @@ public class BoardManager extends Node {
       printState("Column full!");
       return false;
     }
-    totalDropped += 1;
+    setTotalDropped(totalDropped + 1);
 
     // boardl.printGrid();
 
@@ -181,10 +186,15 @@ public class BoardManager extends Node {
     Log.logInfo(String.format("P%d - %s", currentPlayer, s));
   }
 
+  private void setTotalDropped(int total) {
+    totalDropped = total;
+    signalTotalCoin.emit(total);
+  }
+
   private void resetGameState() {
     currentPlayer = 0;
     pendingResult = 0;
-    totalDropped = 0;
+    setTotalDropped(0);
     gameOver = false;
   }
 
@@ -195,17 +205,17 @@ public class BoardManager extends Node {
         signalCurP.emit(currentPlayer);
         signalCoinDropFinish.emit();
         break;
-      case "boardCoinRemoved":
-        boardl.onBoardCoinRemoved(args);
-        board.onBoardCoinRemoved(args);
-        onBoardCoinRemoved(args);
-        break;
       default:
     }
   }
 
   private void onCurP(Object... args) {
     globalSignal.emit("currentPlayer", args);
+  }
+
+  private void onTotalCoin(Object... args) {
+    totalDropped = (int) args[0];
+    globalSignal.emit("totalCoin", totalDropped);
   }
 
   private void onGameOver(Object... args) {
@@ -216,14 +226,17 @@ public class BoardManager extends Node {
     handleMove((int) args[0]);
   }
 
-  private void onBoardCoinRemoved(Object... args) {
-    int col = (int) args[1];
+  public void onBulkCoinsRemoved(List<int[]> batch) {
+    List<Integer> existingCols = new ArrayList<>();
 
-    // boardl.printGrid();
-
-    checkMultipleWins(col);
-
-    totalDropped -= 1;
+    for (int[] pos : batch) {
+      int col = pos[1];
+      if (!existingCols.contains(col)) {
+        existingCols.add(col);
+        checkMultipleWins(col);
+      }
+      setTotalDropped(totalDropped - 1);
+    }
   }
 
   private void onCoinDropFinish(Object... args) {
