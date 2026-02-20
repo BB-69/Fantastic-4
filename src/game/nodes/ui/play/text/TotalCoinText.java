@@ -16,18 +16,25 @@ import game.util.graphics.ColorUtil;
 
 public class TotalCoinText extends Text {
 
+  private int totalCoin = 0;
+
+  private int textSize = 14;
   private int textPadding = 10;
   private int borderPadding = 4;
 
   private float targetX;
 
+  private float scale = 1f;
+  private float targetScale = scale;
+
   private final Color cNormal = TopMenu.c1.darker().darker();
-  private final Color cDanger = Color.getHSBColor(0f, 1f, 0.95f);
+  private final Color cWarn = Color.getHSBColor(0f, 1f, 0.95f);
+  private final Color[] cDanger = { Color.BLACK, Color.RED, Color.WHITE };
 
   public TotalCoinText() {
     super();
 
-    size = 14;
+    size = textSize;
     color = cNormal;
     content = "Total 00/24";
     updateTextMetrics();
@@ -45,6 +52,17 @@ public class TotalCoinText extends Text {
   }
 
   @Override
+  public void update() {
+    super.update();
+
+    targetScale = totalCoin >= 24 ? 1.1f : 1;
+    scale = MathUtil.lerp(scale, targetScale, 12 * Time.deltaTime);
+    size = (int) (textSize * Math.pow(scale, 2.2f));
+    if (lastSize != size)
+      updateTextMetrics();
+  }
+
+  @Override
   public void render(Graphics2D g, float alpha) {
     drawBanner(g, alpha);
 
@@ -54,6 +72,7 @@ public class TotalCoinText extends Text {
   private void drawBanner(Graphics2D g, float alpha) {
     AffineTransform old = g.getTransform();
     g.translate(getWorldX(), getWorldY() + getTextHeight() / 4);
+    g.scale(scale, scale);
 
     int textWidth = getTextWidth();
     int textHeight = getTextHeight();
@@ -80,14 +99,14 @@ public class TotalCoinText extends Text {
       g.setTransform(old2);
     }
 
-    g.setColor(TopMenu.c1);
+    g.setColor(totalCoin >= 24 ? cDanger[0] : TopMenu.c1);
     drawBannerWithPad(
         g,
         textWidth,
         textHeight,
         textPadding + borderPadding + 5,
         textPadding + borderPadding);
-    g.setColor(TopMenu.c2);
+    g.setColor(totalCoin >= 24 ? cDanger[1] : TopMenu.c2);
     drawBannerWithPad(
         g,
         textWidth,
@@ -128,10 +147,12 @@ public class TotalCoinText extends Text {
   }
 
   private void setTotalCoin(int totalCoin) {
+    this.totalCoin = totalCoin;
+
     if (totalCoin > 0)
       slideIn();
     content = String.format("Total %02d/24", totalCoin);
-    color = totalCoin >= 20 ? cDanger : cNormal;
+    color = totalCoin >= 24 ? cDanger[2] : totalCoin >= 20 ? cWarn : cNormal;
   }
 
   public void onTotalCoin(Object... args) {
