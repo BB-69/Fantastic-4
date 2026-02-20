@@ -78,8 +78,8 @@ public class TotalCoinText extends Text {
     int textHeight = getTextHeight();
 
     { // shadow
-      float scaledWidth = textWidth * 1.4f;
-      float scaledHeight = textHeight * 2.8f;
+      float scaledWidth = textWidth * 1.8f;
+      float scaledHeight = textHeight * 3.4f;
 
       AffineTransform old2 = g.getTransform();
       Paint oldPaint = g.getPaint();
