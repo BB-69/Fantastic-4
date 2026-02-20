@@ -12,7 +12,7 @@ public class Coin extends Entity {
 
   private CoinSprite sprite;
 
-  public static final float COIN_SIZE = 52f;
+  public static final float COIN_SIZE = 44f;
 
   private int player;
 

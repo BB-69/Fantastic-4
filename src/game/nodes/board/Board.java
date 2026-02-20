@@ -13,12 +13,12 @@ public class Board extends Node {
 
   private BoardLogic boardLogic;
 
-  public static final float PIECE_WIDTH = 60f;
-  public static final float PIECE_HEIGHT = 60f;
+  public static final float PIECE_WIDTH = 54f;
+  public static final float PIECE_HEIGHT = 54f;
 
-  private final int[][] gridState = new int[BoardLogic.ROWS][BoardLogic.COLS];
   private final BoardPiece[][] pieces = new BoardPiece[BoardLogic.ROWS][BoardLogic.COLS];
   private int currentPlayer = 1;
+  private int totalCoin = 0;
   private boolean gameOver = false;
 
   private final int[] lastDroppedPos = new int[2];
@@ -27,17 +27,27 @@ public class Board extends Node {
   private Signal signalCoinDropFinish;
 
   private final List<DroppingCoin> droppingCoins = new ArrayList<>();
+  private int pendingDespawnAnimations = 0;
+  private final List<int[]> removalBatch = new ArrayList<>();
+
+  private enum PassivePhase {
+    IDLE,
+    PASSIVE_1,
+    PASSIVE_2
+  }
+
+  private PassivePhase passivePhase = PassivePhase.IDLE;
 
   public Board() {
     super();
 
     x = GameCanvas.WIDTH / 2;
-    y = GameCanvas.HEIGHT / 2 + 70;
+    y = GameCanvas.HEIGHT / 2 + 50;
 
     for (int row = 0; row < BoardLogic.ROWS; row++) {
       for (int col = 0; col < BoardLogic.COLS; col++) {
         BoardPiece p = new BoardPiece(
-            gridState[row][col], row, col);
+            0, row, col);
 
         p.setPosition(
             Board.PIECE_WIDTH * (col - ((BoardLogic.COLS - 1) / 2f)),
@@ -72,7 +82,6 @@ public class Board extends Node {
   }
 
   private void setRCVal(int row, int col, int val) {
-    gridState[row][col] = val;
     lastDroppedPos[0] = row;
     lastDroppedPos[1] = col;
     // pieces[row][col].setValue(val);
@@ -103,25 +112,136 @@ public class Board extends Node {
   }
 
   private void updateDroppingCoins() {
+    boolean landedSomething = false;
+
     for (int i = droppingCoins.size() - 1; i >= 0; i--) {
       DroppingCoin drop = droppingCoins.get(i);
 
       if (drop.coin.getWorldY() >= drop.targetY) {
         landCoin(drop);
         droppingCoins.remove(i);
+        landedSomething = true;
 
         /*
-         * === PASSIVE ===
+         * === PASSIVE 1 ===
          * If column full, destroy bottom coin
          */
         if (drop.row == 0) {
-          pieces[BoardLogic.ROWS - 1][drop.col].despawnCoin();
-        } else {
-          if (signalCoinDropFinish != null)
-            signalCoinDropFinish.emit();
+          removalBatch.add(
+              new int[] { BoardLogic.ROWS - 1, drop.col });
         }
       }
     }
+    if (landedSomething && droppingCoins.isEmpty()) {
+      passivePhase = PassivePhase.PASSIVE_1;
+      processPassives();
+    }
+  }
+
+  private void processPassives() {
+
+    switch (passivePhase) {
+
+      case PASSIVE_1:
+        runPassive1();
+        break;
+
+      case PASSIVE_2:
+        runPassive2();
+        break;
+
+      case IDLE:
+      default:
+        if (signalCoinDropFinish != null)
+          signalCoinDropFinish.emit();
+        break;
+    }
+
+    executeRemovalBatch();
+  }
+
+  private void runPassive1() {
+
+    // removalBatch already contains column overflow removals
+    // collected during landing
+
+    passivePhase = PassivePhase.PASSIVE_2;
+  }
+
+  private void runPassive2() {
+
+    if (totalCoin >= 24) {
+      for (int col = 0; col < BoardLogic.COLS; col++) {
+        if (boardLogic.getCell(0, col) != 0)
+          removalBatch.add(new int[] { 0, col });
+
+        if (boardLogic.getCell(BoardLogic.ROWS - 1, col) != 0)
+          removalBatch.add(new int[] { BoardLogic.ROWS - 1, col });
+      }
+    }
+
+    passivePhase = PassivePhase.IDLE;
+  }
+
+  private void executeRemovalBatch() {
+
+    if (removalBatch.isEmpty()) {
+
+      if (passivePhase != PassivePhase.IDLE) {
+        processPassives();
+      } else if (signalCoinDropFinish != null) {
+        signalCoinDropFinish.emit();
+      }
+
+      return;
+    }
+
+    pendingDespawnAnimations = 0;
+
+    for (int[] pos : removalBatch) {
+      Coin c = pieces[pos[0]][pos[1]].getCoin();
+      if (c != null) {
+        pendingDespawnAnimations++;
+        BoardPiece p = pieces[pos[0]][pos[1]];
+        p.despawnCoin();
+        p.flash();
+      }
+    }
+
+    if (pendingDespawnAnimations == 0)
+      finishRemovalBatch();
+  }
+
+  public void notifyCoinDespawnFinished(int row, int col) {
+    pendingDespawnAnimations--;
+
+    if (pendingDespawnAnimations <= 0) {
+      finishRemovalBatch();
+    }
+  }
+
+  private void finishRemovalBatch() {
+
+    for (int[] pos : removalBatch) {
+      boardLogic.onBoardCoinRemoved(pos[0], pos[1]);
+    }
+
+    for (int[] pos : removalBatch) {
+      rebuildColumnFromLogic(pos[0], pos[1]);
+    }
+
+    {
+      Node n = getParent();
+      if (n instanceof BoardManager) {
+        BoardManager bmn = (BoardManager) n;
+        bmn.onBulkCoinsRemoved(removalBatch);
+      }
+    }
+
+    removalBatch.clear();
+
+    if (droppingCoins.isEmpty())
+      processPassives();
   }
 
   private void landCoin(DroppingCoin drop) {
@@ -159,7 +279,9 @@ public class Board extends Node {
     if (!wins.isEmpty()) {
       for (int i = 0; i < wins.size(); i++) {
         for (int[] pos : wins.get(i)) {
-          pieces[pos[0]][pos[1]].getCoin().setGlow(true);
+          Coin coin = pieces[pos[0]][pos[1]].getCoin();
+          if (coin != null)
+            coin.setGlow(true);
         }
       }
     }
@@ -173,6 +295,10 @@ public class Board extends Node {
 
   public void onCurP(Object... args) {
     this.currentPlayer = (int) args[0];
+  }
+
+  public void onTotalCoin(Object... args) {
+    this.totalCoin = (int) args[0];
   }
 
   public void onGameOver(Object... args) {

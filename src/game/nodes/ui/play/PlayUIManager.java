@@ -10,6 +10,7 @@ import game.core.node.Node;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.nodes.ui.play.text.StatusText;
+import game.nodes.ui.play.text.TotalCoinText;
 import game.util.Log;
 
 public class PlayUIManager extends Node {
@@ -17,6 +18,7 @@ public class PlayUIManager extends Node {
   private final PlayUIManager Instance = this;
 
   private StatusText statusText = new StatusText();
+  private TotalCoinText totalCoinText = new TotalCoinText();
 
   private TopMenu topMenu = new TopMenu();
   private StatusTurn statusTurn = new StatusTurn();
@@ -24,6 +26,7 @@ public class PlayUIManager extends Node {
   private SignedSignal globalSignal;
 
   private Signal signalCurP = new Signal();
+  private Signal signalTotalCoin = new Signal();
   private Signal signalGameOver = new Signal();
 
   private boolean uiInit = false;
@@ -39,17 +42,22 @@ public class PlayUIManager extends Node {
 
     StatusTurnBG statusBG = new StatusTurnBG();
 
-    addChildren(statusText, topMenu, statusBG);
+    addChildren(statusText, totalCoinText, topMenu, statusBG);
     topMenu.addChild(statusTurn);
 
     statusText.setWorldY(-statusText.getTextHeight() * 2);
+    totalCoinText.setWorldPosition(-totalCoinText.getTextWidth() * 2, 200);
     topMenu.setWorldY(0);
     statusTurn.setWorldY(0);
+
+    statusText.setTargetY(-statusText.getTextHeight() * 2);
+    totalCoinText.setTargetX(-totalCoinText.getTextWidth() * 2);
 
     signalCurP.connect(topMenu::onCurP); // signalCurP
     signalCurP.connect(statusText::onCurP);
     signalCurP.connect(statusTurn::onCurP);
     signalCurP.connect(statusBG::onCurP);
+    signalTotalCoin.connect(totalCoinText::onTotalCoin); // signalTotalCoin
     signalGameOver.connect(topMenu::onGameOver); // signalGameOver
     signalGameOver.connect(statusText::onGameOver);
     signalGameOver.connect(statusTurn::onGameOver);
@@ -95,6 +103,9 @@ public class PlayUIManager extends Node {
     switch (signalName) {
       case "currentPlayer":
         signalCurP.emit(args);
+        break;
+      case "totalCoin":
+        signalTotalCoin.emit(args);
         break;
       case "gameOver":
         signalGameOver.emit(args);

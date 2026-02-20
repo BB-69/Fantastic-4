@@ -89,6 +89,7 @@ public class GameLoop implements Runnable {
           g.translate(offsetX, offsetY);
           g.scale(scale, scale);
 
+          g.setClip(0, 0, GameCanvas.WIDTH, GameCanvas.HEIGHT);
           g.setColor(Color.WHITE); // Game BG
           g.fillRect(0, 0, GameCanvas.WIDTH, GameCanvas.HEIGHT);
 

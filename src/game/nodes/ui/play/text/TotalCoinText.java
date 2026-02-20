@@ -14,60 +14,52 @@ import game.util.Time;
 import game.util.calc.MathUtil;
 import game.util.graphics.ColorUtil;
 
-public class StatusText extends Text {
+public class TotalCoinText extends Text {
 
-  private int currentPlayer = 0;
-  private boolean gameOver = false;
+  private int totalCoin = 0;
 
-  private int textSize = 18;
+  private int textSize = 14;
   private int textPadding = 10;
   private int borderPadding = 4;
 
-  private float alphaWidth;
-  private float alphaHeight;
-  private float targetY;
-  private Color targetColor;
+  private float targetX;
 
   private float scale = 1f;
   private float targetScale = scale;
 
-  private final Color p1Color = Color.getHSBColor(0f, 1f, 0.95f);
-  private final Color p2Color = Color.getHSBColor(0.12f, 0.9f, 0.9f);
+  private final Color cNormal = TopMenu.c1.darker().darker();
+  private final Color cWarn = Color.getHSBColor(0f, 1f, 0.95f);
+  private final Color[] cDanger = { Color.BLACK, Color.RED, Color.WHITE };
 
-  public StatusText() {
+  public TotalCoinText() {
     super();
 
     size = textSize;
-    color = TopMenu.c1.darker().darker();
-    targetColor = color;
-    content = "No Player Active!";
+    color = cNormal;
+    content = "Total 00/24";
     updateTextMetrics();
 
-    alphaWidth = getTextWidth();
-    alphaHeight = getTextHeight();
-    targetY = getWorldY();
+    targetX = getWorldX();
 
     layer = 104;
-  }
-
-  @Override
-  public void update() {
-    super.update();
-
-    alphaWidth = MathUtil.lerp(alphaWidth, getTextWidth(), 12 * Time.deltaTime);
-    alphaHeight = MathUtil.lerp(alphaHeight, getTextHeight(), 12 * Time.deltaTime);
-    color = ColorUtil.lerp(color, targetColor, 2 * Time.deltaTime);
-    scale = MathUtil.lerp(scale, targetScale, 12 * Time.deltaTime);
-    size = (int) (textSize * Math.pow(scale, 2.2f));
-    if (lastSize != size)
-      updateTextMetrics();
   }
 
   @Override
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    setWorldY(MathUtil.lerp(getWorldY(), targetY, 6 * Time.FIXED_DELTA));
+    setWorldX(MathUtil.lerp(getWorldX(), targetX, 6 * Time.FIXED_DELTA));
+  }
+
+  @Override
+  public void update() {
+    super.update();
+
+    targetScale = totalCoin >= 24 ? 1.1f : 1;
+    scale = MathUtil.lerp(scale, targetScale, 12 * Time.deltaTime);
+    size = (int) (textSize * Math.pow(scale, 2.2f));
+    if (lastSize != size)
+      updateTextMetrics();
   }
 
   @Override
@@ -79,12 +71,15 @@ public class StatusText extends Text {
 
   private void drawBanner(Graphics2D g, float alpha) {
     AffineTransform old = g.getTransform();
-    g.translate(getWorldX(), getWorldY() + alphaHeight / 4);
+    g.translate(getWorldX(), getWorldY() + getTextHeight() / 4);
     g.scale(scale, scale);
 
+    int textWidth = getTextWidth();
+    int textHeight = getTextHeight();
+
     { // shadow
-      float scaledWidth = alphaWidth * 1.4f;
-      float scaledHeight = alphaHeight * 2.8f;
+      float scaledWidth = textWidth * 1.8f;
+      float scaledHeight = textHeight * 3.4f;
 
       AffineTransform old2 = g.getTransform();
       Paint oldPaint = g.getPaint();
@@ -104,18 +99,18 @@ public class StatusText extends Text {
       g.setTransform(old2);
     }
 
-    g.setColor(TopMenu.c1);
+    g.setColor(totalCoin >= 24 ? cDanger[0] : TopMenu.c1);
     drawBannerWithPad(
         g,
-        (int) alphaWidth,
-        (int) alphaHeight,
+        textWidth,
+        textHeight,
         textPadding + borderPadding + 5,
         textPadding + borderPadding);
-    g.setColor(TopMenu.c2);
+    g.setColor(totalCoin >= 24 ? cDanger[1] : TopMenu.c2);
     drawBannerWithPad(
         g,
-        (int) alphaWidth,
-        (int) alphaHeight,
+        textWidth,
+        textHeight,
         textPadding + 5,
         textPadding);
 
@@ -143,59 +138,24 @@ public class StatusText extends Text {
         6);
   }
 
-  public void setTargetY(float targetY) {
-    this.targetY = targetY;
+  public void setTargetX(float targetX) {
+    this.targetX = targetX;
   }
 
-  public void slideIn() {
-    targetY = 85;
+  private void slideIn() {
+    targetX = 100;
   }
 
-  private void setPlayerText(int currentPlayer) {
-    if (gameOver)
-      return;
+  private void setTotalCoin(int totalCoin) {
+    this.totalCoin = totalCoin;
 
-    this.currentPlayer = currentPlayer;
-
-    content = switch (currentPlayer) {
-      case 1, 2 -> "Current Player: " + currentPlayer;
-      default -> "No Player Active!";
-    };
-    updateTextMetrics();
-
-    color = switch (currentPlayer) {
-      case 1 -> p1Color;
-      case 2 -> p2Color;
-      default -> Color.WHITE;
-    };
+    if (totalCoin > 0)
+      slideIn();
+    content = String.format("Total %02d/24", totalCoin);
+    color = totalCoin >= 24 ? cDanger[2] : totalCoin >= 20 ? cWarn : cNormal;
   }
 
-  private void setGameOver(boolean gameOver) {
-    this.gameOver = gameOver;
-
-    content = switch (currentPlayer) {
-      case 1, 2 -> "Player " + currentPlayer + " Wins!";
-      case 3 -> "Game Tie!";
-      default -> "Game Over!";
-    };
-    color = switch (currentPlayer) {
-      case 1 -> p1Color;
-      case 2 -> p2Color;
-      default -> Color.WHITE;
-    };
-    targetColor = color;
-    updateTextMetrics();
-
-    targetScale = 1.3f;
-    targetY = 110;
-    // layer = 110;
-  }
-
-  public void onCurP(Object... args) {
-    setPlayerText((int) args[0]);
-  }
-
-  public void onGameOver(Object... args) {
-    setGameOver(true);
+  public void onTotalCoin(Object... args) {
+    setTotalCoin((int) args[0]);
   }
 }

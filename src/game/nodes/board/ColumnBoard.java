@@ -120,8 +120,8 @@ public class ColumnBoard extends Node {
     destroyPreviewCoin();
   }
 
-  private void setSpawnNewCoin() {
-    canSpawnNewCoin = true;
+  private void setSpawnNewCoin(boolean canSpawnNewCoin) {
+    this.canSpawnNewCoin = canSpawnNewCoin;
   }
 
   public void attachGameOverSignal(Signal signalGameOver) {
@@ -155,13 +155,14 @@ public class ColumnBoard extends Node {
   }
 
   public void onCoinDropFinish(Object... args) {
-    setSpawnNewCoin();
+    setSpawnNewCoin(true);
   }
 
   private void onColClick(Object... args) {
     for (int i = 0; i < BoardLogic.COLS; i++)
       caList[i].informCoinDropStart();
 
+    setSpawnNewCoin(false);
     checkIfTrail();
     destroyPreviewCoin();
   }

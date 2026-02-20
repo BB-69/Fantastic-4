@@ -1,6 +1,7 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
@@ -47,7 +48,11 @@ public class BoardPieceCover extends Entity {
   }
 
   private void spriteTransitionUpdate() {
-    if (spritePhase == BoardPiece.SpritePhase.ToReveal) {
+    if (spritePhase == BoardPiece.SpritePhase.Hide)
+      frontSprite.alpha = 1;
+    else if (spritePhase == BoardPiece.SpritePhase.Reveal)
+      frontSprite.alpha = 0;
+    else if (spritePhase == BoardPiece.SpritePhase.ToReveal) {
       frontSprite.alpha -= spriteTransitionSpd * Time.deltaTime;
       if (frontSprite.alpha <= 0) {
         frontSprite.alpha = 0;
@@ -64,6 +69,18 @@ public class BoardPieceCover extends Entity {
 
   private void setSpritePhase(BoardPiece.SpritePhase phase) {
     this.spritePhase = phase;
+  }
+
+  float getTransitionSpd() {
+    return spriteTransitionSpd;
+  }
+
+  void setTransitionSpd(float speed) {
+    spriteTransitionSpd = speed;
+  }
+
+  void setTexture(String textureName, BufferedImage image) {
+    frontSprite.updateSprite(textureName, image);
   }
 
   public void onUpdateSpritePhase(Object... args) {
