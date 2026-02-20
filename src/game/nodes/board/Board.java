@@ -8,6 +8,7 @@ import game.GameCanvas;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
+import game.nodes.specialCoin.SpecialCoin;
 
 public class Board extends Node {
 
@@ -23,6 +24,8 @@ public class Board extends Node {
 
   private final int[] lastDroppedPos = new int[2];
   private Signal signalBoardPos;
+
+  private SpecialCoin specialCoin = null;
 
   private Signal signalCoinDropFinish;
 
@@ -92,7 +95,10 @@ public class Board extends Node {
   }
 
   private void startDrop(int row, int col, int val, int fromRow) {
-    Coin coin = new Coin(val - 1);
+    Coin coin = specialCoin != null
+        ? new SpecialCoin(specialCoin.getPlayer(), specialCoin.getAttribute())
+        : new Coin(val - 1);
+    specialCoin = null;
     coin.setParent(this);
 
     boolean fromExistingRow = fromRow > -1 && fromRow < BoardLogic.ROWS;
@@ -310,6 +316,10 @@ public class Board extends Node {
     int col = (int) args[1];
 
     rebuildColumnFromLogic(removedRow, col);
+  }
+
+  public void onPendingSpecial(Object... args) {
+    this.specialCoin = (SpecialCoin) args[0];
   }
 
   public void attachPosSignal(Signal signalBoardPos) {

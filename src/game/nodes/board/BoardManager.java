@@ -33,6 +33,7 @@ public class BoardManager extends Node {
   private Signal signalGameOver = new Signal();
 
   private Signal signalBoardPos = new Signal();
+  private Signal signalPendingSpecial = new Signal();
 
   private Signal signalCoinDropFinish = new Signal();
   private Signal signalColClick = new Signal();
@@ -62,6 +63,8 @@ public class BoardManager extends Node {
 
     signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
+    signalPendingSpecial.connect(board::onPendingSpecial);
+    signalPendingSpecial.connect(board::onPendingSpecial);
 
     signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
     signalCoinDropFinish.connect(Instance::onCoinDropFinish);
@@ -204,6 +207,9 @@ public class BoardManager extends Node {
         resetGameState();
         signalCurP.emit(currentPlayer);
         signalCoinDropFinish.emit();
+        break;
+      case "specialCoinPending":
+        signalPendingSpecial.emit(args);
         break;
       default:
     }

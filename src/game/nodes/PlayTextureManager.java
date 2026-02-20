@@ -36,33 +36,59 @@ public class PlayTextureManager extends Node {
 
     AssetManager.getTexture("coin.png", "wooden-box.png", "rotate-left.png");
 
-    { // coin.png -> tint red
+    { // coin.png
       BufferedImage src = AssetManager.getTexture("coin.png");
       int w = src.getWidth();
       int h = src.getHeight();
 
       BufferedImage coin_red = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage coin_gray = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-      for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
+      { // coin.png -> tint red
+        for (int y = 0; y < h; y++) {
+          for (int x = 0; x < w; x++) {
 
-          int argb = src.getRGB(x, y);
+            int argb = src.getRGB(x, y);
 
-          int a = ColorUtil.getAlpha(argb);
-          int[] rgb = ColorUtil.unpackRGB(argb);
+            int a = ColorUtil.getAlpha(argb);
+            int[] rgb = ColorUtil.unpackRGB(argb);
 
-          float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
-          brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
+            float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
+            brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
 
-          int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
+            int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
 
-          int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+            int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
 
-          coin_red.setRGB(x, y, newArgb);
+            coin_red.setRGB(x, y, newArgb);
+          }
         }
+
+        AssetManager.addTexture("coin_red.png", coin_red);
       }
 
-      AssetManager.addTexture("coin_red.png", coin_red);
+      { // coin.png -> tint gray
+        for (int y = 0; y < h; y++) {
+          for (int x = 0; x < w; x++) {
+
+            int argb = src.getRGB(x, y);
+
+            int a = ColorUtil.getAlpha(argb);
+            int[] rgb = ColorUtil.unpackRGB(argb);
+
+            float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
+            brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
+
+            int[] tinted = ColorUtil.applyTint(brightness, 0.5f, 0.5f, 0.5f);
+
+            int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+
+            coin_gray.setRGB(x, y, newArgb);
+          }
+        }
+
+        AssetManager.addTexture("coin_gray.png", coin_gray);
+      }
     }
 
     { // wooden-box.png

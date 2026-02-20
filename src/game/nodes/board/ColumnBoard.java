@@ -8,6 +8,7 @@ import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.nodes.coin.CoinTrailChain;
+import game.nodes.specialCoin.SpecialCoin;
 
 public class ColumnBoard extends Node {
 
@@ -20,6 +21,8 @@ public class ColumnBoard extends Node {
   private int currentPlayer = 0;
   private boolean gameOver = false;
   private Coin coin;
+
+  private SpecialCoin specialCoin = null;
 
   private boolean canSpawnNewCoin = false;
 
@@ -75,7 +78,11 @@ public class ColumnBoard extends Node {
 
     if (coin == null && canSpawnNewCoin) {
       canSpawnNewCoin = false;
-      coin = new Coin(currentPlayer - 1);
+      if (specialCoin != null) {
+        coin = specialCoin;
+        specialCoin = null;
+      } else
+        coin = new Coin(currentPlayer - 1);
       coin.layer = -7;
       coin.spawn();
       coin.setParent(this);
@@ -152,6 +159,10 @@ public class ColumnBoard extends Node {
 
   public void onBoardPos(Object... args) {
     this.x = (float) args[0];
+  }
+
+  public void onPendingSpecial(Object... args) {
+    this.specialCoin = (SpecialCoin) args[0];
   }
 
   public void onCoinDropFinish(Object... args) {
