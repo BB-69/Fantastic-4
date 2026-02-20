@@ -106,7 +106,7 @@ public class PlayTextureManager extends Node {
 
             float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
 
-            int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
+            int[] tinted = ColorUtil.applyTint(brightness * 1.5f, 1.0f, 0.15f, 0.17f);
 
             int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
 
