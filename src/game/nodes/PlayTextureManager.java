@@ -41,10 +41,23 @@ public class PlayTextureManager extends Node {
       int w = src.getWidth();
       int h = src.getHeight();
 
-      BufferedImage coin_red = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-      BufferedImage coin_gray = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+      // --- build 3 base colored coins ---
+      String[] colorNames = { "", "red", "gray" };
+      float[][] tints = {
+          { 1.0f, 1.0f, 1.0f }, // normal
+          { 1.0f, 0.15f, 0.17f }, // red
+          { 0.5f, 0.5f, 0.5f } // gray
+      };
 
-      { // coin.png -> tint red
+      BufferedImage[] coins = new BufferedImage[colorNames.length];
+      coins[0] = src;
+
+      for (int c = 0; c < colorNames.length; c++) {
+        if (colorNames[c].equals(""))
+          continue;
+
+        BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
         for (int y = 0; y < h; y++) {
           for (int x = 0; x < w; x++) {
 
@@ -56,38 +69,85 @@ public class PlayTextureManager extends Node {
             float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
             brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
 
-            int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
+            int[] tinted = ColorUtil.applyTint(
+                brightness,
+                tints[c][0],
+                tints[c][1],
+                tints[c][2]);
 
             int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
-
-            coin_red.setRGB(x, y, newArgb);
+            img.setRGB(x, y, newArgb);
           }
         }
 
-        AssetManager.addTexture("coin_red.png", coin_red);
+        coins[c] = img;
+        AssetManager.addTexture("coin_" + colorNames[c] + ".png", img);
       }
 
-      { // coin.png -> tint gray
-        for (int y = 0; y < h; y++) {
-          for (int x = 0; x < w; x++) {
+      // --- draw symbols over each color ---
+      // coin_<color>_<symbol>.png
+      String[] symbols = { "split", "explosion", "interaction" };
 
-            int argb = src.getRGB(x, y);
+      for (int s = 0; s < symbols.length; s++) {
+        BufferedImage symbol = AssetManager.getTexture(symbols[s] + ".png");
 
-            int a = ColorUtil.getAlpha(argb);
-            int[] rgb = ColorUtil.unpackRGB(argb);
+        for (int c = 0; c < colorNames.length; c++) {
 
-            float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
-            brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
+          BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-            int[] tinted = ColorUtil.applyTint(brightness, 0.5f, 0.5f, 0.5f);
+          float scale = 0.55f;
 
-            int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+          int sw = symbol.getWidth();
+          int sh = symbol.getHeight();
 
-            coin_gray.setRGB(x, y, newArgb);
+          int dw = (int) (w * scale);
+          int dh = (int) (h * scale);
+
+          // center position
+          int ox = (w - dw) / 2;
+          int oy = (h - dh) / 2;
+
+          for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+
+              int baseArgb = coins[c].getRGB(x, y);
+              int outArgb = baseArgb;
+
+              // check if inside scaled symbol area
+              if (x >= ox && x < ox + dw && y >= oy && y < oy + dh) {
+
+                int sx = (x - ox) * sw / dw;
+                int sy = (y - oy) * sh / dh;
+
+                int symArgb = symbol.getRGB(sx, sy);
+                int sa = ColorUtil.getAlpha(symArgb);
+
+                if (sa > 0) {
+                  int[] srgb = ColorUtil.unpackRGB(symArgb);
+
+                  // invert color
+                  int ir = 255 - srgb[0];
+                  int ig = 255 - srgb[1];
+                  int ib = 255 - srgb[2];
+
+                  symArgb = ColorUtil.packARGB(sa, ir, ig, ib);
+
+                  outArgb = symArgb;
+                }
+              }
+
+              out.setRGB(x, y, outArgb);
+            }
           }
-        }
 
-        AssetManager.addTexture("coin_gray.png", coin_gray);
+          AssetManager.addTexture(
+              "coin_" + symbols[s]
+                  + (!colorNames[c].equals("")
+                      ? "_" + colorNames[c]
+                      : "")
+                  + ".png",
+              out);
+        }
       }
     }
 
