@@ -7,14 +7,15 @@ public class SpecialCoin extends Coin {
 
   private int player;
 
-  enum CoinAttribute {
-    Duplicator, Bomb, Swapper;
+  public enum CoinAttribute {
+    Splitter, Bomb, Swapper;
 
     private static final CoinAttribute[] VALUES = values();
     private static final java.util.Random RANDOM = new java.util.Random();
 
     public static CoinAttribute random() {
-      return VALUES[RANDOM.nextInt(VALUES.length)];
+      return Bomb;
+      // return VALUES[RANDOM.nextInt(VALUES.length)];
     }
   }
 
@@ -32,7 +33,7 @@ public class SpecialCoin extends Coin {
   private void initSprite() {
     sprite = new CoinSprite(String.format("coin%s%s.png",
         switch (attribute) {
-          case CoinAttribute.Duplicator -> "_split";
+          case CoinAttribute.Splitter -> "_split";
           case CoinAttribute.Bomb -> "_explosion";
           case CoinAttribute.Swapper -> "_interaction";
           case null -> "";

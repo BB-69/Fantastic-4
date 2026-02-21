@@ -102,7 +102,7 @@ public class BoardManager extends Node {
     }
     setTotalDropped(totalDropped + 1);
 
-    // boardl.printGrid();
+    boardl.printGrid();
 
     int[] pos = boardl.getlastDroppedPos();
     signalRCVal.emit(pos[0], pos[1], currentPlayer);

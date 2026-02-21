@@ -8,6 +8,7 @@ import java.util.Queue;
 
 import game.nodes.coin.Coin;
 import game.nodes.specialCoin.SpecialCoin.CoinAttribute;
+import game.util.Log;
 
 public class SpecialCoinLogic {
 
@@ -73,6 +74,13 @@ public class SpecialCoinLogic {
       task.remaining -= 1;
 
       if (task.remaining <= 0) {
+        Log.logInfo("Sent " + switch (task.coin.getAttribute()) {
+          case CoinAttribute.Splitter -> "Splitter";
+          case CoinAttribute.Bomb -> "Boom";
+          case CoinAttribute.Swapper -> "Swapper";
+          case null -> "";
+          default -> "";
+        } + "Coin!");
         pending = task.coin;
         it.remove();
       }

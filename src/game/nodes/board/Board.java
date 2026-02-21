@@ -22,6 +22,7 @@ public class Board extends Node {
   private int totalCoin = 0;
   private boolean gameOver = false;
 
+  private Coin lastLandedCoin;
   private final int[] lastDroppedPos = new int[2];
   private Signal signalBoardPos;
 
@@ -33,8 +34,11 @@ public class Board extends Node {
   private int pendingDespawnAnimations = 0;
   private final List<int[]> removalBatch = new ArrayList<>();
 
+  private final List<Integer> passive1ToRemove = new ArrayList<>();
+
   private enum PassivePhase {
     IDLE,
+    PASSIVE_COIN,
     PASSIVE_1,
     PASSIVE_2
   }
@@ -113,8 +117,7 @@ public class Board extends Node {
 
     coin.setWorldPosition(spawnX, spawnY);
     coin.gravityOn = true;
-    if (!fromExistingRow)
-      coin.flash(0.25f);
+    coin.flash(0.25f);
 
     droppingCoins.add(new DroppingCoin(coin, row, col, targetY));
   }
@@ -135,20 +138,27 @@ public class Board extends Node {
          * If column full, destroy bottom coin
          */
         if (drop.row == 0) {
-          removalBatch.add(
-              new int[] { BoardLogic.ROWS - 1, drop.col });
+          passive1ToRemove.add(drop.col);
         }
       }
     }
     if (landedSomething && droppingCoins.isEmpty()) {
-      passivePhase = PassivePhase.PASSIVE_1;
+      if (passivePhase == PassivePhase.IDLE)
+        passivePhase = PassivePhase.PASSIVE_COIN;
       processPassives();
     }
   }
 
   private void processPassives() {
 
+    if (!droppingCoins.isEmpty())
+      return;
+
     switch (passivePhase) {
+
+      case PASSIVE_COIN:
+        runPassiveCoin();
+        break;
 
       case PASSIVE_1:
         runPassive1();
@@ -168,23 +178,109 @@ public class Board extends Node {
     executeRemovalBatch();
   }
 
-  private void runPassive1() {
+  private void runPassiveCoin() {
+    if (lastLandedCoin instanceof SpecialCoin sc)
+      executeSpecialPassive(sc);
 
-    // removalBatch already contains column overflow removals
-    // collected during landing
+    passivePhase = PassivePhase.PASSIVE_1;
+  }
+
+  private void executeSpecialPassive(SpecialCoin sc) {
+    switch (sc.getAttribute()) {
+      case SpecialCoin.CoinAttribute.Splitter:
+        handleSplitter(sc);
+        break;
+      case SpecialCoin.CoinAttribute.Bomb:
+        handleBomb(sc);
+        break;
+      case SpecialCoin.CoinAttribute.Swapper:
+        handleSwapper(sc);
+        break;
+      default:
+    }
+  }
+
+  private void handleSplitter(SpecialCoin sc) {
+    int row = lastDroppedPos[0];
+    int col = lastDroppedPos[1];
+
+    int bottomVal = boardLogic.getCell(row + 1, col);
+    if (bottomVal <= 0)
+      return;
+
+    int spawned = 0;
+
+    for (int dc : new int[] { -1, 1 }) {
+      int targetCol = col + dc;
+      int dropRow = getDropRow(targetCol);
+
+      if (dropRow > row) {
+        boardLogic.setCell(dropRow, targetCol, bottomVal);
+        startDrop(dropRow, targetCol, bottomVal, row + 1);
+        if (!pieces[0][targetCol].isRevealed())
+          revealBack(targetCol);
+        spawned++;
+      }
+    }
+
+    if (spawned == 2)
+      addRemoval(row + 1, col);
+  }
+
+  private void handleBomb(SpecialCoin sc) {
+    int row = lastDroppedPos[0];
+    int col = lastDroppedPos[1];
+
+    for (int r = row - 1; r <= row + 1; r++) {
+      for (int c = col - 1; c <= col + 1; c++) {
+        if (!inBounds(r, c))
+          continue;
+        if (r == row && c == col)
+          continue;
+
+        if (boardLogic.getCell(r, c) > 0)
+          addRemoval(r, c);
+      }
+    }
+  }
+
+  private void handleSwapper(SpecialCoin sc) {
+    int row = lastDroppedPos[0];
+    int col = lastDroppedPos[1];
+
+    for (int c = 0; c < BoardLogic.COLS; c++) {
+      if (c == col)
+        continue;
+      if (boardLogic.getCell(row, c) <= 0)
+        continue;
+
+      boardLogic.toggleCoinPlayer(row, c);
+
+      Coin coin = pieces[row][c].getCoin();
+      if (coin != null) {
+        coin.setPlayer(coin.getPlayer() == 0 ? 1 : 0);
+        coin.flash(0.5f);
+      }
+    }
+  }
+
+  private void runPassive1() {
+    for (int col : passive1ToRemove)
+      addRemoval(BoardLogic.ROWS - 1, col);
+
+    passive1ToRemove.clear();
 
     passivePhase = PassivePhase.PASSIVE_2;
   }
 
   private void runPassive2() {
-
     if (totalCoin >= 24) {
       for (int col = 0; col < BoardLogic.COLS; col++) {
         if (boardLogic.getCell(0, col) != 0)
-          removalBatch.add(new int[] { 0, col });
+          addRemoval(0, col);
 
         if (boardLogic.getCell(BoardLogic.ROWS - 1, col) != 0)
-          removalBatch.add(new int[] { BoardLogic.ROWS - 1, col });
+          addRemoval(BoardLogic.ROWS - 1, col);
       }
     }
 
@@ -245,6 +341,7 @@ public class Board extends Node {
         bmn.onBulkCoinsRemoved(removalBatch);
       }
     }
+    boardLogic.printGrid();
 
     removalBatch.clear();
 
@@ -256,6 +353,8 @@ public class Board extends Node {
     drop.coin.gravityOn = false;
     drop.coin.vy = 0;
 
+    lastLandedCoin = drop.coin;
+
     BoardPiece p = pieces[drop.row][drop.col];
     p.receiveCoin(drop.coin);
   }
@@ -263,6 +362,28 @@ public class Board extends Node {
   private void revealBack(int col) {
     for (BoardPiece[] row : pieces)
       row[col].revealBack();
+  }
+
+  private boolean inBounds(int r, int c) {
+    return r >= 0 && r < BoardLogic.ROWS && c >= 0 && c < BoardLogic.COLS;
+  }
+
+  private void addRemoval(int r, int c) {
+    if (!inBounds(r, c))
+      return;
+
+    for (int[] p : removalBatch)
+      if (p[0] == r && p[1] == c)
+        return;
+
+    removalBatch.add(new int[] { r, c });
+  }
+
+  private int getDropRow(int col) {
+    for (int r = BoardLogic.ROWS - 1; r >= 0; r--)
+      if (boardLogic.getCell(r, col) == 0)
+        return r;
+    return -1;
   }
 
   private void rebuildColumnFromLogic(int startRow, int col) {

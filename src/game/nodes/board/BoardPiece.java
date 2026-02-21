@@ -60,6 +60,10 @@ public class BoardPiece extends Entity {
     layer = -3;
   }
 
+  public boolean isRevealed() {
+    return spritePhase == SpritePhase.Reveal;
+  }
+
   public void revealBack() {
     spritePhase = SpritePhase.ToReveal;
   }

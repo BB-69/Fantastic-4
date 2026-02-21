@@ -22,12 +22,12 @@ public class Main {
         .getLocalGraphicsEnvironment()
         .getDefaultScreenDevice();
 
-    if (gd.isFullScreenSupported()) {
-      gd.setFullScreenWindow(frame);
-    } else {
-      frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-      frame.setVisible(true);
-    }
+    // if (gd.isFullScreenSupported()) {
+    // gd.setFullScreenWindow(frame);
+    // } else {
+    frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    frame.setVisible(true);
+    // }
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
