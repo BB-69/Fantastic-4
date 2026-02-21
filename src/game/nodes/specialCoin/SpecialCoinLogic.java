@@ -18,7 +18,7 @@ public class SpecialCoinLogic {
   private int failedAttempts = 0;
   private double[] playerWeights = { 1.0, 1.0 }; // player 0, 1
 
-  private static final double BASE_CHANCE = 15.0;
+  private static final double BASE_CHANCE = 20.0;
   private static final double INCREMENT = 2.0;
   private static final double MIN_WEIGHT = 0.25;
   private static final double WEIGHT_STEP = 0.15;

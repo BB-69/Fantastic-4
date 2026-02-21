@@ -259,10 +259,11 @@ public class Board extends Node {
 
       boardLogic.toggleCoinPlayer(row, c);
 
-      Coin coin = pieces[row][c].getCoin();
+      Coin coin = pieces[row][c].extractCoin();
       if (coin != null) {
         coin.setPlayer(coin.getPlayer() == 0 ? 1 : 0);
         coin.flash(0.5f);
+        pieces[row][c].receiveCoin(coin);
       }
     }
   }

@@ -14,8 +14,7 @@ public class SpecialCoin extends Coin {
     private static final java.util.Random RANDOM = new java.util.Random();
 
     public static CoinAttribute random() {
-      return Bomb;
-      // return VALUES[RANDOM.nextInt(VALUES.length)];
+      return VALUES[RANDOM.nextInt(VALUES.length)];
     }
   }
 
