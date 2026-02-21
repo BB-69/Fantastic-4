@@ -2,7 +2,10 @@ package game.nodes.board;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import game.GameCanvas;
 import game.core.node.Node;
@@ -330,8 +333,16 @@ public class Board extends Node {
       boardLogic.onBoardCoinRemoved(pos[0], pos[1]);
     }
 
-    for (int[] pos : removalBatch) {
-      rebuildColumnFromLogic(pos[0], pos[1]);
+    {
+      Map<Integer, List<Integer>> groupedCol = new HashMap<>();
+
+      for (int[] pos : removalBatch)
+        groupedCol.computeIfAbsent(pos[1], ArrayList::new).add(pos[0]);
+
+      for (Map.Entry<Integer, List<Integer>> e : groupedCol.entrySet())
+        rebuildColumnFromLogic(
+            e.getValue().stream().mapToInt(Integer::intValue).toArray(),
+            e.getKey());
     }
 
     {
@@ -386,9 +397,11 @@ public class Board extends Node {
     return -1;
   }
 
-  private void rebuildColumnFromLogic(int startRow, int col) {
+  private void rebuildColumnFromLogic(int[] removedRows, int col) {
 
-    for (int row = startRow; row >= 0; row--) {
+    Arrays.sort(removedRows);
+
+    for (int row = removedRows[removedRows.length - 1]; row >= 0; row--) {
 
       int targetVal = boardLogic.getCell(row, col);
       BoardPiece piece = pieces[row][col];
@@ -400,7 +413,7 @@ public class Board extends Node {
         continue;
       }
 
-      startDrop(row, col, targetVal, row - 1);
+      startDrop(row, col, targetVal, row - removedRows.length);
     }
   }
 
@@ -438,7 +451,7 @@ public class Board extends Node {
     int removedRow = (int) args[0];
     int col = (int) args[1];
 
-    rebuildColumnFromLogic(removedRow, col);
+    rebuildColumnFromLogic(new int[] { removedRow }, col);
   }
 
   public void onPendingSpecial(Object... args) {
