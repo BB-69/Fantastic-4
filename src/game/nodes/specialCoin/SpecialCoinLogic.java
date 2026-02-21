@@ -72,10 +72,10 @@ public class SpecialCoinLogic {
       CoinTask task = it.next();
       task.remaining -= 1;
 
-      if (task.remaining == 1)
+      if (task.remaining <= 0) {
         pending = task.coin;
-      if (task.remaining <= 0)
         it.remove();
+      }
     }
 
     return pending;

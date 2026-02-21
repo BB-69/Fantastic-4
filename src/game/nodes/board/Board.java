@@ -95,10 +95,12 @@ public class Board extends Node {
   }
 
   private void startDrop(int row, int col, int val, int fromRow) {
-    Coin coin = specialCoin != null
-        ? new SpecialCoin(specialCoin.getPlayer(), specialCoin.getAttribute())
-        : new Coin(val - 1);
-    specialCoin = null;
+    Coin coin;
+    if (specialCoin != null) {
+      coin = new SpecialCoin(specialCoin.getPlayer(), specialCoin.getAttribute());
+      specialCoin = null;
+    } else
+      coin = new Coin(val - 1);
     coin.setParent(this);
 
     boolean fromExistingRow = fromRow > -1 && fromRow < BoardLogic.ROWS;

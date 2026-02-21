@@ -64,7 +64,7 @@ public class BoardManager extends Node {
     signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
     signalPendingSpecial.connect(board::onPendingSpecial);
-    signalPendingSpecial.connect(board::onPendingSpecial);
+    signalPendingSpecial.connect(colBoard::onPendingSpecial);
 
     signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
     signalCoinDropFinish.connect(Instance::onCoinDropFinish);

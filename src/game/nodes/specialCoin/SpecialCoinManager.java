@@ -45,7 +45,7 @@ public class SpecialCoinManager extends Node {
       return;
 
     SpecialCoin coin = logic.advanceTurn();
-    logic.tryCoin(currentPlayer - 1);
+    logic.tryCoin(currentPlayer - 1 == 0 ? 1 : 0);
     lister.updateListState();
 
     if (coin != null)

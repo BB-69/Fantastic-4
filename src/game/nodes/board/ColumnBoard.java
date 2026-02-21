@@ -23,6 +23,7 @@ public class ColumnBoard extends Node {
   private Coin coin;
 
   private SpecialCoin specialCoin = null;
+  private boolean canApplyPending = false;
 
   private boolean canSpawnNewCoin = false;
 
@@ -78,9 +79,10 @@ public class ColumnBoard extends Node {
 
     if (coin == null && canSpawnNewCoin) {
       canSpawnNewCoin = false;
-      if (specialCoin != null) {
+      if (specialCoin != null && canApplyPending) {
         coin = specialCoin;
         specialCoin = null;
+        canApplyPending = false;
       } else
         coin = new Coin(currentPlayer - 1);
       coin.layer = -7;
@@ -151,6 +153,9 @@ public class ColumnBoard extends Node {
 
   public void onCurP(Object... args) {
     setCurrentPlayer((int) args[0]);
+
+    if (specialCoin != null)
+      canApplyPending = true;
   }
 
   public void onGameOver(Object... args) {
