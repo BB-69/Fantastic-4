@@ -3,6 +3,7 @@ package game.nodes.specialCoin;
 import java.awt.Graphics2D;
 
 import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
@@ -14,12 +15,16 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
   private SpecialCoinLogic logic = new SpecialCoinLogic();
   private SpecialCoinLister lister = new SpecialCoinLister();
 
+  private Sound newCoinSound = new Sound("studio-ding.wav");
+
   private int currentPlayer = 0;
 
   private SignedSignal globalSignal;
 
   public SpecialCoinManager(SignedSignal globalSignal) {
     super();
+
+    newCoinSound.setVolume(5.5f);
 
     this.globalSignal = globalSignal;
     globalSignal.connect(Instance::onGlobalSignal);
@@ -52,7 +57,8 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
       return;
 
     SpecialCoin coin = logic.advanceTurn();
-    logic.tryCoin(currentPlayer - 1 == 0 ? 1 : 0);
+    if (logic.tryCoin(currentPlayer - 1 == 0 ? 1 : 0))
+      newCoinSound.play();
     lister.updateListState();
 
     if (coin != null) {
@@ -82,5 +88,6 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    newCoinSound.dispose();
   }
 }

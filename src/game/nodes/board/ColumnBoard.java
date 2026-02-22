@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import game.GameCanvas;
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
@@ -13,12 +14,20 @@ import game.nodes.specialCoin.SpecialCoin;
 
 public class ColumnBoard extends Node implements CanConnectSignal {
 
+  private Sound colHoverSound = new Sound("hit.wav");
+  private Sound startDrop = new Sound("hit-table.wav");
+  private Sound specialCoinSound = new Sound("bell-ding.wav");
+  private Sound whooshSound = new Sound("quick-swhooshing-noise.wav");
+
+  private int toPlayHoverSound = 0;
+
   private static final int offsetTop = 110;
   public static final int topSpawnY = 150;
   private float moveX = 0f;
 
   // private boolean haveSelected = false;
   private int hoveredIndex = -1;
+  private int prevHoverIndex = hoveredIndex;
   private int currentPlayer = 0;
   private boolean gameOver = false;
   private Coin coin;
@@ -41,11 +50,30 @@ public class ColumnBoard extends Node implements CanConnectSignal {
   public ColumnBoard() {
     super();
 
+    colHoverSound.setVolume(-8);
+    startDrop.setVolume(-1);
+    specialCoinSound.setVolume(-3);
+
     y = GameCanvas.HEIGHT / 2 + offsetTop;
   }
 
   @Override
   public void update() {
+  }
+
+  @Override
+  public void fixedUpdate() {
+    super.fixedUpdate();
+
+    updateColumnHover();
+    updateCoin();
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
+  }
+
+  private void updateColumnHover() {
     hoveredIndex = -1;
 
     for (int i = 0; i < BoardLogic.COLS; i++) {
@@ -54,23 +82,22 @@ public class ColumnBoard extends Node implements CanConnectSignal {
       if (hoveredIndex == -1 && caList[i].isHovered()) {
         hoveredIndex = i;
         caList[i].selected = true;
+
+        if (prevHoverIndex != hoveredIndex)
+          toPlayHoverSound++;
       }
 
       caList[i].setPosition(
           (i - (BoardLogic.COLS - 1) / 2f) * Board.PIECE_WIDTH,
           0);
     }
-  }
 
-  @Override
-  public void fixedUpdate() {
-    super.fixedUpdate();
+    prevHoverIndex = hoveredIndex;
 
-    updateCoin();
-  }
-
-  @Override
-  public void render(Graphics2D g, float alpha) {
+    if (toPlayHoverSound > 0) {
+      toPlayHoverSound--;
+      colHoverSound.playAt(0.03f);
+    }
   }
 
   private void updateCoin() {
@@ -88,6 +115,8 @@ public class ColumnBoard extends Node implements CanConnectSignal {
         coin = specialCoin;
         specialCoin = null;
         canApplyPending = false;
+
+        specialCoinSound.playAt(0.02f);
       } else
         coin = new Coin(currentPlayer - 1);
       coin.layer = -7;
@@ -114,7 +143,13 @@ public class ColumnBoard extends Node implements CanConnectSignal {
   }
 
   private void checkIfTrail() {
-    if (coin != null)
+    if (coin != null) {
+      whooshSound.setVolume(
+          Math.min(3,
+              -20 + 0.15f * Math.abs(coin.getWorldX() - (getWorldX() + moveX))));
+      whooshSound.play();
+      startDrop.play();
+
       getNodeManagerInstance().addNode(
           new CoinTrailChain((int) coin.getWorldX(),
               (int) coin.getWorldY(),
@@ -125,6 +160,7 @@ public class ColumnBoard extends Node implements CanConnectSignal {
                 case 2 -> Color.YELLOW;
                 default -> Color.DARK_GRAY;
               }));
+    }
   }
 
   private void gameOver() {
@@ -211,7 +247,7 @@ public class ColumnBoard extends Node implements CanConnectSignal {
     moveX = 0f;
     destroyPreviewCoin();
     coin = null;
-    
+
     // Reset all column areas
     for (int i = 0; i < BoardLogic.COLS; i++) {
       caList[i].reset();
@@ -222,5 +258,9 @@ public class ColumnBoard extends Node implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    colHoverSound.dispose();
+    startDrop.dispose();
+    specialCoinSound.dispose();
+    whooshSound.dispose();
   }
 }
