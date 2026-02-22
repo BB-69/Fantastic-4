@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import game.GameCanvas;
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
@@ -16,6 +17,9 @@ import game.nodes.specialCoin.SpecialCoin;
 public class Board extends Node {
 
   private BoardLogic boardLogic;
+
+  private Sound coinLandSound = new Sound("wood-block.wav");
+  private Sound scPassiveSound = new Sound("coin-up.wav");
 
   public static final float PIECE_WIDTH = 54f;
   public static final float PIECE_HEIGHT = 54f;
@@ -40,6 +44,10 @@ public class Board extends Node {
   private final List<Integer> passive1ToRemove = new ArrayList<>();
   private final java.util.Set<Integer> columnsAffectedBySpecial = new java.util.HashSet<>();
 
+  // Gates phase progression: prevents advancing past current passive phase until
+  // animations settle
+  private boolean awaitingPassiveAnimations = false;
+
   private enum PassivePhase {
     IDLE,
     PASSIVE_COIN,
@@ -51,6 +59,8 @@ public class Board extends Node {
 
   public Board() {
     super();
+
+    coinLandSound.setVolume(-6.5f);
 
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2 + 50;
@@ -160,6 +170,9 @@ public class Board extends Node {
     if (!droppingCoins.isEmpty())
       return;
 
+    if (awaitingPassiveAnimations)
+      return;
+
     switch (passivePhase) {
 
       case PASSIVE_COIN:
@@ -199,6 +212,8 @@ public class Board extends Node {
       normalCoin.spawn();
       lastLandedCoin = normalCoin;
       pieces[row][col].receiveCoin(normalCoin);
+
+      scPassiveSound.play();
     }
 
     passivePhase = PassivePhase.PASSIVE_1;
@@ -316,6 +331,10 @@ public class Board extends Node {
 
     passive1ToRemove.clear();
 
+    if (!removalBatch.isEmpty()) {
+      awaitingPassiveAnimations = true;
+    }
+
     passivePhase = PassivePhase.PASSIVE_2;
   }
 
@@ -328,6 +347,10 @@ public class Board extends Node {
         if (boardLogic.getCell(BoardLogic.ROWS - 1, col) != 0)
           addRemoval(BoardLogic.ROWS - 1, col);
       }
+    }
+
+    if (!removalBatch.isEmpty()) {
+      awaitingPassiveAnimations = true;
     }
 
     passivePhase = PassivePhase.IDLE;
@@ -366,6 +389,7 @@ public class Board extends Node {
     pendingDespawnAnimations--;
 
     if (pendingDespawnAnimations <= 0) {
+      awaitingPassiveAnimations = false;
       finishRemovalBatch();
     }
   }
@@ -412,6 +436,8 @@ public class Board extends Node {
 
     BoardPiece p = pieces[drop.row][drop.col];
     p.receiveCoin(drop.coin);
+
+    coinLandSound.playAt(0.05f);
   }
 
   private void revealBack(int col) {
@@ -526,6 +552,7 @@ public class Board extends Node {
     passive1ToRemove.clear();
     columnsAffectedBySpecial.clear();
     passivePhase = PassivePhase.IDLE;
+    awaitingPassiveAnimations = false;
 
     // Destroy all existing board pieces
     for (int row = 0; row < BoardLogic.ROWS; row++) {
@@ -550,6 +577,13 @@ public class Board extends Node {
     }
 
     lastLandedCoin = null;
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    coinLandSound.dispose();
+    scPassiveSound.dispose();
   }
 
   private static class DroppingCoin {

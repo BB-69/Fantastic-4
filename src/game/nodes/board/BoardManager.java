@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
@@ -18,6 +19,8 @@ public class BoardManager extends Node implements CanConnectSignal {
   private BoardLogic boardl = new BoardLogic();
   private Board board = new Board();
   private ColumnBoard colBoard = new ColumnBoard();
+
+  private Sound gameOverSound = new Sound("community-ding.wav");
 
   private int currentPlayer = 0;
   private int totalDropped = 0;
@@ -45,6 +48,8 @@ public class BoardManager extends Node implements CanConnectSignal {
 
   public BoardManager(SignedSignal globalSignal) {
     super();
+
+    gameOverSound.setVolume(-2);
 
     this.globalSignal = globalSignal;
     globalSignal.connect(Instance::onGlobalSignal);
@@ -210,6 +215,8 @@ public class BoardManager extends Node implements CanConnectSignal {
 
     board.invokeGlow(boardl.getWinChains());
 
+    gameOverSound.play();
+
     signalGameOver.emit();
   }
 
@@ -348,5 +355,6 @@ public class BoardManager extends Node implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    gameOverSound.dispose();
   }
 }

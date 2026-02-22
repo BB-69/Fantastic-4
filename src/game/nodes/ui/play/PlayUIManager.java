@@ -32,6 +32,7 @@ public class PlayUIManager extends Node implements CanConnectSignal {
   private Signal signalGameOver = new Signal();
 
   private boolean uiInit = false;
+  ScheduledExecutorService uiScheduler = Executors.newSingleThreadScheduledExecutor();
 
   public PlayUIManager(SignedSignal globalSignal) {
     super();
@@ -77,13 +78,11 @@ public class PlayUIManager extends Node implements CanConnectSignal {
 
       statusText.slideIn();
 
-      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-      scheduler.schedule(() -> {
+      uiScheduler.schedule(() -> {
         globalSignal.emit("startGameAction");
         Log.logInfo("Game Action Started!");
 
-        scheduler.close();
+        uiScheduler.close();
       }, 1, TimeUnit.SECONDS);
     }
   }
@@ -138,6 +137,8 @@ public class PlayUIManager extends Node implements CanConnectSignal {
 
   public void reset() {
     uiInit = false;
+    uiScheduler.shutdownNow();
+    uiScheduler = Executors.newSingleThreadScheduledExecutor();
     // Force UI components to reset their state when needed
     statusText.reset();
     totalCoinText.reset();

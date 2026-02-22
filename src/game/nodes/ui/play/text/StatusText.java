@@ -166,7 +166,7 @@ public class StatusText extends Text {
     color = switch (currentPlayer) {
       case 1 -> p1Color;
       case 2 -> p2Color;
-      default -> Color.WHITE;
+      default -> Color.BLACK;
     };
   }
 
@@ -181,7 +181,7 @@ public class StatusText extends Text {
     color = switch (currentPlayer) {
       case 1 -> p1Color;
       case 2 -> p2Color;
-      default -> Color.WHITE;
+      default -> Color.BLACK;
     };
     targetColor = color;
     updateTextMetrics();
