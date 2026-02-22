@@ -4,9 +4,10 @@ import java.awt.Graphics2D;
 
 import game.core.StateManager;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
 
-public class SpecialCoinManager extends Node {
+public class SpecialCoinManager extends Node implements CanConnectSignal {
 
   private final SpecialCoinManager Instance = this;
 
@@ -36,6 +37,12 @@ public class SpecialCoinManager extends Node {
   public void render(Graphics2D g, float alpha) {
   }
 
+  public void reset() {
+    currentPlayer = 0;
+    logic.reset();
+    lister.reset();
+  }
+
   private void setCurrentPlayer(int cur) {
     this.currentPlayer = cur;
   }
@@ -61,5 +68,16 @@ public class SpecialCoinManager extends Node {
         break;
       default:
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    globalSignal.disconnect(Instance::onGlobalSignal);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

@@ -2,17 +2,16 @@ package game.states;
 
 import game.core.GameState;
 import game.core.StateManager;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
 import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
 import game.nodes.specialCoin.SpecialCoinManager;
 import game.nodes.ui.play.PlayUIManager;
 
-public class PlayState extends GameState {
+public class PlayState extends GameState implements CanConnectSignal {
 
   private final PlayState Instance = this;
-
-  private boolean pendingRestart = false;
 
   private PlayTextureManager tex;
   private PlayUIManager ui;
@@ -39,23 +38,12 @@ public class PlayState extends GameState {
     nodeManager.addNode(tex, ui, bmn, smn);
   }
 
-  @Override
-  public void update() {
-    super.update();
-
-    if (pendingRestart) {
-      pendingRestart = false;
-      init();
-    }
-  }
-
   private void restartReload() {
-    nodeManager.removeNode(smn, bmn, ui, tex);
-    tex.destroyRecursive();
-    ui.destroyRecursive();
-    bmn.destroyRecursive();
-    smn.destroyRecursive();
-    pendingRestart = true;
+    // Reset all managers to factory state
+    bmn.reset();
+    smn.reset();
+    ui.reset();
+    // PlayTextureManager doesn't need reset as it's stateless
   }
 
   private void onGlobalSignal(String signalName, Object... args) {
@@ -69,5 +57,10 @@ public class PlayState extends GameState {
 
   private void onRestartReload(Object... args) {
     restartReload();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    StateManager.getGlobalSignal().disconnect(Instance::onGlobalSignal);
   }
 }

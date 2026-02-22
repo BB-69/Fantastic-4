@@ -1,16 +1,18 @@
 package game.nodes.specialCoin;
 
+import java.awt.Graphics2D;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
+import game.core.node.Node;
 import game.nodes.coin.Coin;
 import game.nodes.specialCoin.SpecialCoin.CoinAttribute;
 import game.util.Log;
 
-public class SpecialCoinLogic {
+public class SpecialCoinLogic extends Node {
 
   private final Queue<CoinTask> coinQueue = new ArrayDeque<>();
   private final List<CoinTask> scratch = new ArrayList<>(3);
@@ -22,6 +24,21 @@ public class SpecialCoinLogic {
   private static final double INCREMENT = 2.0;
   private static final double MIN_WEIGHT = 0.25;
   private static final double WEIGHT_STEP = 0.15;
+
+  @Override
+  public void update() {
+  }
+
+  public void reset() {
+    coinQueue.clear();
+    failedAttempts = 0;
+    playerWeights[0] = 1.0;
+    playerWeights[1] = 1.0;
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
+  }
 
   public boolean tryCoin(int player) {
     if (coinQueue.size() >= 3)
@@ -100,7 +117,7 @@ public class SpecialCoinLogic {
       scratch.add(ct);
     }
 
-    return scratch;
+    return List.copyOf(scratch);
   }
 }
 

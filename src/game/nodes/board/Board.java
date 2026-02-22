@@ -353,7 +353,7 @@ public class Board extends Node {
         bmn.onBulkCoinsRemoved(removalBatch);
       }
     }
-    boardLogic.printGrid();
+    // boardLogic.printGrid();
 
     removalBatch.clear();
 
@@ -465,6 +465,44 @@ public class Board extends Node {
 
   public void attachCoinDropFinishSignal(Signal signalCoinDropFinish) {
     this.signalCoinDropFinish = signalCoinDropFinish;
+  }
+
+  public void reset() {
+    currentPlayer = 1;
+    totalCoin = 0;
+    gameOver = false;
+    lastDroppedPos[0] = -1;
+    lastDroppedPos[1] = -1;
+    specialCoin = null;
+    droppingCoins.clear();
+    pendingDespawnAnimations = 0;
+    removalBatch.clear();
+    passive1ToRemove.clear();
+    passivePhase = PassivePhase.IDLE;
+
+    // Destroy all existing board pieces
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      for (int col = 0; col < BoardLogic.COLS; col++) {
+        BoardPiece piece = pieces[row][col];
+        piece.destroyRecursive();
+      }
+    }
+
+    // Recreate all board pieces (same as constructor)
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      for (int col = 0; col < BoardLogic.COLS; col++) {
+        BoardPiece p = new BoardPiece(0, row, col);
+
+        p.setPosition(
+            Board.PIECE_WIDTH * (col - ((BoardLogic.COLS - 1) / 2f)),
+            Board.PIECE_HEIGHT * (row - ((BoardLogic.ROWS - 1) / 2f)));
+
+        addChild(p);
+        pieces[row][col] = p;
+      }
+    }
+
+    lastLandedCoin = null;
   }
 
   private static class DroppingCoin {

@@ -32,6 +32,22 @@ public class BoardLogic extends Node {
     super();
   }
 
+  public void reset() {
+    // Clear the grid
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLS; col++) {
+        grid[row][col] = 0;
+      }
+    }
+    
+    // Reset last dropped position
+    lastDroppedPos[0] = -1;
+    lastDroppedPos[1] = -1;
+    
+    // Clear win chains history
+    lastWinChains.clear();
+  }
+
   @Override
   public void update() {
   }

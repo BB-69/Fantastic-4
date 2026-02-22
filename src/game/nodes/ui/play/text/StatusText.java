@@ -198,4 +198,19 @@ public class StatusText extends Text {
   public void onGameOver(Object... args) {
     setGameOver(true);
   }
+
+  public void reset() {
+    currentPlayer = 0;
+    gameOver = false;
+    content = "No Player Active!";
+    targetColor = TopMenu.c1.darker().darker();
+    color = targetColor;
+    scale = 1f;
+    targetScale = scale;
+    updateTextMetrics();
+    alphaWidth = getTextWidth();
+    alphaHeight = getTextHeight();
+    targetY = -getTextHeight() * 2;
+    setWorldY(-getTextHeight() * 2);
+  }
 }

@@ -11,6 +11,10 @@ public class Signal {
     listeners.add(listener);
   }
 
+  public void disconnect(Consumer<Object[]> listener) {
+    listeners.remove(listener);
+  }
+
   public void emit(Object... args) {
     for (Consumer<Object[]> c : listeners) {
       c.accept(args);

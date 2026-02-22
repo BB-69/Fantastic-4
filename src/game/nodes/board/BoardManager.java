@@ -6,11 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.util.Log;
 
-public class BoardManager extends Node {
+public class BoardManager extends Node implements CanConnectSignal {
 
   private final BoardManager Instance = this;
 
@@ -102,7 +103,7 @@ public class BoardManager extends Node {
     }
     setTotalDropped(totalDropped + 1);
 
-    boardl.printGrid();
+    // boardl.printGrid();
 
     int[] pos = boardl.getlastDroppedPos();
     signalRCVal.emit(pos[0], pos[1], currentPlayer);
@@ -256,5 +257,39 @@ public class BoardManager extends Node {
       switchTurn();
     else
       board.invokeGlow(boardl.getWinChains());
+  }
+
+  @Override
+  public void disconnectSignals() {
+    signalRCVal.disconnect(board::onRCVal); // signalRCVal
+    signalCurP.disconnect(board::onCurP); // signalCurP
+    signalCurP.disconnect(Instance::onCurP);
+    signalCurP.disconnect(colBoard::onCurP);
+    signalTotalCoin.disconnect(Instance::onTotalCoin); // signalTotalCoin
+    signalTotalCoin.disconnect(board::onTotalCoin);
+    signalGameOver.disconnect(board::onGameOver); // signalGameOver
+    signalGameOver.disconnect(Instance::onGameOver);
+    signalGameOver.disconnect(colBoard::onGameOver);
+
+    signalBoardPos.disconnect(colBoard::onBoardPos); // signalBoardPos
+    signalPendingSpecial.disconnect(board::onPendingSpecial);
+    signalPendingSpecial.disconnect(colBoard::onPendingSpecial);
+
+    signalCoinDropFinish.disconnect(colBoard::onCoinDropFinish); // signalCoinDropFinish
+    signalCoinDropFinish.disconnect(Instance::onCoinDropFinish);
+    signalColClick.disconnect(Instance::onColClick); // signalColClick
+  }
+
+  public void reset() {
+    boardl.reset();
+    board.reset();
+    colBoard.reset();
+    resetGameState();
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

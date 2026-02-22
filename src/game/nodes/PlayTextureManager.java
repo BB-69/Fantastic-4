@@ -6,10 +6,11 @@ import java.awt.image.RescaleOp;
 
 import game.core.AssetManager;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
 import game.util.graphics.ColorUtil;
 
-public class PlayTextureManager extends Node {
+public class PlayTextureManager extends Node implements CanConnectSignal {
 
   private final PlayTextureManager Instance = this;
 
@@ -303,5 +304,16 @@ public class PlayTextureManager extends Node {
     switch (signalName) {
       default:
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    globalSignal.disconnect(Instance::onGlobalSignal);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }
