@@ -7,6 +7,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
+import game.core.AssetManager;
 import game.core.node.Node;
 
 public class Text extends Node {
@@ -55,7 +56,7 @@ public class Text extends Node {
   }
 
   public void updateTextMetrics() {
-    font = new Font("Arial", style, size);
+    font = AssetManager.getFont("ZillaSlab-SemiBold.ttf", size);
 
     FontRenderContext frc = new FontRenderContext(
         new AffineTransform(), true, true);
