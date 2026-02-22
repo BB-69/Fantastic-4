@@ -39,11 +39,11 @@ public class BoardLogic extends Node {
         grid[row][col] = 0;
       }
     }
-    
+
     // Reset last dropped position
     lastDroppedPos[0] = -1;
     lastDroppedPos[1] = -1;
-    
+
     // Clear win chains history
     lastWinChains.clear();
   }
@@ -158,6 +158,8 @@ public class BoardLogic extends Node {
   void setCell(int row, int col, int val) {
     if (getCell(row, col) > -1)
       grid[row][col] = val;
+
+    // printGrid();
   }
 
   void toggleCoinPlayer(int row, int col) {

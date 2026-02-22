@@ -38,6 +38,7 @@ public class Board extends Node {
   private final List<int[]> removalBatch = new ArrayList<>();
 
   private final List<Integer> passive1ToRemove = new ArrayList<>();
+  private final java.util.Set<Integer> columnsAffectedBySpecial = new java.util.HashSet<>();
 
   private enum PassivePhase {
     IDLE,
@@ -173,6 +174,7 @@ public class Board extends Node {
 
       case IDLE:
       default:
+        checkWinsFromSpecialPassives();
         if (signalCoinDropFinish != null)
           signalCoinDropFinish.emit();
         break;
@@ -182,22 +184,37 @@ public class Board extends Node {
   }
 
   private void runPassiveCoin() {
-    boolean hadSpecialCoin = lastLandedCoin instanceof SpecialCoin;
-
-    if (lastLandedCoin instanceof SpecialCoin sc)
+    if (lastLandedCoin instanceof SpecialCoin sc) {
       executeSpecialPassive(sc);
 
-    // Check for wins after executing special passive
-    // Only if passive didn't spawn new coins
-    if (hadSpecialCoin && removalBatch.isEmpty()) {
-      Node n = getParent();
-      if (n instanceof BoardManager) {
-        BoardManager bmn = (BoardManager) n;
-        bmn.checkWinsAfterSpecialPassive(lastDroppedPos[1]);
-      }
+      // Convert SpecialCoin to normal Coin after passive is processed
+      int row = lastDroppedPos[0];
+      int col = lastDroppedPos[1];
+      pieces[row][col].destroyCoin();
+      Coin normalCoin = new Coin(sc.getPlayer());
+      normalCoin.setParent(this);
+      normalCoin.setWorldPosition(sc.getWorldX(), sc.getWorldY());
+      normalCoin.spawn();
+      lastLandedCoin = normalCoin;
+      pieces[row][col].receiveCoin(normalCoin);
     }
 
     passivePhase = PassivePhase.PASSIVE_1;
+  }
+
+  private void checkWinsFromSpecialPassives() {
+    if (columnsAffectedBySpecial.isEmpty())
+      return;
+
+    Node n = getParent();
+    if (n instanceof BoardManager) {
+      BoardManager bmn = (BoardManager) n;
+      for (int col : columnsAffectedBySpecial) {
+        bmn.checkWinsAfterSpecialPassive(col);
+      }
+    }
+
+    columnsAffectedBySpecial.clear();
   }
 
   private void executeSpecialPassive(SpecialCoin sc) {
@@ -213,11 +230,14 @@ public class Board extends Node {
         break;
       default:
     }
+
+    sc.setAttribute(null);
   }
 
   private void handleSplitter(SpecialCoin sc) {
     int row = lastDroppedPos[0];
     int col = lastDroppedPos[1];
+    columnsAffectedBySpecial.add(col);
 
     int bottomVal = boardLogic.getCell(row + 1, col);
     if (bottomVal <= 0)
@@ -234,6 +254,7 @@ public class Board extends Node {
         startDrop(dropRow, targetCol, bottomVal, row + 1);
         if (!pieces[0][targetCol].isRevealed())
           revealBack(targetCol);
+        columnsAffectedBySpecial.add(targetCol);
         spawned++;
       }
     }
@@ -245,6 +266,7 @@ public class Board extends Node {
   private void handleBomb(SpecialCoin sc) {
     int row = lastDroppedPos[0];
     int col = lastDroppedPos[1];
+    columnsAffectedBySpecial.add(col);
 
     for (int r = row - 1; r <= row + 1; r++) {
       for (int c = col - 1; c <= col + 1; c++) {
@@ -253,8 +275,10 @@ public class Board extends Node {
         if (r == row && c == col)
           continue;
 
-        if (boardLogic.getCell(r, c) > 0)
+        if (boardLogic.getCell(r, c) > 0) {
           addRemoval(r, c);
+          columnsAffectedBySpecial.add(c);
+        }
       }
     }
   }
@@ -262,6 +286,7 @@ public class Board extends Node {
   private void handleSwapper(SpecialCoin sc) {
     int row = lastDroppedPos[0];
     int col = lastDroppedPos[1];
+    columnsAffectedBySpecial.add(col);
 
     for (int c = 0; c < BoardLogic.COLS; c++) {
       if (c == col)
@@ -270,6 +295,7 @@ public class Board extends Node {
         continue;
 
       boardLogic.toggleCoinPlayer(row, c);
+      columnsAffectedBySpecial.add(c);
 
       Coin coin = pieces[row][c].extractCoin();
       if (coin != null) {
@@ -278,6 +304,8 @@ public class Board extends Node {
         pieces[row][c].receiveCoin(coin);
       }
     }
+
+    // boardLogic.printGrid();
   }
 
   private void runPassive1() {
@@ -490,6 +518,7 @@ public class Board extends Node {
     pendingDespawnAnimations = 0;
     removalBatch.clear();
     passive1ToRemove.clear();
+    columnsAffectedBySpecial.clear();
     passivePhase = PassivePhase.IDLE;
 
     // Destroy all existing board pieces

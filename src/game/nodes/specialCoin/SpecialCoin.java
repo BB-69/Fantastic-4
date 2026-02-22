@@ -46,6 +46,16 @@ public class SpecialCoin extends Coin {
     sprite.setSize(COIN_SIZE, COIN_SIZE);
   }
 
+  public void initSpriteNormally() {
+    sprite = new CoinSprite(String.format("coin%s.png",
+        player == -1
+            ? "_gray"
+            : player == 0
+                ? "_red"
+                : ""));
+    sprite.setSize(COIN_SIZE, COIN_SIZE);
+  }
+
   public int getPlayer() {
     return player;
   }
@@ -54,7 +64,18 @@ public class SpecialCoin extends Coin {
     return attribute;
   }
 
+  public void setAttribute(CoinAttribute attribute) {
+    this.attribute = attribute;
+    initSprite();
+  }
+
   public void randomAttribute() {
     attribute = CoinAttribute.random();
+  }
+
+  @Override
+  public void setPlayer(int player) {
+    super.setPlayer(player);
+    initSprite();
   }
 }
