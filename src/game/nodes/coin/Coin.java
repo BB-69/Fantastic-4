@@ -10,7 +10,7 @@ import game.util.calc.MathUtil;
 
 public class Coin extends Entity {
 
-  private CoinSprite sprite;
+  protected CoinSprite sprite;
 
   public static final float COIN_SIZE = 44f;
 
@@ -34,7 +34,12 @@ public class Coin extends Entity {
   }
 
   private void initSprite() {
-    sprite = new CoinSprite(String.format("coin%s.png", player == 0 ? "_red" : ""));
+    sprite = new CoinSprite(String.format("coin%s.png",
+        player == -1
+            ? "_gray"
+            : player == 0
+                ? "_red"
+                : ""));
     sprite.setSize(COIN_SIZE, COIN_SIZE);
   }
 
@@ -71,13 +76,15 @@ public class Coin extends Entity {
   }
 
   private void drawSprite(Graphics2D g, float alpha) {
-    int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), initPosition ? alpha : 1);
-    int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), initPosition ? alpha : 1);
+    // int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), initPosition
+    // ? alpha : 1);
+    // int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), initPosition
+    // ? alpha : 1);
 
     if (!initPosition)
       initPosition = true;
 
-    sprite.setPosition(renderX, renderY);
+    sprite.setPosition(getWorldX(), getWorldY());
 
     sprite.draw(g);
   }

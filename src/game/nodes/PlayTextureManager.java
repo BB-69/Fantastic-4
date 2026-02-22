@@ -6,10 +6,11 @@ import java.awt.image.RescaleOp;
 
 import game.core.AssetManager;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
 import game.util.graphics.ColorUtil;
 
-public class PlayTextureManager extends Node {
+public class PlayTextureManager extends Node implements CanConnectSignal {
 
   private final PlayTextureManager Instance = this;
 
@@ -36,33 +37,119 @@ public class PlayTextureManager extends Node {
 
     AssetManager.getTexture("coin.png", "wooden-box.png", "rotate-left.png");
 
-    { // coin.png -> tint red
+    { // coin.png
       BufferedImage src = AssetManager.getTexture("coin.png");
       int w = src.getWidth();
       int h = src.getHeight();
 
-      BufferedImage coin_red = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+      // --- build 3 base colored coins ---
+      String[] colorNames = { "", "red", "gray" };
+      float[][] tints = {
+          { 1.0f, 1.0f, 1.0f }, // normal
+          { 1.0f, 0.15f, 0.17f }, // red
+          { 0.5f, 0.5f, 0.5f } // gray
+      };
 
-      for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
+      BufferedImage[] coins = new BufferedImage[colorNames.length];
+      coins[0] = src;
 
-          int argb = src.getRGB(x, y);
+      for (int c = 0; c < colorNames.length; c++) {
+        if (colorNames[c].equals(""))
+          continue;
 
-          int a = ColorUtil.getAlpha(argb);
-          int[] rgb = ColorUtil.unpackRGB(argb);
+        BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-          float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
-          brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
+        for (int y = 0; y < h; y++) {
+          for (int x = 0; x < w; x++) {
 
-          int[] tinted = ColorUtil.applyTint(brightness, 1.0f, 0.15f, 0.17f);
+            int argb = src.getRGB(x, y);
 
-          int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+            int a = ColorUtil.getAlpha(argb);
+            int[] rgb = ColorUtil.unpackRGB(argb);
 
-          coin_red.setRGB(x, y, newArgb);
+            float brightness = ColorUtil.computeLuminance(rgb[0], rgb[1], rgb[2]);
+            brightness = ColorUtil.applyToneCurve(brightness, 4.5f, 3.4f);
+
+            int[] tinted = ColorUtil.applyTint(
+                brightness,
+                tints[c][0],
+                tints[c][1],
+                tints[c][2]);
+
+            int newArgb = ColorUtil.packARGB(a, tinted[0], tinted[1], tinted[2]);
+            img.setRGB(x, y, newArgb);
+          }
         }
+
+        coins[c] = img;
+        AssetManager.addTexture("coin_" + colorNames[c] + ".png", img);
       }
 
-      AssetManager.addTexture("coin_red.png", coin_red);
+      // --- draw symbols over each color ---
+      // coin_<color>_<symbol>.png
+      String[] symbols = { "split", "explosion", "interaction" };
+
+      for (int s = 0; s < symbols.length; s++) {
+        BufferedImage symbol = AssetManager.getTexture(symbols[s] + ".png");
+
+        for (int c = 0; c < colorNames.length; c++) {
+
+          BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+          float scale = 0.55f;
+
+          int sw = symbol.getWidth();
+          int sh = symbol.getHeight();
+
+          int dw = (int) (w * scale);
+          int dh = (int) (h * scale);
+
+          // center position
+          int ox = (w - dw) / 2;
+          int oy = (h - dh) / 2;
+
+          for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+
+              int baseArgb = coins[c].getRGB(x, y);
+              int outArgb = baseArgb;
+
+              // check if inside scaled symbol area
+              if (x >= ox && x < ox + dw && y >= oy && y < oy + dh) {
+
+                int sx = (x - ox) * sw / dw;
+                int sy = (y - oy) * sh / dh;
+
+                int symArgb = symbol.getRGB(sx, sy);
+                int sa = ColorUtil.getAlpha(symArgb);
+
+                if (sa > 0) {
+                  int[] srgb = ColorUtil.unpackRGB(symArgb);
+
+                  // invert color
+                  int ir = 255 - srgb[0];
+                  int ig = 255 - srgb[1];
+                  int ib = 255 - srgb[2];
+
+                  symArgb = ColorUtil.packARGB(sa, ir, ig, ib);
+
+                  outArgb = symArgb;
+                }
+              }
+
+              out.setRGB(x, y, outArgb);
+            }
+          }
+
+          AssetManager.addTexture(
+              "coin_" + symbols[s]
+                  + (!colorNames[c].equals("")
+                      ? "_" + colorNames[c]
+                      : "")
+                  + ".png",
+              out);
+        }
+      }
     }
 
     { // wooden-box.png
@@ -217,5 +304,16 @@ public class PlayTextureManager extends Node {
     switch (signalName) {
       default:
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    globalSignal.disconnect(Instance::onGlobalSignal);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

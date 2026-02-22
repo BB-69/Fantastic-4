@@ -158,4 +158,16 @@ public class TotalCoinText extends Text {
   public void onTotalCoin(Object... args) {
     setTotalCoin((int) args[0]);
   }
+
+  public void reset() {
+    totalCoin = 0;
+    scale = 1f;
+    targetScale = scale;
+    content = "Total 00/24";
+    color = cNormal;
+    updateTextMetrics();
+    targetX = -getTextWidth() * 2;
+    setWorldX(-getTextWidth() * 2);
+    setWorldY(200);
+  }
 }

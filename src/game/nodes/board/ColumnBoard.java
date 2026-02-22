@@ -5,11 +5,13 @@ import java.awt.Graphics2D;
 
 import game.GameCanvas;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.nodes.coin.CoinTrailChain;
+import game.nodes.specialCoin.SpecialCoin;
 
-public class ColumnBoard extends Node {
+public class ColumnBoard extends Node implements CanConnectSignal {
 
   private static final int offsetTop = 110;
   public static final int topSpawnY = 150;
@@ -20,6 +22,13 @@ public class ColumnBoard extends Node {
   private int currentPlayer = 0;
   private boolean gameOver = false;
   private Coin coin;
+
+  private Signal signalGameOver;
+  private Signal signalCoinDropFinish;
+  private Signal signalColClick;
+
+  private SpecialCoin specialCoin = null;
+  private boolean canApplyPending = false;
 
   private boolean canSpawnNewCoin = false;
 
@@ -75,7 +84,12 @@ public class ColumnBoard extends Node {
 
     if (coin == null && canSpawnNewCoin) {
       canSpawnNewCoin = false;
-      coin = new Coin(currentPlayer - 1);
+      if (specialCoin != null && canApplyPending) {
+        coin = specialCoin;
+        specialCoin = null;
+        canApplyPending = false;
+      } else
+        coin = new Coin(currentPlayer - 1);
       coin.layer = -7;
       coin.spawn();
       coin.setParent(this);
@@ -125,16 +139,19 @@ public class ColumnBoard extends Node {
   }
 
   public void attachGameOverSignal(Signal signalGameOver) {
+    this.signalGameOver = signalGameOver;
     for (int i = 0; i < BoardLogic.COLS; i++)
       signalGameOver.connect(caList[i]::onGameOver);
   }
 
   public void attachCoinDropFinishSignal(Signal signalCoinDropFinish) {
+    this.signalCoinDropFinish = signalCoinDropFinish;
     for (int i = 0; i < BoardLogic.COLS; i++)
       signalCoinDropFinish.connect(caList[i]::onCoinDropFinish);
   }
 
   public void passColClickSignaller(Signal signalColClick) {
+    this.signalColClick = signalColClick;
     for (int i = 0; i < BoardLogic.COLS; i++)
       caList[i].setColClickSignal(signalColClick);
 
@@ -144,6 +161,9 @@ public class ColumnBoard extends Node {
 
   public void onCurP(Object... args) {
     setCurrentPlayer((int) args[0]);
+
+    if (specialCoin != null)
+      canApplyPending = true;
   }
 
   public void onGameOver(Object... args) {
@@ -152,6 +172,10 @@ public class ColumnBoard extends Node {
 
   public void onBoardPos(Object... args) {
     this.x = (float) args[0];
+  }
+
+  public void onPendingSpecial(Object... args) {
+    this.specialCoin = (SpecialCoin) args[0];
   }
 
   public void onCoinDropFinish(Object... args) {
@@ -165,5 +189,38 @@ public class ColumnBoard extends Node {
     setSpawnNewCoin(false);
     checkIfTrail();
     destroyPreviewCoin();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    for (int i = 0; i < BoardLogic.COLS; i++)
+      signalGameOver.disconnect(caList[i]::onGameOver);
+    for (int i = 0; i < BoardLogic.COLS; i++)
+      signalCoinDropFinish.disconnect(caList[i]::onCoinDropFinish);
+    ColumnBoard colb = this;
+    signalColClick.disconnect(colb::onColClick);
+  }
+
+  public void reset() {
+    hoveredIndex = -1;
+    currentPlayer = 0;
+    gameOver = false;
+    specialCoin = null;
+    canApplyPending = false;
+    canSpawnNewCoin = false;
+    moveX = 0f;
+    destroyPreviewCoin();
+    coin = null;
+    
+    // Reset all column areas
+    for (int i = 0; i < BoardLogic.COLS; i++) {
+      caList[i].reset();
+    }
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

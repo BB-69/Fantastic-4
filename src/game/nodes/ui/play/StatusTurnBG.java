@@ -38,4 +38,8 @@ public class StatusTurnBG extends Node {
   public void onCurP(Object... args) {
     setCurrentPlayer((int) args[0]);
   }
+
+  public void reset() {
+    currentPlayer = 0;
+  }
 }

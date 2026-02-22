@@ -32,6 +32,22 @@ public class BoardLogic extends Node {
     super();
   }
 
+  public void reset() {
+    // Clear the grid
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLS; col++) {
+        grid[row][col] = 0;
+      }
+    }
+
+    // Reset last dropped position
+    lastDroppedPos[0] = -1;
+    lastDroppedPos[1] = -1;
+
+    // Clear win chains history
+    lastWinChains.clear();
+  }
+
   @Override
   public void update() {
   }
@@ -133,7 +149,22 @@ public class BoardLogic extends Node {
   }
 
   int getCell(int row, int col) {
-    return grid[row][col];
+    return (row >= 0 && row <= grid.length - 1 &&
+        col >= 0 && col <= grid[0].length - 1)
+            ? grid[row][col]
+            : -1;
+  }
+
+  void setCell(int row, int col, int val) {
+    if (getCell(row, col) > -1)
+      grid[row][col] = val;
+
+    // printGrid();
+  }
+
+  void toggleCoinPlayer(int row, int col) {
+    if (getCell(row, col) > 0)
+      grid[row][col] = grid[row][col] == 1 ? 2 : 1;
   }
 
   private void collapseColumn(int startRow, int col) {

@@ -6,11 +6,12 @@ import game.core.AssetManager;
 import game.core.StateManager;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
+import game.core.signal.CanConnectSignal;
 import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class QuitButton extends Button {
+public class QuitButton extends Button implements CanConnectSignal {
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
@@ -26,8 +27,8 @@ public class QuitButton extends Button {
     sprite = new Sprite("x_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    QuitButton instance = this;
-    signalButtonClicked.connect(instance::onQuit);
+    QuitButton Instance = this;
+    signalButtonClicked.connect(Instance::onQuit);
 
     layer = 111;
   }
@@ -61,5 +62,17 @@ public class QuitButton extends Button {
   private void onQuit(Object... args) {
     Log.logInfo("Game Quitted!");
     StateManager.getGlobalSignal().emit("quit");
+  }
+
+  @Override
+  public void disconnectSignals() {
+    QuitButton Instance = this;
+    signalButtonClicked.disconnect(Instance::onQuit);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

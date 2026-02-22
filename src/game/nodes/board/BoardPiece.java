@@ -9,11 +9,12 @@ import game.core.AssetManager;
 import game.core.graphics.Sprite;
 import game.core.node.Entity;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.util.calc.MathUtil;
 
-public class BoardPiece extends Entity {
+public class BoardPiece extends Entity implements CanConnectSignal {
 
   private final BoardPiece Instance = this;
 
@@ -58,6 +59,10 @@ public class BoardPiece extends Entity {
     backSprite.alpha = 0.92f;
 
     layer = -3;
+  }
+
+  public boolean isRevealed() {
+    return spritePhase == SpritePhase.Reveal;
   }
 
   public void revealBack() {
@@ -198,5 +203,17 @@ public class BoardPiece extends Entity {
       Board b = (Board) n;
       b.notifyCoinDespawnFinished(row, col);
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    signalCoinRemoved.disconnect(Instance::onCoinRemoved);
+    updateSpritePhase.disconnect(cover::onUpdateSpritePhase);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

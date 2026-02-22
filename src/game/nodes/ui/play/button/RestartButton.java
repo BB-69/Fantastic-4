@@ -6,11 +6,12 @@ import game.core.AssetManager;
 import game.core.StateManager;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
+import game.core.signal.CanConnectSignal;
 import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class RestartButton extends Button {
+public class RestartButton extends Button implements CanConnectSignal {
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
@@ -26,8 +27,8 @@ public class RestartButton extends Button {
     sprite = new Sprite("rotate-left_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    RestartButton instance = this;
-    signalButtonClicked.connect(instance::onRestart);
+    RestartButton Instance = this;
+    signalButtonClicked.connect(Instance::onRestart);
 
     layer = 111;
   }
@@ -61,5 +62,17 @@ public class RestartButton extends Button {
   private void onRestart(Object... args) {
     Log.logInfo("Game Restarted!");
     StateManager.getGlobalSignal().emit("restart");
+  }
+
+  @Override
+  public void disconnectSignals() {
+    RestartButton Instance = this;
+    signalButtonClicked.disconnect(Instance::onRestart);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }
