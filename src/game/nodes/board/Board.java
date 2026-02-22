@@ -182,8 +182,20 @@ public class Board extends Node {
   }
 
   private void runPassiveCoin() {
+    boolean hadSpecialCoin = lastLandedCoin instanceof SpecialCoin;
+
     if (lastLandedCoin instanceof SpecialCoin sc)
       executeSpecialPassive(sc);
+
+    // Check for wins after executing special passive
+    // Only if passive didn't spawn new coins
+    if (hadSpecialCoin && removalBatch.isEmpty()) {
+      Node n = getParent();
+      if (n instanceof BoardManager) {
+        BoardManager bmn = (BoardManager) n;
+        bmn.checkWinsAfterSpecialPassive(lastDroppedPos[1]);
+      }
+    }
 
     passivePhase = PassivePhase.PASSIVE_1;
   }

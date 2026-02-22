@@ -246,6 +246,13 @@ public class BoardManager extends Node implements CanConnectSignal {
     }
   }
 
+  public void checkWinsAfterSpecialPassive(int col) {
+    if (gameOver || pendingResult != 0)
+      return;
+
+    checkMultipleWins(col);
+  }
+
   private void onCoinDropFinish(Object... args) {
     if (pendingResult != 0) {
       resolveResult(pendingResult);
