@@ -14,7 +14,7 @@ import game.util.calc.MathUtil;
 
 public class RestartButton extends Button implements CanConnectSignal {
 
-  private Sound restartSound = new Sound("notification.wav");
+  private Sound restartSound = new Sound("coin-up.wav");
 
   private Sprite sprite;
   private float spriteScale = 0.7f;

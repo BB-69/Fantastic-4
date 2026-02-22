@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import game.core.AssetManager;
 import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
 import game.core.signal.CanConnectSignal;
@@ -13,12 +14,16 @@ import game.util.calc.MathUtil;
 
 public class QuitButton extends Button implements CanConnectSignal {
 
+  private Sound quitSound = new Sound("notification.wav");
+
   private Sprite sprite;
   private float spriteScale = 0.7f;
   private boolean hoveredSprite = false;
 
   public QuitButton() {
     super();
+
+    quitSound.setVolume(0);
 
     setSize(36, 36);
     color = TopMenu.c2;
@@ -62,6 +67,7 @@ public class QuitButton extends Button implements CanConnectSignal {
   private void onQuit(Object... args) {
     Log.logInfo("Game Quitted!");
     StateManager.getGlobalSignal().emit("quit");
+    quitSound.play();
   }
 
   @Override
@@ -74,5 +80,6 @@ public class QuitButton extends Button implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    quitSound.dispose();
   }
 }
