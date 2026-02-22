@@ -1,6 +1,7 @@
 package game;
 
 import game.core.StateManager;
+import game.states.MenuState;
 import game.states.PlayState;
 import game.states.TransitionState;
 import game.input.KeyInput;
@@ -18,8 +19,8 @@ public final class Game {
     TransitionState ts = new TransitionState();
 
     StateManager.addGlobalState(ts);
-    StateManager.setState(new PlayState());
+    StateManager.setState(new MenuState());
 
-    StateManager.getGlobalSignal().emit("enterGame");
+    StateManager.getGlobalSignal().emit("enterMenu");
   }
 }

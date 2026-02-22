@@ -10,13 +10,13 @@ import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class QuitButton extends Button {
+public class ReturnButton extends Button {
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
   private boolean hoveredSprite = false;
 
-  public QuitButton() {
+  public ReturnButton() {
     super();
 
     setSize(36, 36);
@@ -26,8 +26,8 @@ public class QuitButton extends Button {
     sprite = new Sprite("x_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    QuitButton instance = this;
-    signalButtonClicked.connect(instance::onQuit);
+    ReturnButton instance = this;
+    signalButtonClicked.connect(instance::onReturn);
 
     layer = 111;
   }
@@ -58,8 +58,8 @@ public class QuitButton extends Button {
     sprite.draw(g);
   }
 
-  private void onQuit(Object... args) {
-    Log.logInfo("Game Quitted!");
-    StateManager.getGlobalSignal().emit("quit");
-  }
+  private void onReturn(Object... args) {
+    Log.logInfo("Returning to Main Menu...");
+    StateManager.getGlobalSignal().emit("transitionToState", "menu");
+}
 }

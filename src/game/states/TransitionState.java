@@ -19,6 +19,7 @@ public class TransitionState extends GameState {
 
   static {
     stateRegistry.put("play", PlayState::new);
+    stateRegistry.put("menu", MenuState::new);
   }
 
   private static enum TransitionIntent {
@@ -95,6 +96,7 @@ public class TransitionState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
+      case "enterMenu": 
       case "enterGame":
         onEnterGame(args);
         break;
@@ -105,7 +107,7 @@ public class TransitionState extends GameState {
         onRestart(args);
         break;
       case "quit":
-        onQuit(args);
+        onReturn(args);
         break;
       default:
     }
@@ -130,7 +132,7 @@ public class TransitionState extends GameState {
     isTransitioning = true;
   }
 
-  private void onQuit(Object... args) {
+  private void onReturn(Object... args) {
     tra.transitionExitGame();
   }
 }
