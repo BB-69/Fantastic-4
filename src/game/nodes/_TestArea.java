@@ -24,7 +24,7 @@ public class _TestArea extends Area {
 
     g.translate(x, y);
     g.rotate(rotation);
-    g.setColor(isMouseInside() ? Color.GREEN : Color.RED);
+    g.setColor(isHovered() ? Color.GREEN : Color.RED);
     g.fillRect(
         (int) (-w / 2),
         (int) (-h / 2),

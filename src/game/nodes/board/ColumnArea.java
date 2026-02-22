@@ -2,6 +2,8 @@ package game.nodes.board;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
+import java.awt.Paint;
 import java.awt.geom.AffineTransform;
 
 import game.GameCanvas;
@@ -9,16 +11,18 @@ import game.core.node.Area;
 import game.core.node.Node;
 import game.core.signal.Signal;
 import game.input.MouseInput;
-import game.nodes.coin.Coin;
+import game.util.graphics.ColorUtil;
 
 public class ColumnArea extends Area {
+
+  private final Color hoverColor = Color.getHSBColor(0f, 0f, 0.75f);
 
   private int index = 0;
   public boolean selected = false;
 
-  private int currentPlayer = 0;
   private boolean gameOver = false;
-  private Coin coin;
+
+  private boolean coinDropFinished = false;
 
   private Signal signalColClick;
 
@@ -26,10 +30,17 @@ public class ColumnArea extends Area {
     super(parent);
 
     this.index = index;
+
     setPosition(x, 0);
     setSize(w, GameCanvas.HEIGHT);
 
-    layer = -5;
+    layer = -10;
+  }
+
+  public void reset() {
+    selected = false;
+    gameOver = false;
+    coinDropFinished = false;
   }
 
   @Override
@@ -40,25 +51,12 @@ public class ColumnArea extends Area {
   public void fixedUpdate() {
     super.fixedUpdate();
 
-    if (!gameOver && isMouseInside()) {
-      if (currentPlayer < 3 && currentPlayer > 0) {
-        if (coin == null) {
-          coin = new Coin(currentPlayer - 1);
-          coin.setParent(this);
-          coin.x = 0;
-          coin.setWorldY(150);
-        } else
-          coin.setPlayer(currentPlayer - 1);
-
-        if (MouseInput.isAnyPressed()) {
-          if (signalColClick != null)
-            signalColClick.emit(index);
+    if (!gameOver && coinDropFinished && selected) {
+      if (MouseInput.isAnyPressed()) {
+        if (signalColClick != null) {
+          signalColClick.emit(index);
+          coinDropFinished = false;
         }
-      }
-    } else {
-      if (coin != null) {
-        coin.destroy();
-        coin = null;
       }
     }
   }
@@ -67,26 +65,44 @@ public class ColumnArea extends Area {
   public void render(Graphics2D g, float alpha) {
     if (selected) {
       AffineTransform old = g.getTransform();
-
       g.translate(getWorldX(), getWorldY());
       g.rotate(rotation);
-      g.setColor(Color.cyan);
+
+      g.setColor(hoverColor);
       g.fillRect(
           (int) (-w / 2),
           (int) (-h / 2),
           (int) w,
           (int) h);
 
+      {
+        Paint oldPaint = g.getPaint();
+        g.translate(-w / 2, -(w + h / 2));
+
+        LinearGradientPaint topGradient = new LinearGradientPaint(
+            0f, 0f, 0f, w,
+            new float[] { 0f, 1f },
+            new Color[] { ColorUtil.TRANSPARENT, hoverColor });
+        g.setPaint(topGradient);
+        g.fillRect(0, 0, (int) w, (int) w);
+
+        g.setPaint(oldPaint);
+      }
+
       g.setTransform(old);
     }
   }
 
-  private void setCurrentPlayer(int cur) {
-    this.currentPlayer = cur;
+  public void informCoinDropStart() {
+    coinDropFinished = false;
   }
 
   private void setGameOver(boolean gameOver) {
     this.gameOver = gameOver;
+  }
+
+  private void informCoinDropFinished() {
+    coinDropFinished = true;
   }
 
   public void setColClickSignal(Signal signalColClick) {
@@ -97,7 +113,7 @@ public class ColumnArea extends Area {
     setGameOver(true);
   }
 
-  public void onCurP(Object... args) {
-    setCurrentPlayer((int) args[0]);
+  public void onCoinDropFinish(Object... args) {
+    informCoinDropFinished();
   }
 }

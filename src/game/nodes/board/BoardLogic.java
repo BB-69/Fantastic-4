@@ -1,10 +1,14 @@
 package game.nodes.board;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import game.core.node.Node;
+import game.util.Log;
 
 public class BoardLogic extends Node {
+
   public static final int ROWS = 6;
   public static final int COLS = 7;
   public static final int TOTAL_CELL = ROWS * COLS;
@@ -14,8 +18,34 @@ public class BoardLogic extends Node {
 
   private final int[] lastDroppedPos = new int[2];
 
+  private List<List<int[]>> lastWinChains = new ArrayList<>();
+
+  public List<List<int[]>> getWinChains() {
+    return lastWinChains;
+  }
+
+  public void clearWinChainsHistory() {
+    lastWinChains.clear();
+  }
+
   public BoardLogic() {
     super();
+  }
+
+  public void reset() {
+    // Clear the grid
+    for (int row = 0; row < ROWS; row++) {
+      for (int col = 0; col < COLS; col++) {
+        grid[row][col] = 0;
+      }
+    }
+
+    // Reset last dropped position
+    lastDroppedPos[0] = -1;
+    lastDroppedPos[1] = -1;
+
+    // Clear win chains history
+    lastWinChains.clear();
   }
 
   @Override
@@ -29,6 +59,17 @@ public class BoardLogic extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
+  }
+
+  public void printGrid() {
+    String output = "Current BoardLogic State:";
+    for (int[] row : grid) {
+      output += "\n";
+      for (int val : row) {
+        output += "[" + val + "] ";
+      }
+    }
+    Log.logInfo(output);
   }
 
   boolean dropPiece(int col, int player) {
@@ -51,31 +92,93 @@ public class BoardLogic extends Node {
   }
 
   boolean checkWin(int row, int col, int player) {
-    return checkDir(row, col, 1, 0, player) // vertical
-        || checkDir(row, col, 0, 1, player) // horizontal
-        || checkDir(row, col, 1, 1, player) // diag ↘
-        || checkDir(row, col, 1, -1, player); // diag ↙
+    List<List<int[]>> wins = new ArrayList<>();
+
+    collectDir(row, col, 1, 0, player, wins); // vertical
+    collectDir(row, col, 0, 1, player, wins); // horizontal
+    collectDir(row, col, 1, 1, player, wins); // diag ↘
+    collectDir(row, col, 1, -1, player, wins); // diag ↙
+
+    if (!wins.isEmpty()) {
+      for (int i = 0; i < wins.size(); i++) {
+        String msg = "Win chain " + (i + 1) + ": ";
+        for (int[] pos : wins.get(i)) {
+          msg += "(" + pos[0] + "," + pos[1] + ") ";
+        }
+        Log.logInfo(msg);
+      }
+    }
+
+    lastWinChains.addAll(wins);
+
+    return !wins.isEmpty();
   }
 
-  private boolean checkDir(int r, int c, int dr, int dc, int p) {
-    int count = 1;
+  private void collectDir(int r, int c, int dr, int dc, int p,
+      List<List<int[]>> wins) {
 
-    count += countPieces(r, c, dr, dc, p);
-    count += countPieces(r, c, -dr, -dc, p);
+    List<int[]> chain = new ArrayList<>();
+    chain.add(new int[] { r, c });
 
-    return count >= 4;
+    collectOneSide(r, c, dr, dc, p, chain, true);
+    collectOneSide(r, c, -dr, -dc, p, chain, false);
+
+    if (chain.size() >= 4) {
+      wins.add(chain);
+    }
   }
 
-  private int countPieces(int r, int c, int dr, int dc, int p) {
-    int count = 0;
+  private void collectOneSide(int r, int c, int dr, int dc, int p,
+      List<int[]> chain, boolean appendEnd) {
+
     r += dr;
     c += dc;
 
     while (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] == p) {
-      count++;
+      int[] pos = new int[] { r, c };
+
+      if (appendEnd) {
+        chain.add(pos);
+      } else {
+        chain.add(0, pos);
+      }
+
       r += dr;
       c += dc;
     }
-    return count;
+  }
+
+  int getCell(int row, int col) {
+    return (row >= 0 && row <= grid.length - 1 &&
+        col >= 0 && col <= grid[0].length - 1)
+            ? grid[row][col]
+            : -1;
+  }
+
+  void setCell(int row, int col, int val) {
+    if (getCell(row, col) > -1)
+      grid[row][col] = val;
+
+    // printGrid();
+  }
+
+  void toggleCoinPlayer(int row, int col) {
+    if (getCell(row, col) > 0)
+      grid[row][col] = grid[row][col] == 1 ? 2 : 1;
+  }
+
+  private void collapseColumn(int startRow, int col) {
+    for (int row = startRow; row > 0; row--) {
+      grid[row][col] = grid[row - 1][col];
+    }
+
+    grid[0][col] = 0;
+  }
+
+  public void onBoardCoinRemoved(Object... args) {
+    int removedRow = (int) args[0];
+    int col = (int) args[1];
+
+    collapseColumn(removedRow, col);
   }
 }

@@ -1,42 +1,85 @@
 package game.nodes.ui.play.button;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
+import game.core.AssetManager;
+import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
+import game.core.signal.CanConnectSignal;
+import game.nodes.ui.play.TopMenu;
 import game.util.Log;
+import game.util.calc.MathUtil;
 
-public class RestartButton extends Button {
+public class RestartButton extends Button implements CanConnectSignal {
 
-  private static final Sprite sprite = new Sprite("rotate-left.png");
+  private Sound restartSound = new Sound("coin-up.wav");
+
+  private Sprite sprite;
+  private float spriteScale = 0.7f;
+  private boolean hoveredSprite = false;
 
   public RestartButton() {
     super();
 
-    setSize(55, 55);
-    color = Color.getHSBColor(0.7f, 0.6f, 0.85f);
+    restartSound.setVolume(0);
 
-    sprite.setSize(w * 0.7f, h * 0.7f);
-    if (!sprite.isColorInverted())
-      sprite.invertColor();
+    setSize(36, 36);
+    color = TopMenu.c2;
+    hoverColor = TopMenu.c1;
 
-    RestartButton instance = this;
-    signalButtonClicked.connect(instance::onRestart);
+    sprite = new Sprite("rotate-left_brown.png");
+    sprite.setSize(w * spriteScale, h * spriteScale);
+
+    RestartButton Instance = this;
+    signalButtonClicked.connect(Instance::onRestart);
+
+    layer = 111;
+  }
+
+  @Override
+  public void update() {
+    super.update();
+
+    if (isHovered() && !hoveredSprite) {
+      sprite.setSprite("rotate-left_inverted.png", AssetManager.getTexture("rotate-left_inverted.png"));
+      sprite.setSize(w * spriteScale, h * spriteScale);
+      hoveredSprite = true;
+    } else if (!isHovered() && hoveredSprite) {
+      sprite.setSprite("rotate-left_brown.png", AssetManager.getTexture("rotate-left_brown.png"));
+      sprite.setSize(w * spriteScale, h * spriteScale);
+      hoveredSprite = false;
+    }
   }
 
   @Override
   public void render(Graphics2D g, float alpha) {
     super.render(g, alpha);
 
-    int renderX = (int) lerp(getPrevWorldX(), getWorldX(), alpha);
-    int renderY = (int) lerp(getPrevWorldY(), getWorldY(), alpha);
-    sprite.setPosition(renderX, renderY + 1);
+    int renderX = (int) MathUtil.lerp(getPrevWorldX(), getWorldX(), alpha);
+    int renderY = (int) MathUtil.lerp(getPrevWorldY(), getWorldY(), alpha);
+    sprite.setPosition(renderX, renderY);
 
     sprite.draw(g);
   }
 
   private void onRestart(Object... args) {
     Log.logInfo("Game Restarted!");
+    StateManager.getGlobalSignal().emit("restart");
+    restartSound.play();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    RestartButton Instance = this;
+    signalButtonClicked.disconnect(Instance::onRestart);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
+    restartSound.dispose();
   }
 }

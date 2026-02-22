@@ -1,63 +1,66 @@
 package game.states;
 
 import game.core.GameState;
+import game.core.StateManager;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
+import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
+import game.nodes.specialCoin.SpecialCoinManager;
 import game.nodes.ui.play.PlayUIManager;
 
-public class PlayState extends GameState {
+public class PlayState extends GameState implements CanConnectSignal {
 
   private final PlayState Instance = this;
 
-  private boolean pendingRestart = false;
-
-  private SignedSignal globalSignal = new SignedSignal();
-
+  private PlayTextureManager tex;
   private PlayUIManager ui;
   private BoardManager bmn;
+  private SpecialCoinManager smn;
 
   public PlayState() {
     super();
 
     stateName = "play";
+    stateOrder = 0;
     init();
 
-    globalSignal.connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
   }
 
   private void init() {
+    SignedSignal globalSignal = StateManager.getGlobalSignal();
+
+    tex = new PlayTextureManager(globalSignal);
     ui = new PlayUIManager(globalSignal);
     bmn = new BoardManager(globalSignal);
-    nodeManager.addNode(bmn, ui);
+    smn = new SpecialCoinManager(globalSignal);
+    nodeManager.addNode(tex, ui, bmn, smn);
   }
 
-  @Override
-  public void update() {
-    super.update();
-
-    if (pendingRestart) {
-      pendingRestart = false;
-      init();
-    }
-  }
-
-  private void restart() {
-    nodeManager.removeNode(bmn, ui);
-    ui.destroyRecursive();
-    bmn.destroyRecursive();
-    pendingRestart = true;
+  private void restartReload() {
+    // Reset all managers to factory state
+    bmn.reset();
+    smn.reset();
+    ui.reset();
+    // PlayTextureManager doesn't need reset as it's stateless
   }
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
-      case "restart":
-        onRestart(args);
+      case "restartReload":
+        onRestartReload(args);
         break;
       default:
     }
   }
 
-  private void onRestart(Object... args) {
-    restart();
+  private void onRestartReload(Object... args) {
+    restartReload();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    StateManager.getGlobalSignal().disconnect(Instance::onGlobalSignal);
   }
 }

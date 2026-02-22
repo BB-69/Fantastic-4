@@ -10,8 +10,8 @@ import game.core.AssetManager;
 public class Sprite {
 
   // === DATA ===
-  private BufferedImage image;
-  private String name;
+  protected BufferedImage image;
+  protected String name;
 
   public float x, y;
   public float width, height;
@@ -25,11 +25,14 @@ public class Sprite {
   private boolean colorInverted = false;
 
   // === CONSTRUCTOR ===
+  /* 'assets/textures/<name>' */
   public Sprite(String textureName) {
+    if (textureName == null) {
+      return;
+    }
+
     image = AssetManager.getTexture(textureName);
-    name = textureName;
-    width = image.getWidth();
-    height = image.getHeight();
+    setSprite(textureName, image);
   }
 
   // === LOGIC UPDATE ===
@@ -65,6 +68,18 @@ public class Sprite {
     g.setComposite(oldComp);
   }
 
+  public void setSprite(String name, BufferedImage image) {
+    updateSprite(name, image);
+    width = image.getWidth();
+    height = image.getHeight();
+  }
+
+  public void updateSprite(String name, BufferedImage image) {
+    this.name = name;
+    this.image = image;
+    colorInverted = false;
+  }
+
   // === HELPERS ===
   public void setPosition(float x, float y) {
     this.x = x;
@@ -91,7 +106,7 @@ public class Sprite {
       colorInverted = false;
       return;
     } else {
-      BufferedImage safeImage = AssetManager.getTextureSafe(name + "-inverted");
+      BufferedImage safeImage = AssetManager.getTextureSafe(name + "_inverted");
       if (safeImage != null) {
         image = safeImage;
         colorInverted = true;
@@ -116,7 +131,7 @@ public class Sprite {
     invertFilter.filter(copy, copy);
 
     image = copy;
-    AssetManager.addTexture(name + "-inverted", copy);
+    AssetManager.addTexture(name + "_inverted", copy);
     colorInverted = true;
   }
 }

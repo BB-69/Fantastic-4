@@ -7,6 +7,9 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 
+import game.core.audio.SoundData;
+import game.util.Log;
+
 public class AssetManager {
 
   // ===== STORAGE =====
@@ -27,8 +30,16 @@ public class AssetManager {
       textures.put(name, img);
       return img;
     } catch (Exception e) {
+      Log.logErr(String.format("Texture '%s' not found!", name));
       throw new RuntimeException(e);
     }
+  }
+
+  public static BufferedImage[] getTexture(String... names) {
+    BufferedImage[] images = new BufferedImage[names.length];
+    for (int i = 0; i < images.length; i++)
+      images[i] = getTexture(names[i]);
+    return images;
   }
 
   public static BufferedImage getTextureSafe(String name) {

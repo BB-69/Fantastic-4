@@ -9,6 +9,7 @@ import game.core.node.Entity;
 import game.input.KeyInput;
 import game.input.MouseInput;
 import game.util.Time;
+import game.util.calc.MathUtil;
 
 public class Player extends Entity {
 
@@ -59,8 +60,8 @@ public class Player extends Entity {
     if (MouseInput.isAnyDown()) {
       sprite.setPosition(x, y);
     } else {
-      int renderX = (int) lerp(prevX, x, alpha);
-      int renderY = (int) lerp(prevY, y, alpha);
+      int renderX = (int) MathUtil.lerp(prevX, x, alpha);
+      int renderY = (int) MathUtil.lerp(prevY, y, alpha);
 
       sprite.setPosition(renderX, renderY);
     }

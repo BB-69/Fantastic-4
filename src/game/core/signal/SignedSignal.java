@@ -11,8 +11,12 @@ public class SignedSignal {
     listeners.add(listener);
   }
 
+  public void disconnect(BiConsumer<String, Object[]> listener) {
+    listeners.remove(listener);
+  }
+
   public void emit(String signalName, Object... args) {
-    for (BiConsumer<String, Object[]> c : listeners) {
+    for (BiConsumer<String, Object[]> c : new ArrayList<>(listeners)) {
       c.accept(signalName, args);
     }
   }

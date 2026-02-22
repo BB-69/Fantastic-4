@@ -45,7 +45,7 @@ public abstract class Area extends Entity implements CanRotate {
     this.rotationVelocity = v;
   }
 
-  public boolean isMouseInside() {
+  public boolean isHovered() {
     // Translate mouse to area center
     Point mousePos = MouseInput.getPosition();
     float dx = mousePos.x - getWorldX();
