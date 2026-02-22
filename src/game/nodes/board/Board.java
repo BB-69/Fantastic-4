@@ -106,6 +106,7 @@ public class Board extends Node {
     Coin coin;
     if (specialCoin != null) {
       coin = new SpecialCoin(specialCoin.getPlayer(), specialCoin.getAttribute());
+      coin.setGlow(true);
       specialCoin = null;
     } else
       coin = new Coin(val - 1);
@@ -121,7 +122,8 @@ public class Board extends Node {
 
     coin.setWorldPosition(spawnX, spawnY);
     coin.gravityOn = true;
-    coin.flash(0.25f);
+    if (passivePhase == PassivePhase.PASSIVE_COIN || !fromExistingRow)
+      coin.flash(0.25f);
 
     droppingCoins.add(new DroppingCoin(coin, row, col, targetY));
   }
@@ -402,6 +404,7 @@ public class Board extends Node {
   }
 
   private void landCoin(DroppingCoin drop) {
+    drop.coin.setGlow(false);
     drop.coin.gravityOn = false;
     drop.coin.vy = 0;
 
@@ -486,6 +489,9 @@ public class Board extends Node {
 
   public void onGameOver(Object... args) {
     this.gameOver = true;
+
+    for (int col = 0; col < BoardLogic.COLS; col++)
+      revealBack(col);
   }
 
   public void onBoardCoinRemoved(Object... args) {
