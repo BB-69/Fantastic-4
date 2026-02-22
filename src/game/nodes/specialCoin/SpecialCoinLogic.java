@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import game.core.node.Node;
 import game.nodes.coin.Coin;
@@ -65,6 +67,14 @@ public class SpecialCoinLogic extends Node {
     failedAttempts -= Math.min(failedAttempts, 5);
 
     SpecialCoin newCoin = new SpecialCoin(player, CoinAttribute.random());
+    newCoin.setGlow(true);
+    newCoin.flash(0.25f);
+
+    {
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+      scheduler.schedule(() -> newCoin.shimmer(), 500, java.util.concurrent.TimeUnit.MILLISECONDS);
+      scheduler.schedule(() -> scheduler.shutdown(), 500, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
 
     coinQueue.offer(new CoinTask(newCoin, 5));
 

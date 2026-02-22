@@ -55,9 +55,12 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
     logic.tryCoin(currentPlayer - 1 == 0 ? 1 : 0);
     lister.updateListState();
 
-    if (coin != null)
+    if (coin != null) {
+      SpecialCoin newCoin = new SpecialCoin(coin.getPlayer(), coin.getAttribute());
+      newCoin.setGlow(true);
       StateManager.getGlobalSignal().emit("specialCoinPending",
-          new SpecialCoin(coin.getPlayer(), coin.getAttribute()));
+          newCoin);
+    }
   }
 
   private void onGlobalSignal(String signalName, Object... args) {

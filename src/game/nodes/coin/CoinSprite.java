@@ -83,7 +83,7 @@ public class CoinSprite extends Sprite {
     int drawY = (int) (-height / 2);
 
     if (glowFx.isActive())
-      glowFx.draw(g, (int) (Math.max(width, height) * 0.7f));
+      glowFx.draw(g, (int) (Math.max(width, height) * 0.75f));
 
     if (spawnAnim.isActive()) {
       spawnAnim.draw(g, image, (int) width, (int) height, drawX, drawY);
