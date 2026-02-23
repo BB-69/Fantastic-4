@@ -1,6 +1,7 @@
 package game.nodes.specialCoin;
 
 import game.nodes.coin.Coin;
+import game.nodes.coin.CoinSprite;
 
 public class SpecialCoin extends Coin {
 
@@ -24,6 +25,25 @@ public class SpecialCoin extends Coin {
 
     this.player = player;
     this.attribute = att;
+
+    initSprite();
+  }
+
+  private void initSprite() {
+    sprite = new CoinSprite(String.format("coin%s%s.png",
+        switch (attribute) {
+          case CoinAttribute.Duplicator -> "_split";
+          case CoinAttribute.Bomb -> "_explosion";
+          case CoinAttribute.Swapper -> "_interaction";
+          case null -> "";
+          default -> "";
+        },
+        player == -1
+            ? "_gray"
+            : player == 0
+                ? "_red"
+                : ""));
+    sprite.setSize(COIN_SIZE, COIN_SIZE);
   }
 
   public int getPlayer() {

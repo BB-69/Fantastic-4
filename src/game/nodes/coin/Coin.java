@@ -10,7 +10,7 @@ import game.util.calc.MathUtil;
 
 public class Coin extends Entity {
 
-  private CoinSprite sprite;
+  protected CoinSprite sprite;
 
   public static final float COIN_SIZE = 44f;
 
