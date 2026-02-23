@@ -293,6 +293,13 @@ public class BoardManager extends Node implements CanConnectSignal {
     }
   }
 
+  // When passive effects spawn new coins
+  public void onCoinsSpawned(int count) {
+    if (count <= 0)
+      return;
+    setTotalDropped(totalDropped + count);
+  }
+
   public void checkWinsAfterSpecialPassive(int col) {
     if (gameOver || pendingResult != 0)
       return;
