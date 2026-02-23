@@ -276,6 +276,12 @@ public class Board extends Node {
       }
     }
 
+    // Notify parent for coin spawned
+    Node parent = getParent();
+    if (parent instanceof BoardManager) {
+      ((BoardManager) parent).onCoinsSpawned(spawned);
+    }
+
     if (spawned == 2)
       addRemoval(row + 1, col);
   }
