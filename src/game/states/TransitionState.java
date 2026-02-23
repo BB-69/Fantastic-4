@@ -96,7 +96,9 @@ public class TransitionState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
-      case "enterMenu": 
+      case "enterMenu":
+        onEnterMenu(args);
+        break; 
       case "enterGame":
         onEnterGame(args);
         break;
@@ -106,12 +108,15 @@ public class TransitionState extends GameState {
       case "restart":
         onRestart(args);
         break;
-      case "quit":
-        onReturn(args);
-        break;
+      case "quit": 
+        onQuit(args);
       default:
     }
   }
+
+  private void onEnterMenu(Object... args) {
+    tra.transitionEnterGame(); //tra.transitionEnterMenu();
+}
 
   private void onEnterGame(Object... args) {
     tra.transitionEnterGame();
@@ -132,7 +137,7 @@ public class TransitionState extends GameState {
     isTransitioning = true;
   }
 
-  private void onReturn(Object... args) {
-    tra.transitionExitGame();
+  private void onQuit(Object... args) {
+    tra.transitionExitGame(); 
   }
 }
