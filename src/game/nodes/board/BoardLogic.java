@@ -123,10 +123,10 @@ public class BoardLogic extends Node {
     recoinG();
   }
 
-  private void recoinG() { ///ทำให้เหรียญตกลงมาตอนแรงโน้มถ่วงเปลี่ยน
+  private void recoinG() { ///ทำให้เหรียญตกลงมาตอนแรงโน้มถ่วงเปลี่ยน //7 แยกเงื่อนไขระหว่างปกติกับกลับด้าน
     for (int c = 0; c < COLS; c++) {
         ArrayList<Integer> pieces = new ArrayList<>();
-        for (int r = 0; r < ROWS; r++) {
+        for (int r = ROWS - 1; r >= 0; r--) { 
             if (grid[r][c] != 0) {
                 pieces.add(grid[r][c]);
                 grid[r][c] = 0;
@@ -135,7 +135,7 @@ public class BoardLogic extends Node {
 
         if (isReverseGravity[c]) {
             for (int i = 0; i < pieces.size(); i++) {
-                grid[i][c] = pieces.get(i);
+                grid[i][c] = pieces.get(i); 
             }
         } else {
             for (int i = 0; i < pieces.size(); i++) {

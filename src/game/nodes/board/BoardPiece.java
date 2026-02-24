@@ -39,24 +39,8 @@ public class BoardPiece extends Entity {
   }
 
   @Override
-  public void fixedUpdate() {
+  public void fixedUpdate() { /////////5 ตัดตรงนี้ออกกันเบิล
     super.fixedUpdate();
-
-    if (val < 3 && val > 0) {
-      if (coin == null) {
-        coin = new Coin(val - 1);
-        System.out.println("A");
-        coin.setParent(this);
-        coin.x = 0;
-        coin.setWorldY(120);
-      } else
-        coin.setPlayer(val - 1);
-    } else {
-      if (coin != null) {
-        coin.destroy();
-        coin = null;
-      }
-    }
   }
 
   @Override
