@@ -14,7 +14,7 @@ import game.util.calc.MathUtil;
 
 public class RestartButton extends Button implements CanConnectSignal {
 
-  private Sound restartSound = new Sound("coin-up.wav");
+  private Sound playSound = new Sound("coin-up.wav");
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
@@ -23,7 +23,7 @@ public class RestartButton extends Button implements CanConnectSignal {
   public RestartButton() {
     super();
 
-    restartSound.setVolume(0);
+    playSound.setVolume(0);
 
     setSize(36, 36);
     color = TopMenu.c2;
@@ -67,7 +67,7 @@ public class RestartButton extends Button implements CanConnectSignal {
   private void onRestart(Object... args) {
     Log.logInfo("Restarting Gameplay...");
     StateManager.getGlobalSignal().emit("restart");
-    restartSound.play();
+    playSound.play();
   }
 
   @Override
@@ -80,6 +80,6 @@ public class RestartButton extends Button implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
-    restartSound.dispose();
+    playSound.dispose();
   }
 }
