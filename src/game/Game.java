@@ -2,7 +2,6 @@ package game;
 
 import game.core.StateManager;
 import game.states.MenuState;
-import game.states.PlayState;
 import game.states.TransitionState;
 import game.input.KeyInput;
 import game.input.MouseInput;

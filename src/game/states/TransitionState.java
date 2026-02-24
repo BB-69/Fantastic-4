@@ -71,6 +71,7 @@ public class TransitionState extends GameState {
       if (intent == TransitionIntent.Restart)
         StateManager.getGlobalSignal().emit("restartReload");
       else {
+
         if (pendingStateChange != null)
           StateManager.setState(createState(pendingStateChange));
         pendingStateChange = null;
@@ -98,7 +99,7 @@ public class TransitionState extends GameState {
     switch (signalName) {
       case "enterMenu":
         onEnterMenu(args);
-        break; 
+        break;
       case "enterGame":
         onEnterGame(args);
         break;
@@ -108,18 +109,18 @@ public class TransitionState extends GameState {
       case "restart":
         onRestart(args);
         break;
-      case "quit": 
+      case "quit":
         onQuit(args);
       default:
     }
   }
 
   private void onEnterMenu(Object... args) {
-    tra.transitionEnterGame(); //tra.transitionEnterMenu();
-}
+    tra.transitionEnterGame();
+  }
 
   private void onEnterGame(Object... args) {
-    tra.transitionEnterGame();
+    tra.transitionEnter();
   }
 
   private void onTransitionToState(Object... args) {
@@ -138,6 +139,6 @@ public class TransitionState extends GameState {
   }
 
   private void onQuit(Object... args) {
-    tra.transitionExitGame(); 
+    tra.transitionExitGame();
   }
 }
