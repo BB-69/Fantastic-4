@@ -2,13 +2,9 @@ package game.nodes.ui.menu;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
 import game.core.StateManager;
-import game.core.audio.Sound;
 import game.core.graphics.Sprite;
 import game.core.node.Node;
 import game.core.node.event.Button;
@@ -19,10 +15,6 @@ import game.util.Time;
 import game.util.calc.MathUtil;
 
 public class MenuUIManager extends Node implements CanConnectSignal {
-
-    ScheduledExecutorService soundScheduler = Executors.newSingleThreadScheduledExecutor();
-    private Sound playSound = new Sound("coin-up.wav");
-    private Sound quitSound = new Sound("notification.wav");
 
     private Button startButton;
     private Button quitButton;
@@ -60,8 +52,6 @@ public class MenuUIManager extends Node implements CanConnectSignal {
         quitImage = new Sprite("QUIT GAME.png");
         quitImage.setPosition(GameCanvas.WIDTH / 2f, GameCanvas.HEIGHT / 2f + 180);
         addChildren(startButton, quitButton);
-        playSound.setVolume(0);
-        quitSound.setVolume(0);
         quitButton.getClickSignal().connect(this::onQuitButtonClicked);
         startButton.getClickSignal().connect(this::onStartButtonClicked);
     }
@@ -123,13 +113,11 @@ public class MenuUIManager extends Node implements CanConnectSignal {
     private void onStartButtonClicked(Object... args) {
         Log.logInfo("Starting Gameplay...");
         StateManager.getGlobalSignal().emit("requestStartGame");
-        playSound.play();
     }
 
     private void onQuitButtonClicked(Object... args) {
         Log.logInfo("Quitting Game...");
         StateManager.getGlobalSignal().emit("quit");
-        quitSound.play();
     }
 
     @Override
@@ -149,11 +137,5 @@ public class MenuUIManager extends Node implements CanConnectSignal {
     public void destroy() {
         super.destroy();
         disconnectSignals();
-
-        soundScheduler.schedule(() -> {
-            playSound.dispose();
-            quitSound.dispose();
-            soundScheduler.shutdown();
-        }, 1, TimeUnit.SECONDS);
     }
 }
