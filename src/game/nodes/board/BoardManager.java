@@ -82,10 +82,11 @@ public class BoardManager extends Node {
     }
     totalDropped += 1;
 
+    board.refreshFullBoard(boardl.getGrid()); //// 2 สั่งให้อัปเดตทั้งกระดาน
     int[] pos = boardl.getlastDroppedPos();
-    signalRCVal.emit(pos[0], pos[1], currentPlayer);
-
-    printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
+    
+    signalRCVal.emit(pos[0], pos[1], currentPlayer); ////////////////
+    printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));//////////////////
 
     if (boardl.checkWin(pos[0], pos[1], currentPlayer)) {
       gameOver = true;

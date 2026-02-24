@@ -120,5 +120,32 @@ public class BoardLogic extends Node {
     int selectedColumn = columns.get(i);
     isReverseGravity[selectedColumn] = true;
     }
+    recoinG();
   }
+
+  private void recoinG() { ///ทำให้เหรียญตกลงมาตอนแรงโน้มถ่วงเปลี่ยน
+    for (int c = 0; c < COLS; c++) {
+        ArrayList<Integer> pieces = new ArrayList<>();
+        for (int r = 0; r < ROWS; r++) {
+            if (grid[r][c] != 0) {
+                pieces.add(grid[r][c]);
+                grid[r][c] = 0;
+            }
+        }
+
+        if (isReverseGravity[c]) {
+            for (int i = 0; i < pieces.size(); i++) {
+                grid[i][c] = pieces.get(i);
+            }
+        } else {
+            for (int i = 0; i < pieces.size(); i++) {
+                grid[ROWS - 1 - i][c] = pieces.get(i);
+            }
+        }
+    }
+ }
+ public int[][] getGrid() { //// 3
+    return grid;
+ }
+ 
 }

@@ -99,7 +99,10 @@ public class BoardPiece extends Entity {
   public void setValue(int val) {
     this.val = val;
     if (val == 0) {
-      coin = null;
+      if (coin != null) {////////// 4 ลบเหรียญเก่ากันเบิล
+            coin.setParent(null); 
+            coin = null;          
+        }
     } else if (val < 3) {
       if (coin == null) {
         coin = new Coin(val - 1);

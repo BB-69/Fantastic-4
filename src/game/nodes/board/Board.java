@@ -77,4 +77,13 @@ public class Board extends Node {
   public void attachPosSignal(Signal signalBoardPos) {
     this.signalBoardPos = signalBoardPos;
   }
+
+  public void refreshFullBoard(int[][] newGrid) { /// 1 รีหน้าบอร์ด
+    for (int r = 0; r < BoardLogic.ROWS; r++) {
+        for (int c = 0; c < BoardLogic.COLS; c++) {
+            gridState[r][c] = newGrid[r][c];
+            pieces[r][c].setValue(newGrid[r][c]);
+        }
+    }
+  }
 }
