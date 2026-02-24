@@ -23,7 +23,7 @@ public class MenuState extends GameState implements CanConnectSignal {
         ui = new MenuUIManager();
         nodeManager.addNode(ui);
 
-        StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
+        StateManager.getGlobalSignal().connect(Instance, Instance::onGlobalSignal);
 
     }
 
@@ -35,6 +35,6 @@ public class MenuState extends GameState implements CanConnectSignal {
 
     @Override
     public void disconnectSignals() {
-        StateManager.getGlobalSignal().disconnect(Instance::onGlobalSignal);
+        StateManager.getGlobalSignal().disconnect(Instance);
     }
 }

@@ -33,7 +33,7 @@ public class ReturnButton extends Button implements CanConnectSignal {
     sprite.setSize(w * spriteScale, h * spriteScale);
 
     ReturnButton Instance = this;
-    signalButtonClicked.connect(Instance::onReturn);
+    signalButtonClicked.connect(Instance, Instance::onReturn);
 
     layer = 111;
   }
@@ -72,7 +72,7 @@ public class ReturnButton extends Button implements CanConnectSignal {
   @Override
   public void disconnectSignals() {
     ReturnButton Instance = this;
-    signalButtonClicked.disconnect(Instance::onReturn);
+    signalButtonClicked.disconnect(Instance);
   }
 
   @Override

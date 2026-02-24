@@ -52,7 +52,7 @@ public class BoardManager extends Node implements CanConnectSignal {
     gameOverSound.setVolume(-2);
 
     this.globalSignal = globalSignal;
-    globalSignal.connect(Instance::onGlobalSignal);
+    globalSignal.connect(Instance, Instance::onGlobalSignal);
 
     boardl.setParent(this);
     board.setParent(this);
@@ -60,27 +60,27 @@ public class BoardManager extends Node implements CanConnectSignal {
 
     board.attachLogic(boardl);
 
-    signalRCVal.connect(board::onRCVal); // signalRCVal
-    signalCurP.connect(board::onCurP); // signalCurP
-    signalCurP.connect(Instance::onCurP);
-    signalCurP.connect(colBoard::onCurP);
-    signalTotalCoin.connect(Instance::onTotalCoin); // signalTotalCoin
-    signalTotalCoin.connect(board::onTotalCoin);
-    signalGameOver.connect(board::onGameOver); // signalGameOver
-    signalGameOver.connect(Instance::onGameOver);
-    signalGameOver.connect(colBoard::onGameOver);
+    signalRCVal.connect(board, board::onRCVal); // signalRCVal
+    signalCurP.connect(board, board::onCurP); // signalCurP
+    signalCurP.connect(Instance, Instance::onCurP);
+    signalCurP.connect(colBoard, colBoard::onCurP);
+    signalTotalCoin.connect(Instance, Instance::onTotalCoin); // signalTotalCoin
+    signalTotalCoin.connect(board, board::onTotalCoin);
+    signalGameOver.connect(board, board::onGameOver); // signalGameOver
+    signalGameOver.connect(Instance, Instance::onGameOver);
+    signalGameOver.connect(colBoard, colBoard::onGameOver);
     colBoard.attachGameOverSignal(signalGameOver);
 
-    signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
+    signalBoardPos.connect(colBoard, colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
-    signalPendingSpecial.connect(board::onPendingSpecial);
-    signalPendingSpecial.connect(colBoard::onPendingSpecial);
+    signalPendingSpecial.connect(board, board::onPendingSpecial);
+    signalPendingSpecial.connect(colBoard, colBoard::onPendingSpecial);
 
-    signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
-    signalCoinDropFinish.connect(Instance::onCoinDropFinish);
+    signalCoinDropFinish.connect(colBoard, colBoard::onCoinDropFinish); // signalCoinDropFinish
+    signalCoinDropFinish.connect(Instance, Instance::onCoinDropFinish);
     colBoard.attachCoinDropFinishSignal(signalCoinDropFinish);
     board.attachCoinDropFinishSignal(signalCoinDropFinish);
-    signalColClick.connect(Instance::onColClick); // signalColClick
+    signalColClick.connect(Instance, Instance::onColClick); // signalColClick
     colBoard.passColClickSignaller(signalColClick);
 
     signalCurP.emit(currentPlayer);
@@ -332,23 +332,23 @@ public class BoardManager extends Node implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    signalRCVal.disconnect(board::onRCVal); // signalRCVal
-    signalCurP.disconnect(board::onCurP); // signalCurP
-    signalCurP.disconnect(Instance::onCurP);
-    signalCurP.disconnect(colBoard::onCurP);
-    signalTotalCoin.disconnect(Instance::onTotalCoin); // signalTotalCoin
-    signalTotalCoin.disconnect(board::onTotalCoin);
-    signalGameOver.disconnect(board::onGameOver); // signalGameOver
-    signalGameOver.disconnect(Instance::onGameOver);
-    signalGameOver.disconnect(colBoard::onGameOver);
+    signalRCVal.disconnect(board); // signalRCVal
+    signalCurP.disconnect(board); // signalCurP
+    signalCurP.disconnect(Instance);
+    signalCurP.disconnect(colBoard);
+    signalTotalCoin.disconnect(Instance); // signalTotalCoin
+    signalTotalCoin.disconnect(board);
+    signalGameOver.disconnect(board); // signalGameOver
+    signalGameOver.disconnect(Instance);
+    signalGameOver.disconnect(colBoard);
 
-    signalBoardPos.disconnect(colBoard::onBoardPos); // signalBoardPos
-    signalPendingSpecial.disconnect(board::onPendingSpecial);
-    signalPendingSpecial.disconnect(colBoard::onPendingSpecial);
+    signalBoardPos.disconnect(colBoard); // signalBoardPos
+    signalPendingSpecial.disconnect(board);
+    signalPendingSpecial.disconnect(colBoard);
 
-    signalCoinDropFinish.disconnect(colBoard::onCoinDropFinish); // signalCoinDropFinish
-    signalCoinDropFinish.disconnect(Instance::onCoinDropFinish);
-    signalColClick.disconnect(Instance::onColClick); // signalColClick
+    signalCoinDropFinish.disconnect(colBoard); // signalCoinDropFinish
+    signalCoinDropFinish.disconnect(Instance);
+    signalColClick.disconnect(Instance); // signalColClick
   }
 
   public void reset() {

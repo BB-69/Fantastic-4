@@ -177,13 +177,13 @@ public class ColumnBoard extends Node implements CanConnectSignal {
   public void attachGameOverSignal(Signal signalGameOver) {
     this.signalGameOver = signalGameOver;
     for (int i = 0; i < BoardLogic.COLS; i++)
-      signalGameOver.connect(caList[i]::onGameOver);
+      signalGameOver.connect(caList[i], caList[i]::onGameOver);
   }
 
   public void attachCoinDropFinishSignal(Signal signalCoinDropFinish) {
     this.signalCoinDropFinish = signalCoinDropFinish;
     for (int i = 0; i < BoardLogic.COLS; i++)
-      signalCoinDropFinish.connect(caList[i]::onCoinDropFinish);
+      signalCoinDropFinish.connect(caList[i], caList[i]::onCoinDropFinish);
   }
 
   public void passColClickSignaller(Signal signalColClick) {
@@ -192,7 +192,7 @@ public class ColumnBoard extends Node implements CanConnectSignal {
       caList[i].setColClickSignal(signalColClick);
 
     ColumnBoard colb = this;
-    signalColClick.connect(colb::onColClick);
+    signalColClick.connect(colb, colb::onColClick);
   }
 
   public void onCurP(Object... args) {
@@ -230,11 +230,11 @@ public class ColumnBoard extends Node implements CanConnectSignal {
   @Override
   public void disconnectSignals() {
     for (int i = 0; i < BoardLogic.COLS; i++)
-      signalGameOver.disconnect(caList[i]::onGameOver);
+      signalGameOver.disconnect(caList[i]);
     for (int i = 0; i < BoardLogic.COLS; i++)
-      signalCoinDropFinish.disconnect(caList[i]::onCoinDropFinish);
+      signalCoinDropFinish.disconnect(caList[i]);
     ColumnBoard colb = this;
-    signalColClick.disconnect(colb::onColClick);
+    signalColClick.disconnect(colb);
   }
 
   public void reset() {

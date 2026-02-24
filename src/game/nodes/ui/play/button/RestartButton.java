@@ -33,7 +33,7 @@ public class RestartButton extends Button implements CanConnectSignal {
     sprite.setSize(w * spriteScale, h * spriteScale);
 
     RestartButton Instance = this;
-    signalButtonClicked.connect(Instance::onRestart);
+    signalButtonClicked.connect(Instance, Instance::onRestart);
 
     layer = 111;
   }
@@ -65,7 +65,7 @@ public class RestartButton extends Button implements CanConnectSignal {
   }
 
   private void onRestart(Object... args) {
-    Log.logInfo("Game Restarted!");
+    Log.logInfo("Restarting Gameplay...");
     StateManager.getGlobalSignal().emit("restart");
     restartSound.play();
   }
@@ -73,7 +73,7 @@ public class RestartButton extends Button implements CanConnectSignal {
   @Override
   public void disconnectSignals() {
     RestartButton Instance = this;
-    signalButtonClicked.disconnect(Instance::onRestart);
+    signalButtonClicked.disconnect(Instance);
   }
 
   @Override

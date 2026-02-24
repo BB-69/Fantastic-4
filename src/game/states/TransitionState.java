@@ -6,10 +6,11 @@ import java.util.function.Supplier;
 
 import game.core.GameState;
 import game.core.StateManager;
+import game.core.signal.CanConnectSignal;
 import game.nodes.ui.transition.TransitionManager;
 import game.util.Time;
 
-public class TransitionState extends GameState {
+public class TransitionState extends GameState implements CanConnectSignal {
 
   private final TransitionState Instance = this;
 
@@ -42,7 +43,7 @@ public class TransitionState extends GameState {
     stateOrder = 10;
     init();
 
-    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance, Instance::onGlobalSignal);
   }
 
   private void init() {
@@ -140,5 +141,10 @@ public class TransitionState extends GameState {
 
   private void onQuit(Object... args) {
     tra.transitionExitGame();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    StateManager.getGlobalSignal().disconnect(Instance);
   }
 }

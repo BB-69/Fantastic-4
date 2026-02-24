@@ -26,7 +26,7 @@ public class SpecialCoin extends Coin {
     this.player = player;
     this.attribute = att;
 
-    // initSprite();
+    initSprite();
   }
 
   private void initSprite() {

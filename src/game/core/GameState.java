@@ -31,4 +31,7 @@ public abstract class GameState {
   public void render(Graphics2D g, float alpha) {
     nodeManager.render(g, alpha);
   }
+
+  // Hook for states to disconnect from global signals or perform cleanup
+  public abstract void disconnectSignals();
 }

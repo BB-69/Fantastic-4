@@ -2,9 +2,6 @@ package game.nodes.ui.menu;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
 import game.core.StateManager;
@@ -35,12 +32,11 @@ public class MenuUIManager extends Node implements CanConnectSignal {
     private SignedSignal globalSignal;
     private final MenuUIManager Instance = this;
     private boolean uiInit = false;
-    private ScheduledExecutorService uiScheduler = Executors.newSingleThreadScheduledExecutor();
 
     public MenuUIManager() {
         super();
         this.globalSignal = StateManager.getGlobalSignal();
-        globalSignal.connect(Instance::onGlobalSignal);
+        globalSignal.connect(Instance, Instance::onGlobalSignal);
         titleImage = new Sprite("Fantastic-4.png");
         titleImage.setPosition(GameCanvas.WIDTH / 2f, 150);
         startButton = new Button(this);
@@ -57,9 +53,11 @@ public class MenuUIManager extends Node implements CanConnectSignal {
         quitImage.setPosition(GameCanvas.WIDTH / 2f, GameCanvas.HEIGHT / 2f + 180);
         addChildren(startButton, quitButton);
         quitButton.getClickSignal().connect(args -> {
+            Log.logInfo("Quitting Game...");
             StateManager.getGlobalSignal().emit("quit");
         });
         startButton.getClickSignal().connect(args -> {
+            Log.logInfo("Starting Gameplay...");
             StateManager.getGlobalSignal().emit("requestStartGame");
         });
     }
@@ -90,11 +88,6 @@ public class MenuUIManager extends Node implements CanConnectSignal {
             // basic init behaviour: reset scales and optionally run intro animations
             startScale = 1f;
             quitScale = 1f;
-
-            uiScheduler.schedule(() -> {
-                Log.logInfo("Menu UI initialized");
-                uiScheduler.close();
-            }, 500, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -125,13 +118,11 @@ public class MenuUIManager extends Node implements CanConnectSignal {
 
     @Override
     public void disconnectSignals() {
-        globalSignal.disconnect(Instance::onGlobalSignal);
+        globalSignal.disconnect(Instance);
     }
 
     public void reset() {
         uiInit = false;
-        uiScheduler.shutdownNow();
-        uiScheduler = Executors.newSingleThreadScheduledExecutor();
         startScale = 1f;
         startTargetScale = 1f;
         quitScale = 1f;
@@ -142,6 +133,5 @@ public class MenuUIManager extends Node implements CanConnectSignal {
     public void destroy() {
         super.destroy();
         disconnectSignals();
-        uiScheduler.shutdownNow();
     }
 }
