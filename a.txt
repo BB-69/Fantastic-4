@@ -1,0 +1,30 @@
+// compile every .java file from src/ and copy to out/
+Get-ChildItem -Recurse -Filter *.java -Path src |
+Select-Object -ExpandProperty FullName |
+Out-File sources.txt -Encoding ascii
+
+// write all .java file path from out/
+javac -d out "@sources.txt"
+
+// create .jar file (default)
+jar --create --file app.jar -C out .
+
+// copy assets directory to ensure it path assets import works
+Copy-Item -Recurse src\assets out\assets
+
+// run compiled main
+java -cp out game.Main
+
+// create .jar file (specified entry point)
+jar --create --file game.jar --main-class game.Main -C out .
+
+// run compiled game
+java -jar game.jar
+
+// compile to .exe
+jpackage `
+  --name MyGame `
+  --input . `
+  --main-jar game.jar `
+  --type app-image `
+  --add-modules java.base,java.desktop

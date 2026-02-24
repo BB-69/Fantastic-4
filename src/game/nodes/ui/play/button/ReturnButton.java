@@ -1,6 +1,9 @@
 package game.nodes.ui.play.button;
 
 import java.awt.Graphics2D;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import game.core.AssetManager;
 import game.core.StateManager;
@@ -67,6 +70,7 @@ public class ReturnButton extends Button implements CanConnectSignal {
   private void onReturn(Object... args) {
     Log.logInfo("Returning to Main Menu...");
     StateManager.getGlobalSignal().emit("transitionToState", "menu");
+    quitSound.play();
   }
 
   @Override
@@ -79,6 +83,10 @@ public class ReturnButton extends Button implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
-    quitSound.dispose();
+
+    {
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+      scheduler.schedule(() -> quitSound.dispose(), 1, TimeUnit.SECONDS);
+    }
   }
 }
