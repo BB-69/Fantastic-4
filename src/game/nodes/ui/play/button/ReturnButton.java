@@ -12,7 +12,7 @@ import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class QuitButton extends Button implements CanConnectSignal {
+public class ReturnButton extends Button implements CanConnectSignal {
 
   private Sound quitSound = new Sound("notification.wav");
 
@@ -20,7 +20,7 @@ public class QuitButton extends Button implements CanConnectSignal {
   private float spriteScale = 0.7f;
   private boolean hoveredSprite = false;
 
-  public QuitButton() {
+  public ReturnButton() {
     super();
 
     quitSound.setVolume(0);
@@ -32,8 +32,8 @@ public class QuitButton extends Button implements CanConnectSignal {
     sprite = new Sprite("x_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    QuitButton Instance = this;
-    signalButtonClicked.connect(Instance::onQuit);
+    ReturnButton Instance = this;
+    signalButtonClicked.connect(Instance, Instance::onReturn);
 
     layer = 111;
   }
@@ -64,16 +64,15 @@ public class QuitButton extends Button implements CanConnectSignal {
     sprite.draw(g);
   }
 
-  private void onQuit(Object... args) {
-    Log.logInfo("Game Quitted!");
-    StateManager.getGlobalSignal().emit("quit");
-    quitSound.play();
+  private void onReturn(Object... args) {
+    Log.logInfo("Returning to Main Menu...");
+    StateManager.getGlobalSignal().emit("transitionToState", "menu");
   }
 
   @Override
   public void disconnectSignals() {
-    QuitButton Instance = this;
-    signalButtonClicked.disconnect(Instance::onQuit);
+    ReturnButton Instance = this;
+    signalButtonClicked.disconnect(Instance);
   }
 
   @Override

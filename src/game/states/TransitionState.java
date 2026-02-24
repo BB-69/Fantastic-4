@@ -6,10 +6,11 @@ import java.util.function.Supplier;
 
 import game.core.GameState;
 import game.core.StateManager;
+import game.core.signal.CanConnectSignal;
 import game.nodes.ui.transition.TransitionManager;
 import game.util.Time;
 
-public class TransitionState extends GameState {
+public class TransitionState extends GameState implements CanConnectSignal {
 
   private final TransitionState Instance = this;
 
@@ -19,6 +20,7 @@ public class TransitionState extends GameState {
 
   static {
     stateRegistry.put("play", PlayState::new);
+    stateRegistry.put("menu", MenuState::new);
   }
 
   private static enum TransitionIntent {
@@ -41,7 +43,7 @@ public class TransitionState extends GameState {
     stateOrder = 10;
     init();
 
-    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance, Instance::onGlobalSignal);
   }
 
   private void init() {
@@ -70,6 +72,7 @@ public class TransitionState extends GameState {
       if (intent == TransitionIntent.Restart)
         StateManager.getGlobalSignal().emit("restartReload");
       else {
+
         if (pendingStateChange != null)
           StateManager.setState(createState(pendingStateChange));
         pendingStateChange = null;
@@ -95,6 +98,9 @@ public class TransitionState extends GameState {
 
   private void onGlobalSignal(String signalName, Object... args) {
     switch (signalName) {
+      case "enterMenu":
+        onEnterMenu(args);
+        break;
       case "enterGame":
         onEnterGame(args);
         break;
@@ -106,13 +112,16 @@ public class TransitionState extends GameState {
         break;
       case "quit":
         onQuit(args);
-        break;
       default:
     }
   }
 
-  private void onEnterGame(Object... args) {
+  private void onEnterMenu(Object... args) {
     tra.transitionEnterGame();
+  }
+
+  private void onEnterGame(Object... args) {
+    tra.transitionEnter();
   }
 
   private void onTransitionToState(Object... args) {
@@ -132,5 +141,10 @@ public class TransitionState extends GameState {
 
   private void onQuit(Object... args) {
     tra.transitionExitGame();
+  }
+
+  @Override
+  public void disconnectSignals() {
+    StateManager.getGlobalSignal().disconnect(Instance);
   }
 }

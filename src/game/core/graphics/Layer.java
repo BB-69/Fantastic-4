@@ -63,4 +63,12 @@ public class Layer {
         n.render(g, alpha);
     }
   }
+
+  public void destroyAllNodes() {
+    for (Node n : new ArrayList<>(nodes)) {
+      n.destroyRecursive();
+    }
+    nodes.clear();
+    toRemove.clear();
+  }
 }

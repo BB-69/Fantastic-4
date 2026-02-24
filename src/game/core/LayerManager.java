@@ -1,6 +1,7 @@
 package game.core;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,7 +18,7 @@ public class LayerManager {
   private Signal signalSendNodeTo = new Signal();
 
   public LayerManager() {
-    signalSendNodeTo.connect(Instance::onSendNodeTo);
+    signalSendNodeTo.connect(Instance, Instance::onSendNodeTo);
   }
 
   public Layer getOrCreateLayer(int index) {
@@ -43,6 +44,13 @@ public class LayerManager {
     for (Layer l : layers.values()) {
       l.render(g, alpha);
     }
+  }
+
+  public void destroyAllNodes() {
+    for (Layer l : new ArrayList<>(layers.values())) {
+      l.destroyAllNodes();
+    }
+    layers.clear();
   }
 
   private void receiveNodeAtLayer(Node n, int layer) {

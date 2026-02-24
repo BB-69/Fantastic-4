@@ -42,6 +42,12 @@ public class NodeManager {
     layerManager.render(g, alpha);
   }
 
+  public void destroyAll() {
+    layerManager.destroyAllNodes();
+    toRemove.clear();
+    toAdd.clear();
+  }
+
   public void addNode(Node n) {
     n.setNodeManagerInstance(this);
     for (Node node : getNodeRecursive(n, new ArrayList<>())) {

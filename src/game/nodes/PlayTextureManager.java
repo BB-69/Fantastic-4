@@ -20,7 +20,7 @@ public class PlayTextureManager extends Node implements CanConnectSignal {
     super();
 
     this.globalSignal = globalSignal;
-    globalSignal.connect(Instance::onGlobalSignal);
+    globalSignal.connect(Instance, Instance::onGlobalSignal);
 
     initTextures();
   }
@@ -308,7 +308,7 @@ public class PlayTextureManager extends Node implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    globalSignal.disconnect(Instance::onGlobalSignal);
+    globalSignal.disconnect(Instance);
   }
 
   @Override

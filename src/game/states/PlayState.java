@@ -25,7 +25,7 @@ public class PlayState extends GameState implements CanConnectSignal {
     stateOrder = 0;
     init();
 
-    StateManager.getGlobalSignal().connect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().connect(Instance, Instance::onGlobalSignal);
   }
 
   private void init() {
@@ -61,6 +61,6 @@ public class PlayState extends GameState implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    StateManager.getGlobalSignal().disconnect(Instance::onGlobalSignal);
+    StateManager.getGlobalSignal().disconnect(Instance);
   }
 }

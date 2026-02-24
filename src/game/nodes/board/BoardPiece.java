@@ -45,12 +45,12 @@ public class BoardPiece extends Entity implements CanConnectSignal {
     this.row = row;
     this.col = col;
 
-    signalCoinRemoved.connect(Instance::onCoinRemoved);
+    signalCoinRemoved.connect(Instance, Instance::onCoinRemoved);
 
     initSprite();
 
     addChild(cover);
-    updateSpritePhase.connect(cover::onUpdateSpritePhase);
+    updateSpritePhase.connect(cover, cover::onUpdateSpritePhase);
   }
 
   private void initSprite() {
@@ -207,8 +207,8 @@ public class BoardPiece extends Entity implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    signalCoinRemoved.disconnect(Instance::onCoinRemoved);
-    updateSpritePhase.disconnect(cover::onUpdateSpritePhase);
+    signalCoinRemoved.disconnect(Instance);
+    updateSpritePhase.disconnect(cover);
   }
 
   @Override
