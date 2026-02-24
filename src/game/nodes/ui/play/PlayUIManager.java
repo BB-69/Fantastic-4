@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
@@ -17,6 +18,8 @@ import game.util.Log;
 public class PlayUIManager extends Node implements CanConnectSignal {
 
   private final PlayUIManager Instance = this;
+
+  private Sound bgMusic = new Sound("z_coffeeCatBA.wav");
 
   private StatusText statusText = new StatusText();
   private StatusTurnBG statusBG = new StatusTurnBG();
@@ -62,6 +65,10 @@ public class PlayUIManager extends Node implements CanConnectSignal {
     signalGameOver.connect(topMenu, topMenu::onGameOver); // signalGameOver
     signalGameOver.connect(statusText, statusText::onGameOver);
     signalGameOver.connect(statusTurn, statusTurn::onGameOver);
+
+    bgMusic.setVolume(-15);
+    bgMusic.play();
+    bgMusic.loop();
   }
 
   @Override
@@ -151,5 +158,7 @@ public class PlayUIManager extends Node implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    bgMusic.stop();
+    bgMusic.dispose();
   }
 }

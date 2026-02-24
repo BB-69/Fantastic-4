@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import game.GameCanvas;
 import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.graphics.Sprite;
 import game.core.node.Node;
 import game.core.node.event.Button;
@@ -15,6 +16,12 @@ import game.util.Time;
 import game.util.calc.MathUtil;
 
 public class MenuUIManager extends Node implements CanConnectSignal {
+
+    private Sound bgMusic = new Sound("z_studyWithMiku1.wav");
+    private boolean fadingOut = false;
+    private float currentVolume = -15f;
+    private final float fadeSpeed = -30f;
+    private final float minVolume = -70f;
 
     private Button startButton;
     private Button quitButton;
@@ -54,6 +61,10 @@ public class MenuUIManager extends Node implements CanConnectSignal {
         addChildren(startButton, quitButton);
         quitButton.getClickSignal().connect(this::onQuitButtonClicked);
         startButton.getClickSignal().connect(this::onStartButtonClicked);
+
+        bgMusic.setVolume(currentVolume);
+        bgMusic.play();
+        bgMusic.loop();
     }
 
     @Override
@@ -66,6 +77,17 @@ public class MenuUIManager extends Node implements CanConnectSignal {
 
         startImage.setSize(btnWidth * startScale, btnHeight * startScale);
         quitImage.setSize(btnWidth * quitScale, btnHeight * quitScale);
+
+        if (fadingOut) {
+            currentVolume += fadeSpeed * Time.deltaTime;
+
+            if (currentVolume <= minVolume) {
+                currentVolume = minVolume;
+                fadingOut = false;
+            }
+
+            bgMusic.setVolume(currentVolume);
+        }
     }
 
     @Override
@@ -112,11 +134,13 @@ public class MenuUIManager extends Node implements CanConnectSignal {
 
     private void onStartButtonClicked(Object... args) {
         Log.logInfo("Starting Gameplay...");
+        fadingOut = true;
         StateManager.getGlobalSignal().emit("requestStartGame");
     }
 
     private void onQuitButtonClicked(Object... args) {
         Log.logInfo("Quitting Game...");
+        fadingOut = true;
         StateManager.getGlobalSignal().emit("quit");
     }
 
@@ -137,5 +161,7 @@ public class MenuUIManager extends Node implements CanConnectSignal {
     public void destroy() {
         super.destroy();
         disconnectSignals();
+        bgMusic.stop();
+        bgMusic.dispose();
     }
 }
