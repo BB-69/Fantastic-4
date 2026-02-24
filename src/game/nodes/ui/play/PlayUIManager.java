@@ -7,17 +7,19 @@ import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.nodes.ui.play.text.StatusText;
 import game.nodes.ui.play.text.TotalCoinText;
 import game.util.Log;
 
-public class PlayUIManager extends Node {
+public class PlayUIManager extends Node implements CanConnectSignal {
 
   private final PlayUIManager Instance = this;
 
   private StatusText statusText = new StatusText();
+  private StatusTurnBG statusBG = new StatusTurnBG();
   private TotalCoinText totalCoinText = new TotalCoinText();
 
   private TopMenu topMenu = new TopMenu();
@@ -30,6 +32,7 @@ public class PlayUIManager extends Node {
   private Signal signalGameOver = new Signal();
 
   private boolean uiInit = false;
+  ScheduledExecutorService uiScheduler = Executors.newSingleThreadScheduledExecutor();
 
   public PlayUIManager(SignedSignal globalSignal) {
     super();
@@ -39,8 +42,6 @@ public class PlayUIManager extends Node {
 
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2;
-
-    StatusTurnBG statusBG = new StatusTurnBG();
 
     addChildren(statusText, totalCoinText, topMenu, statusBG);
     topMenu.addChild(statusTurn);
@@ -77,13 +78,11 @@ public class PlayUIManager extends Node {
 
       statusText.slideIn();
 
-      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-      scheduler.schedule(() -> {
+      uiScheduler.schedule(() -> {
         globalSignal.emit("startGameAction");
         Log.logInfo("Game Action Started!");
 
-        scheduler.close();
+        uiScheduler.close();
       }, 1, TimeUnit.SECONDS);
     }
   }
@@ -120,5 +119,37 @@ public class PlayUIManager extends Node {
         break;
       default:
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    globalSignal.disconnect(Instance::onGlobalSignal);
+
+    signalCurP.disconnect(topMenu::onCurP); // signalCurP
+    signalCurP.disconnect(statusText::onCurP);
+    signalCurP.disconnect(statusTurn::onCurP);
+    signalCurP.disconnect(statusBG::onCurP);
+    signalTotalCoin.disconnect(totalCoinText::onTotalCoin); // signalTotalCoin
+    signalGameOver.disconnect(topMenu::onGameOver); // signalGameOver
+    signalGameOver.disconnect(statusText::onGameOver);
+    signalGameOver.disconnect(statusTurn::onGameOver);
+  }
+
+  public void reset() {
+    uiInit = false;
+    uiScheduler.shutdownNow();
+    uiScheduler = Executors.newSingleThreadScheduledExecutor();
+    // Force UI components to reset their state when needed
+    statusText.reset();
+    totalCoinText.reset();
+    statusTurn.reset();
+    topMenu.reset();
+    statusBG.reset();
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
   }
 }

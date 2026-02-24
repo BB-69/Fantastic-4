@@ -3,6 +3,7 @@ package game.nodes.coin;
 import java.awt.Graphics2D;
 
 import game.core.AssetManager;
+import game.core.audio.Sound;
 import game.core.node.Entity;
 import game.core.signal.Signal;
 import game.util.Time;
@@ -11,6 +12,9 @@ import game.util.calc.MathUtil;
 public class Coin extends Entity {
 
   protected CoinSprite sprite;
+
+  protected Sound fadeInSound = new Sound("ringing-riser.wav");
+  protected Sound fuseNBoomSound = new Sound("fuse-n-small-explosion.wav");
 
   public static final float COIN_SIZE = 44f;
 
@@ -26,6 +30,9 @@ public class Coin extends Entity {
 
   public Coin(int player) {
     super();
+
+    fadeInSound.setVolume(-2);
+    fuseNBoomSound.setVolume(4);
 
     this.player = player;
 
@@ -108,12 +115,16 @@ public class Coin extends Entity {
   public void spawn() {
     setActive(true);
     sprite.spawn();
+
+    fadeInSound.playAt(3.6f);
   }
 
   public void deSpawn() {
     setActive(true);
     sprite.deSpawn();
     despawning = true;
+
+    fuseNBoomSound.playAt(2.48f);
   }
 
   private void explode() {
@@ -163,5 +174,10 @@ public class Coin extends Entity {
   public void moveToX(int x) {
     targetX = x;
     isMovingToTargetX = true;
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
   }
 }

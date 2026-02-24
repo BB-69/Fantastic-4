@@ -46,7 +46,7 @@ public class GameLoop implements Runnable {
 
     while (running) {
 
-      float frameTime = Time.update();
+      float frameTime = Time.update() * Time.timeScale;
       accumulator += frameTime;
 
       if (accumulator > 0.25) {

@@ -83,4 +83,24 @@ public class SpecialCoinLister extends Node {
 
     coinTurns = newState;
   }
+
+  public void reset() {
+    // Remove all coin displays
+    for (Node n : new ArrayList<>(children)) {
+      if (n instanceof SpecialCoin) {
+        n.destroy();
+      }
+    }
+    // Replace with new ArrayList instead of clear() (coinTurns may be immutable)
+    coinTurns = new ArrayList<>();
+
+    for (int i = 0; i < turnTexts.length; i++) {
+      turnTexts[i].setWorldPosition(
+          -turnTexts[i].getTextWidth(), -turnTexts[i].getTextHeight());
+      turnTexts[i].size = 14;
+      turnTexts[i].color = TopMenu.c1.darker().darker();
+      turnTexts[i].content = "%s Turns left";
+      turnTexts[i].updateTextMetrics();
+    }
+  }
 }

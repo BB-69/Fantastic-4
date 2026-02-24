@@ -4,13 +4,17 @@ import java.awt.Graphics2D;
 
 import game.core.AssetManager;
 import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.graphics.Sprite;
 import game.core.node.event.Button;
+import game.core.signal.CanConnectSignal;
 import game.nodes.ui.play.TopMenu;
 import game.util.Log;
 import game.util.calc.MathUtil;
 
-public class ReturnButton extends Button {
+public class ReturnButton extends Button implements CanConnectSignal {
+
+  private Sound quitSound = new Sound("notification.wav");
 
   private Sprite sprite;
   private float spriteScale = 0.7f;
@@ -19,6 +23,8 @@ public class ReturnButton extends Button {
   public ReturnButton() {
     super();
 
+    quitSound.setVolume(0);
+
     setSize(36, 36);
     color = TopMenu.c2;
     hoverColor = TopMenu.c1;
@@ -26,8 +32,8 @@ public class ReturnButton extends Button {
     sprite = new Sprite("x_brown.png");
     sprite.setSize(w * spriteScale, h * spriteScale);
 
-    ReturnButton instance = this;
-    signalButtonClicked.connect(instance::onReturn);
+    ReturnButton Instance = this;
+    signalButtonClicked.connect(Instance::onReturn);
 
     layer = 111;
   }
@@ -61,5 +67,18 @@ public class ReturnButton extends Button {
   private void onReturn(Object... args) {
     Log.logInfo("Returning to Main Menu...");
     StateManager.getGlobalSignal().emit("transitionToState", "menu");
-}
+  }
+
+  @Override
+  public void disconnectSignals() {
+    ReturnButton Instance = this;
+    signalButtonClicked.disconnect(Instance::onReturn);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
+    quitSound.dispose();
+  }
 }

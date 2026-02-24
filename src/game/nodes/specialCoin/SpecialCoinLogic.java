@@ -1,15 +1,20 @@
 package game.nodes.specialCoin;
 
+import java.awt.Graphics2D;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+import game.core.node.Node;
 import game.nodes.coin.Coin;
 import game.nodes.specialCoin.SpecialCoin.CoinAttribute;
+import game.util.Log;
 
-public class SpecialCoinLogic {
+public class SpecialCoinLogic extends Node {
 
   private final Queue<CoinTask> coinQueue = new ArrayDeque<>();
   private final List<CoinTask> scratch = new ArrayList<>(3);
@@ -17,10 +22,25 @@ public class SpecialCoinLogic {
   private int failedAttempts = 0;
   private double[] playerWeights = { 1.0, 1.0 }; // player 0, 1
 
-  private static final double BASE_CHANCE = 15.0;
+  private static final double BASE_CHANCE = 20.0;
   private static final double INCREMENT = 2.0;
   private static final double MIN_WEIGHT = 0.25;
   private static final double WEIGHT_STEP = 0.15;
+
+  @Override
+  public void update() {
+  }
+
+  public void reset() {
+    coinQueue.clear();
+    failedAttempts = 0;
+    playerWeights[0] = 1.0;
+    playerWeights[1] = 1.0;
+  }
+
+  @Override
+  public void render(Graphics2D g, float alpha) {
+  }
 
   public boolean tryCoin(int player) {
     if (coinQueue.size() >= 3)
@@ -47,6 +67,14 @@ public class SpecialCoinLogic {
     failedAttempts -= Math.min(failedAttempts, 5);
 
     SpecialCoin newCoin = new SpecialCoin(player, CoinAttribute.random());
+    newCoin.setGlow(true);
+    newCoin.flash(0.25f);
+
+    {
+      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+      scheduler.schedule(() -> newCoin.shimmer(), 500, java.util.concurrent.TimeUnit.MILLISECONDS);
+      scheduler.schedule(() -> scheduler.shutdown(), 500, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
 
     coinQueue.offer(new CoinTask(newCoin, 5));
 
@@ -72,10 +100,17 @@ public class SpecialCoinLogic {
       CoinTask task = it.next();
       task.remaining -= 1;
 
-      if (task.remaining == 1)
+      if (task.remaining <= 0) {
+        Log.logInfo("Sent " + switch (task.coin.getAttribute()) {
+          case CoinAttribute.Splitter -> "Splitter";
+          case CoinAttribute.Bomb -> "Boom";
+          case CoinAttribute.Swapper -> "Swapper";
+          case null -> "";
+          default -> "";
+        } + "Coin!");
         pending = task.coin;
-      if (task.remaining <= 0)
         it.remove();
+      }
     }
 
     return pending;
@@ -92,7 +127,7 @@ public class SpecialCoinLogic {
       scratch.add(ct);
     }
 
-    return scratch;
+    return List.copyOf(scratch);
   }
 }
 

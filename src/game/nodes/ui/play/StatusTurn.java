@@ -79,6 +79,14 @@ public class StatusTurn extends Node {
   public void onGameOver(Object... args) {
     setGameOver(true);
   }
+
+  public void reset() {
+    currentPlayer = 0;
+    sta1.expandPlayer(false);
+    sta2.expandPlayer(false);
+    sta1.reset();
+    sta2.reset();
+  }
 }
 
 class StatusPlayer extends Node {
@@ -139,7 +147,7 @@ class StatusPlayer extends Node {
     scaledWidth = width * midScalerWidth * scale;
     scaledHeight = height * scale;
 
-    pfText.setPosition(scaledWidth * (isLeft ? -1 : 1), scaledHeight * 0.4f);
+    pfText.setPosition(scaledWidth * (isLeft ? -1 : 1), scaledHeight * 0.33f);
     pfText.size = (int) (scaledHeight * 0.5f);
     if (pfText.lastSize != pfText.size)
       pfText.updateTextMetrics();
@@ -209,5 +217,18 @@ class StatusPlayer extends Node {
 
       scheduler.close();
     }, 300, TimeUnit.MILLISECONDS);
+  }
+
+  public void reset() {
+    expand = false;
+    collapse = false;
+    scale = scaleMin;
+    scaleTo = scale;
+    midScalerWidth = 1f;
+    midScalerWidthTo = 1f;
+    midScalerWidthSpd = 0f;
+    pfText.color = Color.BLACK;
+    scaledWidth = width * midScalerWidth * scale;
+    scaledHeight = height * scale;
   }
 }

@@ -3,15 +3,19 @@ package game.nodes.specialCoin;
 import java.awt.Graphics2D;
 
 import game.core.StateManager;
+import game.core.audio.Sound;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.SignedSignal;
 
-public class SpecialCoinManager extends Node {
+public class SpecialCoinManager extends Node implements CanConnectSignal {
 
   private final SpecialCoinManager Instance = this;
 
   private SpecialCoinLogic logic = new SpecialCoinLogic();
   private SpecialCoinLister lister = new SpecialCoinLister();
+
+  private Sound newCoinSound = new Sound("studio-ding.wav");
 
   private int currentPlayer = 0;
 
@@ -19,6 +23,8 @@ public class SpecialCoinManager extends Node {
 
   public SpecialCoinManager(SignedSignal globalSignal) {
     super();
+
+    newCoinSound.setVolume(5.5f);
 
     this.globalSignal = globalSignal;
     globalSignal.connect(Instance::onGlobalSignal);
@@ -36,6 +42,12 @@ public class SpecialCoinManager extends Node {
   public void render(Graphics2D g, float alpha) {
   }
 
+  public void reset() {
+    currentPlayer = 0;
+    logic.reset();
+    lister.reset();
+  }
+
   private void setCurrentPlayer(int cur) {
     this.currentPlayer = cur;
   }
@@ -45,12 +57,16 @@ public class SpecialCoinManager extends Node {
       return;
 
     SpecialCoin coin = logic.advanceTurn();
-    logic.tryCoin(currentPlayer - 1);
+    if (logic.tryCoin(currentPlayer - 1 == 0 ? 1 : 0))
+      newCoinSound.play();
     lister.updateListState();
 
-    if (coin != null)
+    if (coin != null) {
+      SpecialCoin newCoin = new SpecialCoin(coin.getPlayer(), coin.getAttribute());
+      newCoin.setGlow(true);
       StateManager.getGlobalSignal().emit("specialCoinPending",
-          new SpecialCoin(coin.getPlayer(), coin.getAttribute()));
+          newCoin);
+    }
   }
 
   private void onGlobalSignal(String signalName, Object... args) {
@@ -61,5 +77,17 @@ public class SpecialCoinManager extends Node {
         break;
       default:
     }
+  }
+
+  @Override
+  public void disconnectSignals() {
+    globalSignal.disconnect(Instance::onGlobalSignal);
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
+    newCoinSound.dispose();
   }
 }

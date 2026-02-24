@@ -37,6 +37,12 @@ public class ColumnArea extends Area {
     layer = -10;
   }
 
+  public void reset() {
+    selected = false;
+    gameOver = false;
+    coinDropFinished = false;
+  }
+
   @Override
   public void update() {
   }

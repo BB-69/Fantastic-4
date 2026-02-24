@@ -123,4 +123,10 @@ public class TopMenu extends Node {
   public void onGameOver(Object... args) {
     setGameOver(true);
   }
+
+  public void reset() {
+    currentPlayer = 0;
+    targetLocalX = 0f;
+    x = 0f;
+  }
 }

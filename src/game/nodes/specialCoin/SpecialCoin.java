@@ -7,8 +7,8 @@ public class SpecialCoin extends Coin {
 
   private int player;
 
-  enum CoinAttribute {
-    Duplicator, Bomb, Swapper;
+  public enum CoinAttribute {
+    Splitter, Bomb, Swapper;
 
     private static final CoinAttribute[] VALUES = values();
     private static final java.util.Random RANDOM = new java.util.Random();
@@ -29,22 +29,32 @@ public class SpecialCoin extends Coin {
     // initSprite();
   }
 
-  // private void initSprite() {
-  //   sprite = new CoinSprite(String.format("coin%s%s.png",
-  //       switch (attribute) {
-  //         case CoinAttribute.Duplicator -> "_split";
-  //         case CoinAttribute.Bomb -> "_explosion";
-  //         case CoinAttribute.Swapper -> "_interaction";
-  //         case null -> "";
-  //         default -> "";
-  //       },
-  //       player == -1
-  //           ? "_gray"
-  //           : player == 0
-  //               ? "_red"
-  //               : ""));
-  //   sprite.setSize(COIN_SIZE, COIN_SIZE);
-  // }
+  private void initSprite() {
+    sprite = new CoinSprite(String.format("coin%s%s.png",
+        switch (attribute) {
+          case CoinAttribute.Splitter -> "_split";
+          case CoinAttribute.Bomb -> "_explosion";
+          case CoinAttribute.Swapper -> "_interaction";
+          case null -> "";
+          default -> "";
+        },
+        player == -1
+            ? "_gray"
+            : player == 0
+                ? "_red"
+                : ""));
+    sprite.setSize(COIN_SIZE, COIN_SIZE);
+  }
+
+  public void initSpriteNormally() {
+    sprite = new CoinSprite(String.format("coin%s.png",
+        player == -1
+            ? "_gray"
+            : player == 0
+                ? "_red"
+                : ""));
+    sprite.setSize(COIN_SIZE, COIN_SIZE);
+  }
 
   public int getPlayer() {
     return player;
@@ -54,7 +64,18 @@ public class SpecialCoin extends Coin {
     return attribute;
   }
 
+  public void setAttribute(CoinAttribute attribute) {
+    this.attribute = attribute;
+    initSprite();
+  }
+
   public void randomAttribute() {
     attribute = CoinAttribute.random();
+  }
+
+  @Override
+  public void setPlayer(int player) {
+    super.setPlayer(player);
+    initSprite();
   }
 }

@@ -3,6 +3,7 @@ package game.util;
 public final class Time {
 
   private static final long START_TIME = System.nanoTime();
+  public static float timeScale = 1f;
   public static float deltaTime;
   public static final float FIXED_DELTA = 1f / 60f;
 
@@ -20,6 +21,10 @@ public final class Time {
     deltaTime = (now - lastTime) / 1_000_000_000f;
     lastTime = now;
     return deltaTime;
+  }
+
+  public static void setTimeScale(float scale) {
+    timeScale = scale;
   }
 
   public static String getTextCurrent() {

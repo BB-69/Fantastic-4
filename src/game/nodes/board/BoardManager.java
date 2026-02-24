@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import game.core.audio.Sound;
 import game.core.node.Node;
+import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
 import game.core.signal.SignedSignal;
 import game.util.Log;
 
-public class BoardManager extends Node {
+public class BoardManager extends Node implements CanConnectSignal {
 
   private final BoardManager Instance = this;
 
@@ -18,12 +20,18 @@ public class BoardManager extends Node {
   private Board board = new Board();
   private ColumnBoard colBoard = new ColumnBoard();
 
+  private Sound gameOverSound = new Sound("community-ding.wav");
+
   private int currentPlayer = 0;
   private int totalDropped = 0;
   private boolean gameOver = false;
 
   // 0 = none, 1 = P1 win, 2 = P2 win, 3 = tie
   private int pendingResult = 0;
+
+  // Store drop position to check for wins after passives complete
+  private int lastDropRow = -1;
+  private int lastDropCol = -1;
 
   private SignedSignal globalSignal;
 
@@ -40,6 +48,8 @@ public class BoardManager extends Node {
 
   public BoardManager(SignedSignal globalSignal) {
     super();
+
+    gameOverSound.setVolume(-2);
 
     this.globalSignal = globalSignal;
     globalSignal.connect(Instance::onGlobalSignal);
@@ -64,7 +74,7 @@ public class BoardManager extends Node {
     signalBoardPos.connect(colBoard::onBoardPos); // signalBoardPos
     board.attachPosSignal(signalBoardPos);
     signalPendingSpecial.connect(board::onPendingSpecial);
-    signalPendingSpecial.connect(board::onPendingSpecial);
+    signalPendingSpecial.connect(colBoard::onPendingSpecial);
 
     signalCoinDropFinish.connect(colBoard::onCoinDropFinish); // signalCoinDropFinish
     signalCoinDropFinish.connect(Instance::onCoinDropFinish);
@@ -105,11 +115,12 @@ public class BoardManager extends Node {
     // boardl.printGrid();
 
     int[] pos = boardl.getlastDroppedPos();
+    lastDropRow = pos[0];
+    lastDropCol = pos[1];
     signalRCVal.emit(pos[0], pos[1], currentPlayer);
 
     printState(String.format("Dropped at R%dC%d", BoardLogic.ROWS - pos[0], pos[1] + 1));
 
-    pendingResult = checkWin(pos[0], pos[1]);
     return true;
   }
 
@@ -155,6 +166,39 @@ public class BoardManager extends Node {
     pendingResult = result;
   }
 
+  private int checkEntireBoardForWins() {
+    // Check every cell on the board for wins
+    long[] playerWins = { 0, 0, 0 };
+
+    for (int row = 0; row < BoardLogic.ROWS; row++) {
+      for (int col = 0; col < BoardLogic.COLS; col++) {
+        int player = boardl.getCell(row, col);
+        if (player != 0 && boardl.checkWin(row, col, player)) {
+          playerWins[player - 1]++;
+        }
+      }
+    }
+
+    // Determine result: [0] -> P1 count, [1] -> P2 count
+    if (playerWins[0] + playerWins[1] == 0) {
+      // No wins found, check for tie
+      if (totalDropped == BoardLogic.TOTAL_CELL)
+        return 3;
+      return 0;
+    }
+
+    // If both players have wins or there's a tie condition
+    if (playerWins[0] > 0 && playerWins[1] > 0) {
+      return 3; // tie
+    } else if (playerWins[0] > playerWins[1]) {
+      return 1; // P1 wins
+    } else if (playerWins[1] > playerWins[0]) {
+      return 2; // P2 wins
+    }
+
+    return 0;
+  }
+
   private void resolveResult(int result) {
     if (result == 0)
       return;
@@ -170,6 +214,8 @@ public class BoardManager extends Node {
     }
 
     board.invokeGlow(boardl.getWinChains());
+
+    gameOverSound.play();
 
     signalGameOver.emit();
   }
@@ -197,6 +243,8 @@ public class BoardManager extends Node {
   private void resetGameState() {
     currentPlayer = 0;
     pendingResult = 0;
+    lastDropRow = -1;
+    lastDropCol = -1;
     setTotalDropped(0);
     gameOver = false;
   }
@@ -245,8 +293,32 @@ public class BoardManager extends Node {
     }
   }
 
+  // When passive effects spawn new coins
+  public void onCoinsSpawned(int count) {
+    if (count <= 0)
+      return;
+    setTotalDropped(totalDropped + count);
+  }
+
+  public void checkWinsAfterSpecialPassive(int col) {
+    if (gameOver || pendingResult != 0)
+      return;
+
+    checkMultipleWins(col);
+  }
+
   private void onCoinDropFinish(Object... args) {
+    // If special passives found a win, resolve it
     if (pendingResult != 0) {
+      resolveResult(pendingResult);
+      pendingResult = 0;
+      return;
+    }
+
+    // Check the entire board for wins after passives have settled
+    int boardResult = checkEntireBoardForWins();
+    if (boardResult != 0) {
+      pendingResult = boardResult;
       resolveResult(pendingResult);
       pendingResult = 0;
       return;
@@ -256,5 +328,40 @@ public class BoardManager extends Node {
       switchTurn();
     else
       board.invokeGlow(boardl.getWinChains());
+  }
+
+  @Override
+  public void disconnectSignals() {
+    signalRCVal.disconnect(board::onRCVal); // signalRCVal
+    signalCurP.disconnect(board::onCurP); // signalCurP
+    signalCurP.disconnect(Instance::onCurP);
+    signalCurP.disconnect(colBoard::onCurP);
+    signalTotalCoin.disconnect(Instance::onTotalCoin); // signalTotalCoin
+    signalTotalCoin.disconnect(board::onTotalCoin);
+    signalGameOver.disconnect(board::onGameOver); // signalGameOver
+    signalGameOver.disconnect(Instance::onGameOver);
+    signalGameOver.disconnect(colBoard::onGameOver);
+
+    signalBoardPos.disconnect(colBoard::onBoardPos); // signalBoardPos
+    signalPendingSpecial.disconnect(board::onPendingSpecial);
+    signalPendingSpecial.disconnect(colBoard::onPendingSpecial);
+
+    signalCoinDropFinish.disconnect(colBoard::onCoinDropFinish); // signalCoinDropFinish
+    signalCoinDropFinish.disconnect(Instance::onCoinDropFinish);
+    signalColClick.disconnect(Instance::onColClick); // signalColClick
+  }
+
+  public void reset() {
+    boardl.reset();
+    board.reset();
+    colBoard.reset();
+    resetGameState();
+  }
+
+  @Override
+  public void destroy() {
+    super.destroy();
+    disconnectSignals();
+    gameOverSound.dispose();
   }
 }
