@@ -1,3 +1,7 @@
+=================================================================
+=============== SOME COMMANDS ARE POWERSHELL ONLY ===============
+=================================================================
+
 // compile every .java file from src/ and copy to out/
 Get-ChildItem -Recurse -Filter *.java -Path src |
 Select-Object -ExpandProperty FullName |
@@ -6,25 +10,48 @@ Out-File sources.txt -Encoding ascii
 // write all .java file path from out/
 javac -d out "@sources.txt"
 
-// create .jar file (default)
-jar --create --file app.jar -C out .
-
 // copy assets directory to ensure it path assets import works
 Copy-Item -Recurse src\assets out\assets
+
+// create .jar file (default)
+jar --create --file game.jar -C out .
 
 // run compiled main
 java -cp out game.Main
 
 // create .jar file (specified entry point)
-jar --create --file game.jar --main-class game.Main -C out .
+jar --create --file fantastic4.jar --main-class game.Main -C out .
 
 // run compiled game
-java -jar game.jar
+java -jar fantastic4.jar
 
 // compile to .exe
 jpackage `
-  --name MyGame `
+  --name Fantastic4 `
   --input . `
-  --main-jar game.jar `
+  --main-jar fantastic4.jar `
   --type app-image `
+  --dest ../dist `
   --add-modules java.base,java.desktop
+
+
+// ===== COPY & PASTE BUILD EXECUTIONS =====
+// remove 'rm' commands if you don't want files/folders deleted after build process
+Get-ChildItem -Recurse -Filter *.java -Path src |
+Select-Object -ExpandProperty FullName |
+Out-File sources.txt -Encoding ascii
+javac -d out "@sources.txt"
+rm .\sources.txt
+Copy-Item -Recurse src\assets out\assets
+jar --create --file fantastic4.jar --main-class game.Main -C out .
+rm .\out -Recurse -Force
+rm -Recurse -Force ..\dist\Fantastic4
+jpackage `
+  --name Fantastic4 `
+  --app-version 1.0.0 `
+  --input . `
+  --main-jar fantastic4.jar `
+  --type app-image `
+  --dest ../dist `
+  --add-modules java.base,java.desktop
+rm .\fantastic4.jar

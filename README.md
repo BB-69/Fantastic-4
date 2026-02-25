@@ -1,0 +1,1 @@
+This project is made specifically for college assignment. This project is not commercialized, every and any external asset belongs to it's respective owner.
