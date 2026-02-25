@@ -55,6 +55,12 @@ public class StateManager {
 
   public static void update() {
     if (stateToSet != null) {
+      if (current != null) {
+        current.disconnectSignals();
+        if (current.nodeManager != null) {
+          current.nodeManager.destroyAll();
+        }
+      }
       current = stateToSet;
       stateToSet = null;
     }

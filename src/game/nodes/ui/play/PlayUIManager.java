@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import game.GameCanvas;
+import game.core.audio.Sound;
 import game.core.node.Node;
 import game.core.signal.CanConnectSignal;
 import game.core.signal.Signal;
@@ -17,6 +18,8 @@ import game.util.Log;
 public class PlayUIManager extends Node implements CanConnectSignal {
 
   private final PlayUIManager Instance = this;
+
+  private Sound bgMusic = new Sound("z_coffeeCatBA.wav");
 
   private StatusText statusText = new StatusText();
   private StatusTurnBG statusBG = new StatusTurnBG();
@@ -38,7 +41,7 @@ public class PlayUIManager extends Node implements CanConnectSignal {
     super();
 
     this.globalSignal = globalSignal;
-    globalSignal.connect(Instance::onGlobalSignal);
+    globalSignal.connect(Instance, Instance::onGlobalSignal);
 
     x = GameCanvas.WIDTH / 2;
     y = GameCanvas.HEIGHT / 2;
@@ -54,14 +57,18 @@ public class PlayUIManager extends Node implements CanConnectSignal {
     statusText.setTargetY(-statusText.getTextHeight() * 2);
     totalCoinText.setTargetX(-totalCoinText.getTextWidth() * 2);
 
-    signalCurP.connect(topMenu::onCurP); // signalCurP
-    signalCurP.connect(statusText::onCurP);
-    signalCurP.connect(statusTurn::onCurP);
-    signalCurP.connect(statusBG::onCurP);
-    signalTotalCoin.connect(totalCoinText::onTotalCoin); // signalTotalCoin
-    signalGameOver.connect(topMenu::onGameOver); // signalGameOver
-    signalGameOver.connect(statusText::onGameOver);
-    signalGameOver.connect(statusTurn::onGameOver);
+    signalCurP.connect(topMenu, topMenu::onCurP); // signalCurP
+    signalCurP.connect(statusText, statusText::onCurP);
+    signalCurP.connect(statusTurn, statusTurn::onCurP);
+    signalCurP.connect(statusBG, statusBG::onCurP);
+    signalTotalCoin.connect(totalCoinText, totalCoinText::onTotalCoin); // signalTotalCoin
+    signalGameOver.connect(topMenu, topMenu::onGameOver); // signalGameOver
+    signalGameOver.connect(statusText, statusText::onGameOver);
+    signalGameOver.connect(statusTurn, statusTurn::onGameOver);
+
+    bgMusic.setVolume(-15);
+    bgMusic.play();
+    bgMusic.loop();
   }
 
   @Override
@@ -80,9 +87,9 @@ public class PlayUIManager extends Node implements CanConnectSignal {
 
       uiScheduler.schedule(() -> {
         globalSignal.emit("startGameAction");
-        Log.logInfo("Game Action Started!");
+        Log.logInfo("Gameplay Action Started!");
 
-        uiScheduler.close();
+        uiScheduler.shutdown();
       }, 1, TimeUnit.SECONDS);
     }
   }
@@ -123,16 +130,16 @@ public class PlayUIManager extends Node implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    globalSignal.disconnect(Instance::onGlobalSignal);
+    globalSignal.disconnect(Instance);
 
-    signalCurP.disconnect(topMenu::onCurP); // signalCurP
-    signalCurP.disconnect(statusText::onCurP);
-    signalCurP.disconnect(statusTurn::onCurP);
-    signalCurP.disconnect(statusBG::onCurP);
-    signalTotalCoin.disconnect(totalCoinText::onTotalCoin); // signalTotalCoin
-    signalGameOver.disconnect(topMenu::onGameOver); // signalGameOver
-    signalGameOver.disconnect(statusText::onGameOver);
-    signalGameOver.disconnect(statusTurn::onGameOver);
+    signalCurP.disconnect(topMenu); // signalCurP
+    signalCurP.disconnect(statusText);
+    signalCurP.disconnect(statusTurn);
+    signalCurP.disconnect(statusBG);
+    signalTotalCoin.disconnect(totalCoinText); // signalTotalCoin
+    signalGameOver.disconnect(topMenu); // signalGameOver
+    signalGameOver.disconnect(statusText);
+    signalGameOver.disconnect(statusTurn);
   }
 
   public void reset() {
@@ -151,5 +158,7 @@ public class PlayUIManager extends Node implements CanConnectSignal {
   public void destroy() {
     super.destroy();
     disconnectSignals();
+    bgMusic.stop();
+    bgMusic.dispose();
   }
 }

@@ -18,6 +18,8 @@ public class TransitionManager extends Node {
   private TransitionMode currentMode = TransitionMode.Enter;
 
   private boolean isTransitioning = false;
+  private boolean pendingFinish = false;
+  private boolean pendingFrameDone = false;
   private float progress = 0f;
   private float speed = 2.4f;
 
@@ -25,26 +27,41 @@ public class TransitionManager extends Node {
 
   @Override
   public void update() {
-    if (isTransitioning) {
-      progress += speed * (currentMode == TransitionMode.Enter ? 1 : -1) * Time.deltaTime;
-      if ((currentMode == TransitionMode.Enter && progress > 1)
-          || (currentMode == TransitionMode.Exit && progress < 0)) {
+    if (!isTransitioning)
+      return;
 
-        isTransitioning = false;
+    float dir = (currentMode == TransitionMode.Enter ? 1f : -1f);
+    progress += speed * dir * Time.deltaTime;
 
-        StateManager.getGlobalSignal().emit("transitionDone",
-            currentMode == TransitionMode.Enter ? "enter" : "exit");
+    // Clamp progress
+    if (currentMode == TransitionMode.Enter && progress >= 1f) {
+      progress = 1f;
+      pendingFinish = true;
+    } else if (currentMode == TransitionMode.Exit && progress <= 0f) {
+      progress = 0f;
+      pendingFinish = true;
+    }
+  }
 
-        progress = currentMode == TransitionMode.Enter ? 1 : 0;
+  private void finishTransition() {
+    isTransitioning = false;
 
-        if (currentMode == TransitionMode.Exit) {
-          game.input.KeyInput.setListenerActive(true);
-          game.input.MouseInput.setListenerActive(true);
-        }
+    StateManager.getGlobalSignal().emit(
+        "transitionDone",
+        currentMode == TransitionMode.Enter ? "enter" : "exit");
 
-        if (quittingGame)
-          System.exit(0);
+    if (currentMode == TransitionMode.Exit) {
+      game.input.KeyInput.setListenerActive(true);
+      game.input.MouseInput.setListenerActive(true);
+    }
+
+    if (quittingGame) {
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
+      System.exit(0);
     }
   }
 
@@ -58,16 +75,28 @@ public class TransitionManager extends Node {
 
     float slope = (float) Math.sin((Math.PI / 2) * progress);
 
-    g.fillRect(0,
-        0,
-        GameCanvas.WIDTH,
-        (int) (GameCanvas.HEIGHT / 2f * slope) + 1);
-    g.fillRect(0,
-        (int) (GameCanvas.HEIGHT * (0.5f + 0.5f * (1 - slope))),
-        GameCanvas.WIDTH,
-        (int) (GameCanvas.HEIGHT / 2f * slope) + 1);
+    if (currentMode == TransitionMode.Enter && !isTransitioning) {
+      g.fillRect(0, 0, GameCanvas.WIDTH, GameCanvas.HEIGHT);
+    } else {
+      g.fillRect(0,
+          0,
+          GameCanvas.WIDTH,
+          (int) (GameCanvas.HEIGHT / 2f * slope) + 1);
+      g.fillRect(0,
+          (int) (GameCanvas.HEIGHT * (0.5f + 0.5f * (1 - slope))),
+          GameCanvas.WIDTH,
+          (int) (GameCanvas.HEIGHT / 2f * slope) + 1);
+    }
 
     g.setTransform(old);
+
+    if (pendingFrameDone) {
+      pendingFrameDone = false;
+      pendingFinish = false;
+      finishTransition();
+    }
+    if (pendingFinish)
+      pendingFrameDone = true;
   }
 
   public void transitionEnter() {

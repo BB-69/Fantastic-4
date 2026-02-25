@@ -27,7 +27,7 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
     newCoinSound.setVolume(5.5f);
 
     this.globalSignal = globalSignal;
-    globalSignal.connect(Instance::onGlobalSignal);
+    globalSignal.connect(Instance, Instance::onGlobalSignal);
 
     addChildren(lister);
 
@@ -81,7 +81,7 @@ public class SpecialCoinManager extends Node implements CanConnectSignal {
 
   @Override
   public void disconnectSignals() {
-    globalSignal.disconnect(Instance::onGlobalSignal);
+    globalSignal.disconnect(Instance);
   }
 
   @Override

@@ -10,7 +10,7 @@ import java.awt.geom.Point2D;
 
 import game.GameCanvas;
 import game.core.node.Node;
-import game.nodes.ui.play.button.QuitButton;
+import game.nodes.ui.play.button.ReturnButton;
 import game.nodes.ui.play.button.RestartButton;
 import game.util.Time;
 import game.util.calc.MathUtil;
@@ -28,7 +28,7 @@ public class TopMenu extends Node {
   private float trapezoidOffset = 48f;
 
   private RestartButton restartButton = new RestartButton();
-  private QuitButton quitButton = new QuitButton();
+  private ReturnButton returnButton = new ReturnButton();
 
   private int currentPlayer = 0;
 
@@ -37,11 +37,11 @@ public class TopMenu extends Node {
   public TopMenu() {
     super();
 
-    addChildren(restartButton, quitButton);
+    addChildren(restartButton, returnButton);
 
     int padding = 6;
     restartButton.setPosition((restartButton.w + padding) / 2, (height + extensionY) / 2);
-    quitButton.setPosition(-(quitButton.w + padding) / 2, (height + extensionY) / 2);
+    returnButton.setPosition(-(returnButton.w + padding) / 2, (height + extensionY) / 2);
 
     layer = 110;
   }

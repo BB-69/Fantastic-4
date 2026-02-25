@@ -2,6 +2,7 @@ package game.core;
 
 import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
@@ -26,7 +27,9 @@ public class AssetManager {
     try (InputStream is = AssetManager.class.getResourceAsStream(path)) {
       if (is == null)
         throw new RuntimeException("Missing texture: " + name);
-      BufferedImage img = ImageIO.read(is);
+
+      BufferedInputStream bis = new BufferedInputStream(is);
+      BufferedImage img = ImageIO.read(bis);
       textures.put(name, img);
       return img;
     } catch (Exception e) {
@@ -60,7 +63,8 @@ public class AssetManager {
       if (is == null)
         throw new RuntimeException("Missing sound: " + name);
 
-      AudioInputStream ais = AudioSystem.getAudioInputStream(is);
+      BufferedInputStream bis = new BufferedInputStream(is);
+      AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
       AudioFormat format = ais.getFormat();
       byte[] data = ais.readAllBytes();
 
@@ -83,7 +87,8 @@ public class AssetManager {
       if (is == null)
         throw new RuntimeException("Missing font: " + name);
 
-      Font font = Font.createFont(Font.TRUETYPE_FONT, is)
+      BufferedInputStream bis = new BufferedInputStream(is);
+      Font font = Font.createFont(Font.TRUETYPE_FONT, bis)
           .deriveFont(size);
       fonts.put(key, font);
       return font;
