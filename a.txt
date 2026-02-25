@@ -48,7 +48,7 @@ rm .\out -Recurse -Force
 rm -Recurse -Force ..\dist\Fantastic4
 jpackage `
   --name Fantastic4 `
-  --app-version 1.0.0 `
+  --app-version 2.2.0 `
   --input . `
   --main-jar fantastic4.jar `
   --type app-image `
