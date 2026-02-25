@@ -15,7 +15,7 @@ import game.util.graphics.ColorUtil;
 
 public class ColumnArea extends Area {
 
-  private final Color hoverColor = Color.getHSBColor(0f, 0f, 0.75f);
+  private final Color hoverColor = new Color(0, 0, 0, 0.3f);
 
   private int index = 0;
   public boolean selected = false;

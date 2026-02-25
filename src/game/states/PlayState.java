@@ -8,6 +8,7 @@ import game.nodes.PlayTextureManager;
 import game.nodes.board.BoardManager;
 import game.nodes.specialCoin.SpecialCoinManager;
 import game.nodes.ui.play.PlayUIManager;
+import game.nodes.ui.play.PlayBackground;
 
 public class PlayState extends GameState implements CanConnectSignal {
 
@@ -22,6 +23,8 @@ public class PlayState extends GameState implements CanConnectSignal {
     super();
 
     stateName = "play";
+    PlayBackground bg = new PlayBackground();
+    nodeManager.addNode(bg);
     stateOrder = 0;
     init();
 

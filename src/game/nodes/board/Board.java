@@ -1,6 +1,12 @@
 package game.nodes.board;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +19,7 @@ import game.core.node.Node;
 import game.core.signal.Signal;
 import game.nodes.coin.Coin;
 import game.nodes.specialCoin.SpecialCoin;
+import game.util.graphics.ColorUtil;
 
 public class Board extends Node {
 
@@ -60,6 +67,8 @@ public class Board extends Node {
   public Board() {
     super();
 
+    this.layer = -80;
+
     coinLandSound.setVolume(-6.5f);
 
     x = GameCanvas.WIDTH / 2;
@@ -100,6 +109,32 @@ public class Board extends Node {
 
   @Override
   public void render(Graphics2D g, float alpha) {
+    AffineTransform old = g.getTransform();
+    g.translate(GameCanvas.WIDTH / 2, GameCanvas.HEIGHT / 2 + 100);
+
+    { // shadow
+      Paint oldPaint = g.getPaint();
+
+      int radius = (int) ((BoardLogic.ROWS * PIECE_WIDTH
+          + BoardLogic.COLS * PIECE_HEIGHT)
+          * 0.35f);
+      RadialGradientPaint paint = new RadialGradientPaint(
+          new Point2D.Float(),
+          radius,
+          new float[] { 0, 1 },
+          new Color[] { Color.BLACK, ColorUtil.TRANSPARENT });
+
+      g.setPaint(paint);
+      g.fill(new Ellipse2D.Float(
+          -radius,
+          -radius,
+          radius * 2,
+          radius * 2));
+
+      g.setPaint(oldPaint);
+    }
+
+    g.setTransform(old);
   }
 
   private void setRCVal(int row, int col, int val) {
